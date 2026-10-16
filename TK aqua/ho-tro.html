@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hỗ trợ Khách hàng - TK aqua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #111310;
+  --bg-card: #181c16;
+  --text: #e6eadf;
+  --text-muted: #939d87;
+  --accent: #9ab366;
+  --border: rgba(154, 179, 102, 0.28);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--text); background-color: var(--bg);
+  font-family: 'Roboto', sans-serif; line-height: 1.7;
+  background-image: radial-gradient(rgba(154, 179, 102, 0.05) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+header {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(17, 19, 16, 0.95); backdrop-filter: blur(10px);
+  border-bottom: 1.5px solid var(--border); padding: 14px 20px;
+}
+.bar { max-width: 1000px; margin: auto; display: flex; align-items: center; justify-content: space-between; }
+.brand { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); text-decoration: none; }
+.back-btn { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); text-decoration: none; border: 1.5px solid var(--accent); padding: 8px 18px; border-radius: 999px; transition: 0.2s; }
+.back-btn:hover { background: var(--accent); color: #111310; }
+
+main { max-width: 900px; margin: 40px auto 60px auto; padding: 0 20px; }
+.content-box {
+  background: var(--bg-card); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 45px 35px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+}
+.page-title {
+  font-family: 'Montserrat', sans-serif; text-align: center; color: var(--accent);
+  margin-top: 0; margin-bottom: 12px; font-size: clamp(20px, 3.5vw, 27px); font-weight: 900;
+  text-transform: uppercase;
+}
+.page-subtitle {
+  text-align: center; margin-bottom: 35px; font-size: 14.5px; color: var(--text-muted);
+  border-bottom: 1.5px dashed var(--border); padding-bottom: 22px;
+}
+
+.contact-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px; margin-bottom: 45px;
+}
+.contact-card {
+  border: 1.5px solid var(--border); border-radius: 12px; padding: 25px 18px;
+  text-align: center; text-decoration: none; color: var(--text);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  background: #111310; transition: 0.25s;
+}
+.contact-card:hover { transform: translateY(-4px); border-color: var(--accent); background: #1c2019; }
+.contact-card svg { width: 36px; height: 36px; stroke: var(--accent); fill: none; }
+.contact-card h3 { font-family: 'Montserrat', sans-serif; margin: 0; font-size: 16.5px; font-weight: 800; color: var(--accent); }
+.contact-card p { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--text-muted); }
+
+.faq-section h2 {
+  font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 800; margin-bottom: 20px;
+  text-transform: uppercase; color: var(--accent);
+}
+.faq-item {
+  border: 1.5px solid var(--border); padding: 18px 20px; border-radius: 8px;
+  margin-bottom: 15px; background: #111310;
+}
+.faq-q { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 8px; color: var(--text); }
+.faq-a { font-size: 14px; margin: 0; line-height: 1.6; color: var(--text-muted); }
+
+.btn-back-center {
+  display: flex; align-items: center; justify-content: center;
+  margin: 40px auto 0 auto; background: var(--accent); color: #111310 !important;
+  text-decoration: none; padding: 12px 28px; border-radius: 999px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px;
+  border: 1.5px solid var(--accent); width: fit-content; text-transform: uppercase; transition: 0.2s;
+}
+.btn-back-center:hover { background: transparent; color: var(--accent) !important; }
+footer { font-family: 'Montserrat', sans-serif; text-align: center; padding: 40px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); border-top: 1.5px dashed var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a href="index.html" class="brand">TK AQUA</a>
+    <a href="index.html" class="back-btn">← Về trang chủ</a>
+  </div>
+</header>
+
+<main>
+  <div class="content-box">
+    <h1 class="page-title">🎧 Trung tâm Hỗ trợ Khách hàng</h1>
+    <p class="page-subtitle">TK aqua luôn ở đây để giúp bạn giải đáp mọi thắc mắc về cách chăm sóc cá, setup bể, và xử lý các vấn đề về đơn hàng.</p>
+
+    <div class="contact-grid">
+      <a href="tel:0703008005" class="contact-card">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        <h3>Gọi Điện Trực Tiếp</h3>
+        <p>0703.008.005<br>(Hỗ trợ 24/7 khi khẩn cấp)</p>
+      </a>
+      <a href="https://zalo.me/0703008005" target="_blank" class="contact-card">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.89 12.55C20.89 7.42 16.32 3.5 11.2 3.5C6.07 3.5 1.5 7.42 1.5 12.55C1.5 17.68 6.07 21.6 11.2 21.6C12.43 21.6 13.59 21.36 14.65 20.93L19.46 22L18.42 17.65C19.98 16.3 20.89 14.54 20.89 12.55Z"></path></svg>
+        <h3>Nhắn tin Zalo</h3>
+        <p>Gửi video bảo hành,<br>nhận tư vấn chi tiết hình ảnh cá</p>
+      </a>
+      <a href="https://www.facebook.com/share/19gZAZgohs/?mibextid=wwXIfr" target="_blank" class="contact-card">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+        <h3>Chat qua Fanpage</h3>
+        <p>Theo dõi các lô cá mới về<br>và ưu đãi hàng tuần</p>
+      </a>
+    </div>
+
+    <div class="faq-section">
+      <h2>💡 Góc giải đáp thắc mắc (FAQ)</h2>
+      
+      <div class="faq-item">
+        <div class="faq-q">Q: Khi mới mua cá về, tôi cần thuần cá như thế nào để cá không bị sốc?</div>
+        <div class="faq-a">A: Bạn cần ngâm nguyên bịch cá vào hồ khoảng 15-20 phút để cân bằng nhiệt độ. Sau đó, mở túi và châm từ từ nước hồ vào bịch cá (hoặc thuần nhỏ giọt) trong 30-45 phút để cá quen với môi trường nước mới trước khi thả vào hồ.</div>
+      </div>
+      
+      <div class="faq-item">
+        <div class="faq-q">Q: TK aqua có hỗ trợ đến tận nhà tư vấn và setup bể cá không?</div>
+        <div class="faq-a">A: Có. TK aqua có đội ngũ kỹ thuật chuyên nhận setup hồ cá trọn gói từ A-Z tại khu vực nội thành TP.HCM. Bạn vui lòng liên hệ Zalo hoặc Hotline 0703008005 để được khảo sát và báo giá chi tiết.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: Tôi có thể qua cửa hàng xem và lựa cá trực tiếp không?</div>
+        <div class="faq-a">A: Cửa hàng TK aqua luôn sẵn sàng đón tiếp khách đến tham quan trực tiếp. Vui lòng gọi điện trước qua số 0703008005 khi qua để chúng tôi hỗ trợ tiếp đón bạn chu đáo nhất!</div>
+      </div>
+    </div>
+
+    <a href="index.html" class="btn-back-center">← Trở về Trang chủ</a>
+  </div>
+</main>
+
+<footer>TK aqua · Hotline/Zalo: 0703008005 · Thành phố Hồ Chí Minh</footer>
+</body>
+</html>

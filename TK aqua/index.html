@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TK aqua - Chuyên Cung Cấp Cá Cảnh & Thủy Sinh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ========================================================
+   THEME: MATTE OLIVE MOSS & CHARCOAL BLACK (CHUẨN LOGO PLECO)
+   ======================================================== */
+:root {
+  --bg: #111310;
+  --bg-card: #181c16;
+  --text: #e6eadf;
+  --text-muted: #939d87;
+  --accent: #9ab366;
+  --accent-dark: #4f6132;
+  --accent-light: rgba(154, 179, 102, 0.12);
+  --border: rgba(154, 179, 102, 0.28);
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; background-color: var(--bg); }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--text);
+  background-color: var(--bg);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  background-image: radial-gradient(rgba(154, 179, 102, 0.05) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* ========================================================
+   HEADER TĨNH GỌN GÀNG
+   ======================================================== */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1.5px solid var(--border);
+  background: rgba(17, 19, 16, 0.95);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+header.scrolled {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.65);
+}
+.bar {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 24px;
+  position: relative;
+  z-index: 2;
+}
+.bar img {
+  height: 60px;
+  width: auto;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+}
+.brand-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--accent);
+  flex: 1;
+}
+
+.cart {
+  background: var(--accent);
+  color: #111310;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+  flex-shrink: 0;
+}
+.cart:hover {
+  background: transparent;
+  color: var(--accent);
+}
+
+/* ========================================================
+   HERO BANNER - HỒ CÁ THỦY SINH TƯƠNG TÁC (CLICK CHO CÁ ĂN)
+   ======================================================== */
+.hero { 
+  max-width: 1200px; 
+  margin: 35px auto; 
+  padding: 0 20px; 
+}
+
+.hero-card {
+  position: relative;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #0d100c;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+#aquariumCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-center-mask {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(17, 19, 16, 0.68) 10%, rgba(17, 19, 16, 0.22) 65%, transparent 95%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-text-wrap {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  padding: 30px 20px;
+  max-width: 900px;
+  pointer-events: none;
+}
+
+.hero-text-wrap h1 {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0 0 16px 0;
+  font-size: clamp(26px, 5.5vw, 52px);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  line-height: 1.15;
+  color: var(--text);
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.9);
+}
+
+.hero-pill {
+  display: inline-block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(12px, 1.9vw, 14px);
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(24, 28, 22, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 10px 26px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  line-height: 1.5;
+}
+
+.aquarium-hint {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  z-index: 3;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(17, 19, 16, 0.72);
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  pointer-events: none;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================================
+   CANVAS CÁ PLECO MÚT CHUỘT KHI ĐỨNG YÊN 10S
+   ======================================================== */
+#plecoCursorCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ========================================================
+   FEATURES
+   ======================================================== */
+.features { max-width: 1200px; margin: 30px auto 45px auto; padding: 0 20px; }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.feature-item {
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  padding: 24px 20px;
+  text-align: center;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+.feature-item:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  background: #1f241c;
+}
+.feature-icon {
+  width: 55px; height: 55px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  margin: 0 auto 16px auto;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent-light);
+}
+.feature-icon svg { width: 24px; height: 24px; stroke: var(--accent); }
+.feature-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: 17px;
+  color: var(--text); margin: 0 0 6px 0;
+}
+.feature-link {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 700;
+  color: var(--accent); text-decoration: none;
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.feature-link:hover { text-decoration: underline; }
+
+/* ========================================================
+   MAIN & CATALOGUE CÁ
+   ======================================================== */
+main { max-width: 1200px; margin: auto; padding: 20px; }
+.tools { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; align-items: center; }
+.tools input {
+  flex: 1; min-width: 220px; padding: 12px 18px;
+  border-radius: 999px; border: 1.5px solid var(--border);
+  background: var(--bg-card); color: var(--text);
+  font-family: 'Roboto', sans-serif; font-size: 14px; outline: none;
+  transition: 0.2s;
+}
+.tools input::placeholder { color: var(--text-muted); }
+.tools input:focus { border-color: var(--accent); }
+.chip {
+  color: var(--text); padding: 9px 18px; border-radius: 999px;
+  cursor: pointer; font-size: 11.5px; font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  background: var(--bg-card); border: 1.5px solid var(--border);
+  transition: 0.2s;
+}
+.chip:hover { border-color: var(--accent); background: var(--accent-light); }
+.chip.on {
+  background: var(--accent); color: #111310;
+  border-color: var(--accent);
+}
+
+h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 26px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--accent); margin: 0 0 25px 0;
+  border-bottom: 1.5px dashed var(--border);
+  padding-bottom: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 22px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+
+.pic {
+  background: #0d0f0c;
+  aspect-ratio: 4/3;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.pic::after {
+  content: "XEM CHI TIẾT";
+  font-family: 'Montserrat', sans-serif;
+  position: absolute; bottom: 8px; right: 8px;
+  font-size: 9px; font-weight: 800; letter-spacing: 1.2px;
+  color: #111310; opacity: 0; transition: opacity 0.2s ease;
+  background: var(--accent); padding: 4px 10px; border-radius: 4px;
+  pointer-events: none;
+}
+.pic:hover::after { opacity: 1; }
+/* Bắt hiệu ứng nếu cá có video bên trong */
+.video-badge {
+  position: absolute; top: 8px; left: 8px;
+  background: rgba(17, 19, 16, 0.82); color: var(--accent);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 3px 9px; font-family: 'Montserrat', sans-serif;
+  font-size: 9.5px; font-weight: 700; pointer-events: none;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.pic svg, .pic img, .pic video { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 0.35s ease; }
+.pic:hover svg, .pic:hover img, .pic:hover video { transform: scale(1.04); }
+
+.info { padding: 18px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.info b {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px; font-weight: 800;
+  letter-spacing: 0.5px; color: var(--text);
+}
+.info small { font-size: 12px; font-family: 'Roboto', sans-serif; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+
+.mono-stock {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; font-family: 'Montserrat', sans-serif; text-transform: uppercase;
+  margin-top: 4px;
+}
+.mono-stock.in-stock { color: var(--accent); }
+.mono-stock.in-stock::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+}
+.mono-stock.out-stock { color: #6e7566; }
+.mono-stock.out-stock::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  border: 1px solid #6e7566;
+}
+
+.price {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--accent); font-weight: 900; font-size: 20px;
+  margin: 6px 0 10px 0;
+}
+
+.info button {
+  margin-top: auto;
+  background: var(--accent);
+  color: #111310;
+  border: 1.5px solid var(--accent);
+  border-radius: 6px;
+  padding: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 1px;
+  cursor: pointer; transition: 0.2s;
+}
+.info button:hover:not(:disabled) {
+  background: transparent;
+  color: var(--accent);
+}
+.info button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--text-muted);
+  border-style: dashed;
+}
+
+.pagination { display: flex; justify-content: center; gap: 10px; margin: 40px 0 20px; flex-wrap: wrap; }
+.pagination button {
+  padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px;
+  color: var(--text); border: 1.5px solid var(--border); background: var(--bg-card);
+  transition: 0.2s;
+}
+.pagination button:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-light); }
+.pagination button.active { background: var(--accent); color: #111310; border-color: var(--accent); }
+.pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* --- CART PANEL & SỐ LƯỢNG GỘP --- */
+#panel {
+  position: fixed; right: 0; top: 0; bottom: 0;
+  width: min(390px, 100%); padding: 28px 24px;
+  background: var(--bg-card);
+  border-left: 2px solid var(--accent);
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000; overflow-y: auto;
+}
+#panel.open { transform: none; box-shadow: -10px 0 35px rgba(0, 0, 0, 0.85); }
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 13.5px;
+}
+.cart-item-info { flex: 1; }
+.cart-item-title { font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--text); display: block; margin-bottom: 3px; }
+.cart-item-sub { font-size: 12px; color: var(--text-muted); }
+.qty-box { display: flex; align-items: center; gap: 6px; }
+.qty-btn {
+  width: 24px; height: 24px; border-radius: 6px;
+  border: 1px solid var(--border); background: #111310;
+  color: var(--accent); font-weight: 800; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0; font-size: 13px;
+}
+.qty-btn:hover { background: var(--accent); color: #111310; }
+.qty-num { font-family: 'Montserrat', sans-serif; font-weight: 700; min-width: 20px; text-align: center; font-size: 13px; }
+.del-btn {
+  color: #e57373; font-weight: bold; margin-left: 6px;
+  text-decoration: none; font-size: 14px; padding: 2px 4px;
+}
+
+/* --- MODAL DIALOGS & FORM ĐẶT HÀNG --- */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10, 12, 9, 0.82);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2000; opacity: 0; pointer-events: none; transition: 0.25s ease;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-content {
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 30px 26px; width: 92%; max-width: 460px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85);
+  transform: scale(0.94); transition: 0.25s ease;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-overlay.show .modal-content { transform: scale(1); }
+.modal-content h3 {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0 0 10px; color: var(--accent); font-size: 20px; font-weight: 900;
+  text-transform: uppercase;
+}
+.modal-content p { color: var(--text); margin: 0 0 20px; font-size: 14px; line-height: 1.6; }
+
+.checkout-form { text-align: left; margin-bottom: 20px; }
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block; font-family: 'Montserrat', sans-serif;
+  font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 6px; letter-spacing: 0.5px;
+}
+.form-group input, .form-group textarea {
+  width: 100%; padding: 11px 14px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: #111310;
+  color: var(--text); font-family: 'Roboto', sans-serif; font-size: 14px;
+  outline: none; transition: border-color 0.2s;
+}
+.form-group textarea { resize: vertical; min-height: 68px; }
+.form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+.form-error {
+  color: #ff8a80; font-size: 12.5px; margin-top: 8px;
+  display: none; text-align: center; font-weight: 500;
+}
+
+.modal-actions { display: flex; gap: 12px; margin-top: 10px; }
+.modal-actions button {
+  flex: 1; padding: 12px; border-radius: 999px;
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px;
+  text-transform: uppercase; cursor: pointer; transition: 0.2s;
+}
+.btn-cancel { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+.btn-cancel:hover { border-color: var(--accent); color: var(--accent); }
+.btn-confirm { background: var(--accent); color: #111310; border: 1.5px solid var(--accent); font-weight: 800; }
+.btn-confirm:hover { background: #869f52; }
+
+/* Detail cá popup */
+.fish-info-wrap { text-align: left; }
+.fish-info-pic {
+  width: 100%; height: 240px; border-radius: 10px; margin-bottom: 20px;
+  border: 1.5px solid var(--border); overflow: hidden; background: #0d0f0c;
+  position: relative;
+}
+.fish-info-pic video, .fish-info-pic img, .fish-info-pic svg, .fish-info-pic iframe {
+  width: 100%; height: 100%; object-fit: cover; border: none; display: block;
+}
+.info-detail-row { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+.info-detail-row:last-child { border-bottom: none; }
+.info-detail-row b { display: block; font-family: 'Montserrat', sans-serif; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; color: var(--accent); }
+.info-detail-row span { display: block; font-size: 14px; line-height: 1.6; color: var(--text); }
+.btn-close-info {
+  width: 100%; margin-top: 15px; background: transparent;
+  color: var(--accent); border: 1.5px solid var(--accent); border-radius: 999px;
+  padding: 12px; font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 12px; text-transform: uppercase; cursor: pointer; transition: 0.2s;
+}
+.btn-close-info:hover { background: var(--accent); color: #111310; }
+
+/* --- MAP & FOOTER --- */
+.map-section { max-width: 1200px; margin: 50px auto; padding: 0 20px; }
+.map-container {
+  display: flex; flex-wrap: wrap; border-radius: 16px;
+  border: 2px solid var(--border); background: var(--bg-card);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); overflow: hidden;
+}
+.map-info { flex: 1; min-width: 300px; padding: 40px; }
+.map-info h3 { font-family: 'Montserrat', sans-serif; margin: 0 0 15px; font-size: 22px; font-weight: 900; color: var(--accent); }
+.map-info p { line-height: 1.7; margin: 0 0 25px; font-size: 14px; color: var(--text); }
+.btn-map {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--accent); color: #111310; text-decoration: none;
+  padding: 12px 24px; border-radius: 999px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px;
+  border: 1.5px solid var(--accent); transition: 0.2s;
+}
+.btn-map:hover { background: transparent; color: var(--accent); }
+.map-iframe { flex: 1.2; min-width: 300px; min-height: 350px; border-left: 1.5px solid var(--border); }
+.map-iframe iframe { width: 100%; height: 100%; border: none; display: block; }
+footer {
+  text-align: center; color: var(--text-muted); padding: 40px 20px;
+  font-family: 'Montserrat', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;
+  border-top: 1.5px dashed var(--border); margin-top: 40px;
+}
+
+/* Floating contact */
+.float-contact { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 99; }
+.float-btn {
+  width: 48px; height: 48px; border-radius: 50%; color: #111310;
+  background: var(--accent); text-decoration: none; display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 11px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 1.5px solid var(--bg); transition: 0.2s;
+}
+.float-btn:hover { transform: scale(1.08); background: #b0c978; }
+#btnTop {
+  position: fixed; left: 24px; bottom: 24px; background: var(--bg-card);
+  color: var(--accent); width: 44px; height: 44px; border-radius: 50%;
+  border: 1.5px solid var(--accent); font-size: 16px; cursor: pointer;
+  z-index: 99; opacity: 0; pointer-events: none; transition: 0.3s;
+}
+#btnTop:hover { background: var(--accent); color: #111310; }
+
+@media (max-width: 600px) {
+  .bar { padding: 12px 16px; gap: 10px; }
+  .bar img { height: 42px; }
+  .brand-name { font-size: 16px !important; letter-spacing: 2px !important; }
+  .hero-card { min-height: 340px; }
+  .hero-text-wrap { padding: 25px 12px; }
+  .hero-text-wrap h1 { font-size: 23px; letter-spacing: 1px; }
+  .hero-pill { padding: 8px 16px; font-size: 11.5px; }
+  .aquarium-hint { font-size: 9.5px; bottom: 8px; right: 10px; }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .info { padding: 12px 10px; }
+  .info b { font-size: 14.5px; }
+  .price { font-size: 17px; }
+  .map-iframe { border-left: none; border-top: 1.5px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<header id="mainHeader">
+  <div class="bar">
+    <img src="logo.jpg" alt="TK aqua" id="headerLogo">
+    <span class="brand-name">TK aqua</span>
+    <button class="cart" id="cartBtn" onclick="toggle()">Giỏ hàng (<span id="cnt">0</span>)</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-card" id="heroAquariumBox" title="Chạm vào bể để thả thức ăn cho cá!">
+    <canvas id="aquariumCanvas"></canvas>
+    <div class="hero-center-mask"></div>
+    <div class="hero-text-wrap">
+      <h1>Cá Cảnh Thủy Sinh TK aqua</h1>
+      <div class="hero-pill">
+        Cá khỏe, đã thuần dưỡng, tư vấn setup bể tận tình
+      </div>
+    </div>
+    <div class="aquarium-hint">✨ Chạm vào bể để cho cá ăn</div>
+  </div>
+</section>
+
+<!-- Canvas Cá Pleco mút con trỏ chuột khi đứng yên 10s -->
+<canvas id="plecoCursorCanvas"></canvas>
+
+<section class="features">
+  <div class="feature-grid">
+    <div class="feature-item">
+      <div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13H3v-3a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3h-2m-8 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm8 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-8 0h8m-8-2h8m2-2h3.5a2 2 0 0 1 1.8 1.1l1.4 2.9h-6V11z" /></svg></div>
+      <p class="feature-title">Giao hàng hỏa tốc</p>
+      <a href="giao-hang.html" class="feature-link">Biểu phí vận chuyển →</a>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.956 11.956 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg></div>
+      <p class="feature-title">Bảo hành cá khỏe</p>
+      <a href="bao-hanh.html" class="feature-link">Cam kết Arrive Alive →</a>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a1.994 1.994 0 0 1-1.414-.586m0 0L11 14h4a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l.586-.586z" /></svg></div>
+      <p class="feature-title">Hỗ trợ kỹ thuật</p>
+      <a href="ho-tro.html" class="feature-link">Tư vấn setup bể →</a>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13v-8.5a1.5 1.5 0 0 1 3 0v7.5"></path><path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0v2.5"></path><path d="M14 10.5v-1.5a1.5 1.5 0 0 1 3 0v4.5"></path><path d="M17 11.5v-1.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7L7 19c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47"></path></svg></div>
+      <p class="feature-title">Order cá hiếm</p>
+      <a href="order-ca.html" class="feature-link">Đặt loài theo yêu cầu →</a>
+    </div>
+  </div>
+</section>
+
+<main id="sp">
+  <div class="tools" id="toolsBox">
+    <input id="q" placeholder="Đang đồng bộ dữ liệu..." readonly>
+  </div>
+  <h2>DANH MỤC CÁ CẢNH</h2>
+  <div class="grid" id="grid"></div>
+  <div id="pagination" class="pagination"></div>
+</main>
+
+<section class="map-section">
+  <div class="map-container">
+    <div class="map-info">
+      <h3>📍 CỬA HÀNG TK AQUA</h3>
+      <p><b>Hotline / Zalo:</b> 0703008005<br><br>
+      Chúng tôi luôn sẵn sàng đón tiếp bạn đến tham quan bể và lựa chọn những chú cá khỏe mạnh nhất trực tiếp tại cửa hàng. Vui lòng gọi điện trước khi qua để được hỗ trợ tốt nhất.</p>
+      <a href="https://www.google.com/maps?cid=3282746273923431588" target="_blank" class="btn-map">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        Mở Google Maps
+      </a>
+    </div>
+    <div class="map-iframe">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.9087110938112!2d106.7149216!3d10.741518899999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f005fd71997%3A0x2d8ea869478bbca4!2sTK%20AQUA!5e0!3m2!1svi!2s!4v1792066716767!5m2!1svi!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+  </div>
+</section>
+
+<aside id="panel">
+  <h3 style="margin-top:0; font-family:'Montserrat', sans-serif; font-size: 20px; text-transform: uppercase; color: var(--accent);">Giỏ Hàng</h3>
+  <div id="items"></div>
+  <p style="margin: 25px 0 15px 0;"><b>Tổng cộng: <span id="total" style="font-family:'Montserrat', sans-serif; font-size: 20px; color: var(--accent);">0</span>đ</b></p>
+  <button id="btnDatHang" class="cart" style="width:100%" onclick="window.datHangFirebase()">Đặt hàng ngay</button>
+  <button class="chip" style="width:100%; margin-top:12px;" onclick="toggle()">Đóng</button>
+</aside>
+
+<footer>TK aqua · Hotline/Zalo: 0703008005 · Thành phố Hồ Chí Minh</footer>
+
+<button id="btnTop" onclick="window.scrollTo(0,0)" title="Lên đầu trang">↑</button>
+
+<div class="float-contact">
+  <a href="tel:0703008005" class="float-btn" title="Gọi điện">📞</a>
+  <a href="https://zalo.me/0703008005" class="float-btn" target="_blank" title="Zalo">Zalo</a>
+  <a href="https://www.facebook.com/share/19gZAZgohs/?mibextid=wwXIfr" class="float-btn" target="_blank" title="Facebook">FB</a>
+</div>
+
+<div id="customModal" class="modal-overlay" onclick="window.closeModalOutside(event)">
+  <div class="modal-content" id="modalBox"></div>
+</div>
+
+<script>
+// ====================================================================================
+// 1. CANVAS BANNER: HỒ CÁ THỦY SINH ĐÔNG ĐÚC & TƯƠNG TÁC CHO CÁ ĂN (14 CORY + 38 TETRA)
+// ====================================================================================
+(function initInteractiveAquariumBanner() {
+  const canvas = document.getElementById('aquariumCanvas');
+  const box = document.getElementById('heroAquariumBox');
+  if (!canvas || !box) return;
+  const ctx = canvas.getContext('2d');
+  let w = 0, h = 0, t = 0;
+
+  let corydoras = [];
+  let tetras = [];
+  let plants = [];
+  let bubbles = [];
+  let pebbles = [];
+  let foodPellets = [];
+  let ripples = [];
+  let tankMouse = { x: -1000, y: -1000, active: false };
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    w = rect.width;
+    h = rect.height;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+    initAquariumEntities();
+  }
+
+  function initAquariumEntities() {
+    plants = [];
+    const plantClusters = [0.05, 0.14, 0.25, 0.38, 0.65, 0.78, 0.88, 0.95];
+    plantClusters.forEach(pos => {
+      const blades = 5 + Math.floor(Math.random() * 4);
+      for (let b = 0; b < blades; b++) {
+        plants.push({
+          x: w * pos + (Math.random() * 36 - 18),
+          height: h * (0.25 + Math.random() * 0.42),
+          width: 4 + Math.random() * 3.5,
+          swaySpeed: 0.8 + Math.random() * 0.6,
+          swayOffset: Math.random() * Math.PI * 2,
+          color: b % 2 === 0 ? 'rgba(79, 97, 50, 0.45)' : 'rgba(105, 128, 66, 0.32)'
+        });
+      }
+    });
+
+    pebbles = [];
+    for (let i = 0; i < 55; i++) {
+      pebbles.push({
+        x: Math.random() * w,
+        y: h - 10 - Math.random() * 24,
+        rx: 2 + Math.random() * 8,
+        ry: 1.5 + Math.random() * 4,
+        color: Math.random() > 0.5 ? '#22261e' : '#161914'
+      });
+    }
+
+    corydoras = [];
+    const coryTypes = ['pygmaeus', 'panda', 'sterbai', 'peppered'];
+    for (let i = 0; i < 14; i++) {
+      corydoras.push({
+        type: coryTypes[i % coryTypes.length],
+        x: (w / 14) * i + 20 + Math.random() * 30,
+        y: h - 18 - Math.random() * 22,
+        targetY: h - 20,
+        vx: (Math.random() > 0.5 ? 1 : -1) * (0.45 + Math.random() * 0.45),
+        dir: Math.random() > 0.5 ? 1 : -1,
+        size: 14.5 + Math.random() * 4,
+        state: Math.random() > 0.4 ? 'scooting' : 'foraging',
+        stateTimer: 40 + Math.floor(Math.random() * 100),
+        tailPhase: Math.random() * Math.PI * 2,
+        tiltAngle: 0
+      });
+    }
+
+    tetras = [];
+    const tetraSpecies = [
+      { name: 'green_neon', stripe: '#a3be6c', belly: '#b85d43', body: 'rgba(147, 157, 135, 0.48)', size: 13.5 },
+      { name: 'cardinal', stripe: '#88a878', belly: '#a84a38', body: 'rgba(120, 135, 115, 0.52)', size: 15 },
+      { name: 'rummynose', stripe: '#cbd5c0', nose: '#b84a39', body: 'rgba(195, 204, 184, 0.45)', size: 14.5 },
+      { name: 'ember', stripe: '#d4915d', belly: '#b56338', body: 'rgba(196, 125, 78, 0.48)', size: 12 },
+      { name: 'blackneon', stripe: '#b5c793', belly: '#1e241b', body: 'rgba(82, 92, 74, 0.52)', size: 14 }
+    ];
+
+    for (let i = 0; i < 38; i++) {
+      const spec = tetraSpecies[i % tetraSpecies.length];
+      const dir = i % 2 === 0 ? 1 : -1;
+      const startY = h * (0.12 + Math.random() * 0.58);
+      tetras.push({
+        spec: spec,
+        x: Math.random() * w,
+        baseY: startY,
+        y: startY,
+        vx: dir * (0.7 + Math.random() * 0.8),
+        vy: 0,
+        dir: dir,
+        phase: Math.random() * Math.PI * 2,
+        freq: 0.015 + Math.random() * 0.018,
+        amp: 5 + Math.random() * 9,
+        tailPhase: Math.random() * Math.PI * 2
+      });
+    }
+
+    bubbles = [];
+    for (let i = 0; i < 26; i++) {
+      bubbles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 1 + Math.random() * 2.2,
+        vy: 0.4 + Math.random() * 0.6,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  box.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    tankMouse.x = e.clientX - rect.left;
+    tankMouse.y = e.clientY - rect.top;
+    tankMouse.active = true;
+  });
+
+  box.addEventListener('mouseleave', () => {
+    tankMouse.active = false;
+  });
+
+  function spawnFoodAt(mx, my) {
+    ripples.push({ x: mx, y: my, r: 3, maxR: 48, alpha: 0.75 });
+    const count = 7 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < count; i++) {
+      foodPellets.push({
+        x: mx + (Math.random() * 34 - 17),
+        y: Math.max(12, my + (Math.random() * 16 - 8)),
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: 0.45 + Math.random() * 0.35,
+        r: 2.1 + Math.random() * 1.1,
+        color: Math.random() > 0.4 ? '#d4915d' : '#9ab366',
+        settled: false,
+        life: 500
+      });
+    }
+  }
+
+  box.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    spawnFoodAt(e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  box.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+      const rect = canvas.getBoundingClientRect();
+      spawnFoodAt(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+    }
+  }, { passive: true });
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  function render() {
+    t += 0.016;
+    ctx.clearRect(0, 0, w, h);
+
+    const waterGrad = ctx.createLinearGradient(0, 0, 0, h);
+    waterGrad.addColorStop(0, '#0d110c');
+    waterGrad.addColorStop(0.55, '#131911');
+    waterGrad.addColorStop(0.88, '#0f130d');
+    waterGrad.addColorStop(1, '#090b08');
+    ctx.fillStyle = waterGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.save();
+    for (let r = 0; r < 5; r++) {
+      const rayX = w * (0.15 + r * 0.18) + Math.sin(t * 0.4 + r) * 25;
+      const rayGrad = ctx.createLinearGradient(rayX, 0, rayX + 40, h * 0.85);
+      rayGrad.addColorStop(0, 'rgba(154, 179, 102, 0.06)');
+      rayGrad.addColorStop(1, 'rgba(154, 179, 102, 0)');
+      ctx.fillStyle = rayGrad;
+      ctx.beginPath();
+      ctx.moveTo(rayX - 30, 0);
+      ctx.lineTo(rayX + 35, 0);
+      ctx.lineTo(rayX + 110, h * 0.85);
+      ctx.lineTo(rayX - 60, h * 0.85);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    for (let x = 0; x <= w; x += 15) {
+      const sy = 6 + Math.sin(x * 0.02 + t * 1.5) * 3;
+      ctx.lineTo(x, sy);
+    }
+    ctx.strokeStyle = 'rgba(154, 179, 102, 0.22)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    plants.forEach(p => {
+      ctx.save();
+      ctx.beginPath();
+      const baseY = h - 25;
+      const sway = Math.sin(t * p.swaySpeed + p.swayOffset) * 18;
+      ctx.moveTo(p.x - p.width / 2, baseY);
+      ctx.quadraticCurveTo(p.x + sway * 0.4, baseY - p.height * 0.5, p.x + sway, baseY - p.height);
+      ctx.quadraticCurveTo(p.x + sway * 0.4 + p.width, baseY - p.height * 0.5, p.x + p.width / 2, baseY);
+      ctx.closePath();
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      ctx.restore();
+    });
+
+    bubbles.forEach(b => {
+      b.y -= b.vy;
+      b.x += Math.sin(t * 2 + b.phase) * 0.25;
+      if (b.y < 10) {
+        b.y = h - 30;
+        b.x = Math.random() * w;
+      }
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(200, 212, 175, 0.18)';
+      ctx.fill();
+    });
+
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    for (let x = 0; x <= w + 20; x += 20) {
+      const sandY = h - 34 + Math.sin(x * 0.008) * 6 + Math.cos(x * 0.02) * 3;
+      ctx.lineTo(x, sandY);
+    }
+    ctx.lineTo(w, h);
+    ctx.closePath();
+    const sandGrad = ctx.createLinearGradient(0, h - 42, 0, h);
+    sandGrad.addColorStop(0, '#20241b');
+    sandGrad.addColorStop(1, '#10120e');
+    ctx.fillStyle = sandGrad;
+    ctx.fill();
+
+    pebbles.forEach(pb => {
+      ctx.fillStyle = pb.color;
+      ctx.beginPath();
+      ctx.ellipse(pb.x, pb.y, pb.rx, pb.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    for (let i = foodPellets.length - 1; i >= 0; i--) {
+      const fp = foodPellets[i];
+      fp.life--;
+      if (fp.life <= 0) {
+        foodPellets.splice(i, 1);
+        continue;
+      }
+      if (!fp.settled) {
+        fp.y += fp.vy;
+        fp.x += fp.vx + Math.sin(t * 3 + i) * 0.18;
+        if (fp.y >= h - 18) {
+          fp.y = h - 18;
+          fp.settled = true;
+        }
+      }
+      ctx.fillStyle = fp.color;
+      ctx.beginPath();
+      ctx.arc(fp.x, fp.y, fp.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const rp = ripples[i];
+      rp.r += 1.2;
+      rp.alpha -= 0.018;
+      if (rp.alpha <= 0) {
+        ripples.splice(i, 1);
+      } else {
+        ctx.strokeStyle = `rgba(154, 179, 102, ${rp.alpha})`;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    tetras.forEach(tf => {
+      tf.phase += tf.freq;
+
+      let targetFood = null;
+      let minDist = 170;
+      for (let i = 0; i < foodPellets.length; i++) {
+        const fp = foodPellets[i];
+        if (fp.y < h - 38) {
+          const d = Math.hypot(fp.x - tf.x, fp.y - tf.y);
+          if (d < minDist) {
+            minDist = d;
+            targetFood = fp;
+          }
+        }
+      }
+
+      let swimAngle = 0;
+
+      if (targetFood) {
+        const dx = targetFood.x - tf.x;
+        const dy = targetFood.y - tf.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        tf.dir = dx >= 0 ? 1 : -1;
+        const chaseSpeed = 2.2;
+        tf.x += (dx / dist) * chaseSpeed;
+        tf.y += (dy / dist) * chaseSpeed;
+        tf.baseY = tf.y;
+        tf.tailPhase += 0.45;
+        swimAngle = Math.atan2(dy, Math.abs(dx)) * 0.7;
+
+        if (dist < 9) {
+          const idx = foodPellets.indexOf(targetFood);
+          if (idx > -1) foodPellets.splice(idx, 1);
+          bubbles.push({ x: tf.x, y: tf.y, r: 1.5, vy: 0.8, phase: 0 });
+        }
+      } else {
+        tf.x += tf.vx;
+        tf.tailPhase += 0.22;
+        const waveY = tf.baseY + Math.sin(tf.phase) * tf.amp;
+        tf.y += (waveY - tf.y) * 0.08;
+
+        if (tankMouse.active) {
+          const mdx = tf.x - tankMouse.x;
+          const mdy = tf.y - tankMouse.y;
+          const mDist = Math.hypot(mdx, mdy);
+          if (mDist < 65 && mDist > 0) {
+            tf.x += (mdx / mDist) * 1.6;
+            tf.y += (mdy / mDist) * 1.6;
+            tf.tailPhase += 0.25;
+          }
+        }
+
+        if (tf.dir === 1 && tf.x > w + 40) tf.x = -40;
+        if (tf.dir === -1 && tf.x < -40) tf.x = w + 40;
+
+        const vy = Math.cos(tf.phase) * tf.amp * tf.freq;
+        swimAngle = Math.atan2(vy, Math.abs(tf.vx)) * 0.6;
+      }
+
+      drawTetraFish(ctx, tf.x, tf.y, tf.dir, swimAngle, tf.spec, tf.tailPhase);
+    });
+
+    corydoras.forEach(c => {
+      let bottomFood = null;
+      let minDist = 140;
+      for (let i = 0; i < foodPellets.length; i++) {
+        const fp = foodPellets[i];
+        if (fp.y > h - 85) {
+          const d = Math.hypot(fp.x - c.x, fp.y - c.y);
+          if (d < minDist) {
+            minDist = d;
+            bottomFood = fp;
+          }
+        }
+      }
+
+      if (bottomFood) {
+        const dx = bottomFood.x - c.x;
+        const dy = bottomFood.y - c.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        c.dir = dx >= 0 ? 1 : -1;
+        c.x += (dx / dist) * 1.25;
+        c.y += (Math.min(h - 15, Math.max(h - 42, bottomFood.y)) - c.y) * 0.08;
+        c.tailPhase += 0.38;
+        c.tiltAngle = 0.2;
+
+        if (dist < 10) {
+          const idx = foodPellets.indexOf(bottomFood);
+          if (idx > -1) foodPellets.splice(idx, 1);
+        }
+      } else {
+        c.stateTimer--;
+        if (c.stateTimer <= 0) {
+          if (c.state === 'foraging') {
+            c.state = 'scooting';
+            c.stateTimer = 70 + Math.floor(Math.random() * 110);
+            if (Math.random() < 0.35) c.dir *= -1;
+            c.vx = c.dir * (0.45 + Math.random() * 0.45);
+            c.targetY = h - 16 - Math.random() * 22;
+          } else {
+            c.state = 'foraging';
+            c.stateTimer = 50 + Math.floor(Math.random() * 90);
+            c.vx = c.dir * 0.08;
+          }
+        }
+
+        if (c.state === 'scooting') {
+          c.x += c.vx;
+          c.y += (c.targetY - c.y) * 0.05;
+          c.tailPhase += 0.28;
+          c.tiltAngle += (0 - c.tiltAngle) * 0.1;
+        } else {
+          c.x += c.vx;
+          c.tailPhase += 0.18;
+          const nibble = 0.18 + Math.sin(t * 10 + c.x) * 0.06;
+          c.tiltAngle += (nibble - c.tiltAngle) * 0.15;
+        }
+      }
+
+      if (c.x > w - 25) { c.x = w - 25; c.dir = -1; c.vx = -Math.abs(c.vx); }
+      if (c.x < 25) { c.x = 25; c.dir = 1; c.vx = Math.abs(c.vx); }
+
+      drawCorydoras(ctx, c);
+    });
+
+    requestAnimationFrame(render);
+  }
+
+  function drawTetraFish(ctx, x, y, dir, angle, spec, tailPhase) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(dir, 1);
+    ctx.rotate(angle);
+
+    const s = spec.size;
+    const fh = s * 0.34;
+
+    ctx.fillStyle = spec.body;
+    ctx.beginPath();
+    ctx.moveTo(s * 0.6, 0);
+    ctx.quadraticCurveTo(s * 0.1, -fh, -s * 0.45, -fh * 0.25);
+    ctx.lineTo(-s * 0.55, 0);
+    ctx.lineTo(-s * 0.45, fh * 0.25);
+    ctx.quadraticCurveTo(s * 0.1, fh, s * 0.6, 0);
+    ctx.fill();
+
+    if (spec.belly) {
+      ctx.fillStyle = spec.belly;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(-s * 0.2, fh * 0.75, -s * 0.48, fh * 0.18);
+      ctx.lineTo(-s * 0.48, 0);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (spec.nose) {
+      ctx.fillStyle = spec.nose;
+      ctx.beginPath();
+      ctx.moveTo(s * 0.6, 0);
+      ctx.quadraticCurveTo(s * 0.35, -fh * 0.7, s * 0.2, -fh * 0.5);
+      ctx.lineTo(s * 0.2, fh * 0.5);
+      ctx.quadraticCurveTo(s * 0.35, fh * 0.7, s * 0.6, 0);
+      ctx.fill();
+    }
+
+    ctx.strokeStyle = spec.stripe;
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    ctx.moveTo(s * 0.35, -fh * 0.12);
+    ctx.quadraticCurveTo(0, -fh * 0.22, -s * 0.42, -fh * 0.05);
+    ctx.stroke();
+
+    const tailWag = Math.sin(tailPhase) * (fh * 0.45);
+    ctx.fillStyle = 'rgba(210, 218, 198, 0.4)';
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.52, 0);
+    ctx.lineTo(-s * 0.85, -fh * 0.85 + tailWag);
+    ctx.lineTo(-s * 0.68, tailWag * 0.5);
+    ctx.lineTo(-s * 0.85, fh * 0.85 + tailWag);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(s * 0.05, -fh * 0.65);
+    ctx.lineTo(-s * 0.12, -fh * 1.25);
+    ctx.lineTo(-s * 0.22, -fh * 0.55);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#e6eadf';
+    ctx.beginPath();
+    ctx.arc(s * 0.36, -fh * 0.1, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#111310';
+    ctx.beginPath();
+    ctx.arc(s * 0.38, -fh * 0.1, 0.9, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawCorydoras(ctx, c) {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.scale(c.dir, 1);
+    ctx.rotate(c.tiltAngle);
+
+    const s = c.size;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.beginPath();
+    ctx.ellipse(0, s * 0.25, s * 0.65, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (c.type === 'panda') ctx.fillStyle = '#d8cfb8';
+    else if (c.type === 'sterbai') ctx.fillStyle = '#5c6354';
+    else if (c.type === 'pygmaeus') ctx.fillStyle = '#b8c2a8';
+    else ctx.fillStyle = '#8c967e';
+
+    ctx.beginPath();
+    ctx.moveTo(s * 0.65, s * 0.12);
+    ctx.quadraticCurveTo(s * 0.62, -s * 0.48, s * 0.08, -s * 0.52);
+    ctx.quadraticCurveTo(-s * 0.35, -s * 0.38, -s * 0.68, -s * 0.08);
+    ctx.lineTo(-s * 0.68, s * 0.12);
+    ctx.quadraticCurveTo(0, s * 0.18, s * 0.65, s * 0.12);
+    ctx.closePath();
+    ctx.fill();
+
+    if (c.type === 'panda') {
+      ctx.fillStyle = '#181c16';
+      ctx.beginPath();
+      ctx.ellipse(s * 0.36, -s * 0.12, 2.5, 4.5, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(-s * 0.52, -s * 0.02, 3, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (c.type === 'pygmaeus') {
+      ctx.strokeStyle = '#181c16';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(s * 0.45, 0);
+      ctx.lineTo(-s * 0.65, 0);
+      ctx.stroke();
+    } else if (c.type === 'sterbai') {
+      ctx.fillStyle = '#e6eadf';
+      [-0.2, 0, 0.2].forEach(px => {
+        ctx.beginPath();
+        ctx.arc(s * px, -s * 0.18, 0.9, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    ctx.fillStyle = c.type === 'panda' ? '#181c16' : 'rgba(140, 150, 126, 0.85)';
+    ctx.beginPath();
+    ctx.moveTo(s * 0.12, -s * 0.48);
+    ctx.lineTo(-s * 0.05, -s * 0.88);
+    ctx.lineTo(-s * 0.26, -s * 0.38);
+    ctx.closePath();
+    ctx.fill();
+
+    const tailSwing = Math.sin(c.tailPhase) * 2.5;
+    ctx.fillStyle = 'rgba(190, 198, 176, 0.6)';
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.65, 0);
+    ctx.lineTo(-s * 0.98, -s * 0.32 + tailSwing);
+    ctx.lineTo(-s * 0.86, tailSwing * 0.5);
+    ctx.lineTo(-s * 0.98, s * 0.26 + tailSwing);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = c.type === 'sterbai' ? '#c87d46' : 'rgba(190, 198, 176, 0.75)';
+    ctx.beginPath();
+    ctx.moveTo(s * 0.2, s * 0.1);
+    ctx.lineTo(s * 0.02, s * 0.32);
+    ctx.lineTo(s * 0.28, s * 0.14);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#e6eadf';
+    ctx.beginPath();
+    ctx.arc(s * 0.38, -s * 0.15, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#111310';
+    ctx.beginPath();
+    ctx.arc(s * 0.4, -s * 0.15, 1.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  render();
+})();
+
+// ====================================================================================
+// 2. CANVAS TOÀN TRANG: 1 CHÚ CÁ TỲ BÀ PLECO MÚT CON TRỎ CHUỘT KHI ĐỨNG YÊN 10S
+// ====================================================================================
+(function initPlecoSuckingCursor() {
+  const canvas = document.getElementById('plecoCursorCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w = 0, h = 0;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let mouseX = -100, mouseY = -100;
+  let idleTimer = null;
+  const IDLE_TIME = 10000;
+
+  let pleco = {
+    state: 'HIDDEN',
+    x: -100,
+    y: -100,
+    vx: 0,
+    vy: 0,
+    angle: -Math.PI * 0.75,
+    suckPhase: 0,
+    tailPhase: 0,
+    alpha: 0
+  };
+  let bubbles = [];
+
+  function resetIdleTimer() {
+    clearTimeout(idleTimer);
+    if (pleco.state === 'APPROACHING' || pleco.state === 'SUCKING') {
+      dartAwayPleco();
+    }
+    idleTimer = setTimeout(() => {
+      if (mouseX > 30 && mouseX < w - 30 && mouseY > 30 && mouseY < h - 30) {
+        spawnPleco();
+      }
+    }, IDLE_TIME);
+  }
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    resetIdleTimer();
+  });
+
+  window.addEventListener('click', () => {
+    if (pleco.state === 'APPROACHING' || pleco.state === 'SUCKING') {
+      dartAwayPleco();
+    }
+  });
+
+  function spawnPleco() {
+    pleco.state = 'APPROACHING';
+    const spawnAngle = Math.PI * 0.25 + (Math.random() * 0.4 - 0.2);
+    const dist = 160;
+    pleco.x = mouseX + Math.cos(spawnAngle) * dist;
+    pleco.y = mouseY + Math.sin(spawnAngle) * dist;
+    pleco.angle = spawnAngle + Math.PI;
+    pleco.alpha = 0;
+    pleco.suckPhase = 0;
+    pleco.tailPhase = 0;
+  }
+
+  function dartAwayPleco() {
+    pleco.state = 'DARTING_AWAY';
+    const escapeAngle = pleco.angle + (Math.random() > 0.5 ? 0.7 : -0.7);
+    pleco.angle = escapeAngle;
+    pleco.vx = Math.cos(escapeAngle) * 10;
+    pleco.vy = Math.sin(escapeAngle) * 10;
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, w, h);
+
+    if (pleco.state !== 'HIDDEN') {
+      updateAndDrawPleco();
+    }
+    updateAndDrawBubbles();
+
+    requestAnimationFrame(render);
+  }
+
+  function updateAndDrawPleco() {
+    const mouthOffset = 14;
+
+    if (pleco.state === 'APPROACHING') {
+      pleco.alpha = Math.min(0.96, pleco.alpha + 0.025);
+      pleco.tailPhase += 0.28;
+      pleco.suckPhase += 0.15;
+
+      const targetBodyX = mouseX - Math.cos(pleco.angle) * mouthOffset;
+      const targetBodyY = mouseY - Math.sin(pleco.angle) * mouthOffset;
+
+      const dx = targetBodyX - pleco.x;
+      const dy = targetBodyY - pleco.y;
+      pleco.x += dx * 0.06;
+      pleco.y += dy * 0.06;
+
+      if (Math.hypot(dx, dy) < 2.5) {
+        pleco.state = 'SUCKING';
+      }
+    } else if (pleco.state === 'SUCKING') {
+      pleco.suckPhase += 0.24;
+      pleco.tailPhase += 0.07;
+
+      const gentleSway = Math.sin(pleco.tailPhase) * 0.05;
+      const curAngle = pleco.angle + gentleSway;
+      pleco.x = mouseX - Math.cos(curAngle) * mouthOffset;
+      pleco.y = mouseY - Math.sin(curAngle) * mouthOffset;
+
+      if (Math.random() < 0.03) {
+        bubbles.push({
+          x: mouseX + (Math.random() * 8 - 4),
+          y: mouseY - 4,
+          r: 1.5 + Math.random() * 1.8,
+          vy: -(0.6 + Math.random() * 0.5),
+          vx: (Math.random() - 0.5) * 0.3,
+          alpha: 0.75
+        });
+      }
+    } else if (pleco.state === 'DARTING_AWAY') {
+      pleco.tailPhase += 0.65;
+      pleco.x += pleco.vx;
+      pleco.y += pleco.vy;
+      pleco.alpha -= 0.035;
+
+      if (pleco.alpha <= 0) {
+        pleco.state = 'HIDDEN';
+        return;
+      }
+    }
+
+    const drawAng = pleco.state === 'SUCKING'
+      ? pleco.angle + Math.sin(pleco.tailPhase) * 0.05
+      : pleco.angle;
+
+    drawPleco(ctx, pleco.x, pleco.y, drawAng, pleco.suckPhase, pleco.tailPhase, Math.max(0, pleco.alpha));
+  }
+
+  function drawPleco(ctx, x, y, angle, suckPhase, tailPhase, alpha) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.globalAlpha = alpha;
+
+    const tailWag = Math.sin(tailPhase) * 3.5;
+
+    const suckPulse = 1 + Math.sin(suckPhase) * 0.16;
+    ctx.save();
+    ctx.translate(14, 0);
+    ctx.scale(suckPulse, suckPulse);
+
+    ctx.fillStyle = '#c89e68';
+    ctx.strokeStyle = '#9ab366';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(0, 0, 6.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#4a3520';
+    ctx.beginPath();
+    ctx.arc(0, 0, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = '#181c16';
+    ctx.strokeStyle = '#9ab366';
+    ctx.lineWidth = 1.5;
+
+    ctx.beginPath();
+    ctx.moveTo(6, -8);
+    ctx.quadraticCurveTo(2, -26, -12, -22);
+    ctx.quadraticCurveTo(-8, -10, -4, -7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(6, 8);
+    ctx.quadraticCurveTo(2, 26, -12, 22);
+    ctx.quadraticCurveTo(-8, 10, -4, 7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-10, -6);
+    ctx.quadraticCurveTo(-15, -15, -22, -12);
+    ctx.lineTo(-16, -4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-10, 6);
+    ctx.quadraticCurveTo(-15, 15, -22, 12);
+    ctx.lineTo(-16, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#181c16';
+    ctx.strokeStyle = '#c87d46';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(20, 0);
+    ctx.bezierCurveTo(20, -13, 4, -14, -8, -7);
+    ctx.quadraticCurveTo(-20, -4, -32, -2 + tailWag * 0.4);
+    ctx.lineTo(-32, 2 + tailWag * 0.4);
+    ctx.quadraticCurveTo(-20, 4, -8, 7);
+    ctx.bezierCurveTo(4, 14, 20, 13, 20, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.strokeStyle = '#9ab366';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(16, -3); ctx.quadraticCurveTo(2, -4, -22, -1.5 + tailWag * 0.2);
+    ctx.moveTo(16, 3);  ctx.quadraticCurveTo(2, 4, -22, 1.5 + tailWag * 0.2);
+    ctx.moveTo(12, -7); ctx.quadraticCurveTo(0, -8, -12, -4.5);
+    ctx.moveTo(12, 7);  ctx.quadraticCurveTo(0, 8, -12, 4.5);
+    ctx.stroke();
+
+    ctx.fillStyle = '#181c16';
+    ctx.strokeStyle = '#9ab366';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(-31, tailWag * 0.4);
+    ctx.lineTo(-46, -11 + tailWag);
+    ctx.lineTo(-40, tailWag * 0.7);
+    ctx.lineTo(-46, 11 + tailWag);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    [-5.5, 5.5].forEach(ey => {
+      ctx.fillStyle = '#c87d46';
+      ctx.beginPath();
+      ctx.arc(8, ey, 2.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#111310';
+      ctx.beginPath();
+      ctx.arc(8.3, ey, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#e6eadf';
+      ctx.beginPath();
+      ctx.arc(8.7, ey - 0.4, 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.restore();
+  }
+
+  function updateAndDrawBubbles() {
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      const b = bubbles[i];
+      b.y += b.vy;
+      b.x += b.vx + Math.sin(b.y * 0.08) * 0.25;
+      b.alpha -= 0.01;
+
+      if (b.alpha <= 0 || b.y < 0) {
+        bubbles.splice(i, 1);
+      } else {
+        ctx.save();
+        ctx.strokeStyle = `rgba(154, 179, 102, ${b.alpha})`;
+        ctx.fillStyle = `rgba(154, 179, 102, ${b.alpha * 0.2})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
+
+  render();
+})();
+
+// ====================================================================================
+// GOOGLE SHEETS SYNC & GIỎ HÀNG GỘP SỐ LƯỢNG (TK AQUA)
+// ====================================================================================
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?output=csv";
+
+var FISH = [
+  { sl: 1, n:"Đang đồng bộ dữ liệu...", p:0, cat:"Kho", s:"...", b:"#9ab366", a:"#4f6132", t:"stripe", sz:.8, desc: "Vui lòng đợi giây lát..." }
+];
+
+async function initData() {
+  try {
+    const response = await fetch(CSV_URL);
+    const textData = await response.text();
+    const parsedData = parseCSV(textData);
+    if (parsedData.length > 0) { FISH = parsedData; }
+  } catch (error) {
+    console.error("Lỗi đồng bộ Sheets:", error);
+  }
+  renderFilters();
+  applyFilters(1, false);
+  upd();
+}
+
+function parseCSV(str) {
+  const rows = []; let row = [], curr = '', inQuotes = false;
+  for (let i = 0; i < str.length; i++) {
+    let char = str[i];
+    if (inQuotes) {
+      if (char === '"') {
+        if (str[i + 1] === '"') { curr += '"'; i++; } else { inQuotes = false; }
+      } else { curr += char; }
+    } else {
+      if (char === '"') { inQuotes = true; }
+      else if (char === ',') { row.push(curr); curr = ''; }
+      else if (char === '\n' || char === '\r') {
+        if (char === '\r' && str[i+1] === '\n') i++;
+        row.push(curr); curr = ''; rows.push(row); row = [];
+      } else { curr += char; }
+    }
+  }
+  if (curr !== '') row.push(curr);
+  if (row.length > 0) rows.push(row);
+  if (rows.length < 2) return [];
+
+  const headers = rows[0].map(h => h.trim());
+  const result = [];
+  
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i].length < 2) continue;
+    let obj = {};
+    for (let j = 0; j < headers.length; j++) {
+      obj[headers[j]] = rows[i][j] ? rows[i][j].trim() : "";
+    }
+    const getVal = (key) => {
+      const realKey = Object.keys(obj).find(k => k.replace(/\s/g, '') === key);
+      return realKey ? obj[realKey] : "";
+    };
+
+    result.push({
+      n: getVal('TenCa') || "Sinh vật chưa đặt tên",
+      p: parseInt(getVal('Gia')) || 0,
+      sl: parseInt(getVal('SoLuong')) || 0,
+      cat: getVal('PhanLoai') || "Khác",
+      s: getVal('Size') || "",
+      b: getVal('MauBung') || "#9ab366",
+      a: getVal('MauLung') || "#4f6132",
+      t: getVal('HoaVan') || "stripe",
+      sz: parseFloat(getVal('KichThuocVe')) || 1,
+      img: getVal('Anh') || "",
+      vid: getVal('Video') || "",
+      desc: getVal('MoTa') || "",
+      env: getVal('MoiTruong') || "",
+      mates: getVal('NuoiChung') || ""
+    });
+  }
+  return result;
+}
+
+function svg(f){
+ var b=f.b,a=f.a,x="";
+ if(f.t=="stripe")x='<path d="M95 62 q-8 28 0 56" stroke="'+a+'" stroke-width="9" fill="none"/><path d="M120 66 q-6 24 0 48" stroke="'+a+'" stroke-width="5" fill="none"/>';
+ if(f.t=="head")x='<ellipse cx="62" cy="78" rx="24" ry="22" fill="'+a+'"/>';
+ if(f.t=="saddle")x='<path d="M85 40 Q125 70 150 40 Q140 90 90 95Z" fill="'+a+'"/><rect x="48" y="62" width="8" height="34" fill="'+a+'"/>';
+ if(f.t=="face")x='<ellipse cx="62" cy="86" rx="20" ry="20" fill="'+a+'"/><path d="M110 50 Q150 90 110 130" stroke="#9ab366" stroke-width="7" fill="none"/>';
+ if(f.t=="dots")x='<circle cx="55" cy="82" r="9" fill="'+a+'"/><path d="M92 90 l50 -4" stroke="#9ab366" stroke-width="3"/><path d="M92 102 l50 -4" stroke="#9ab366" stroke-width="3"/>';
+ if(f.t=="zebra")x=[78,96,114,132].map(function(v){return '<rect x="'+v+'" y="46" width="7" height="88" fill="'+a+'"/>'}).join("");
+ if(f.t=="nemo")x='<path d="M82 50 q-8 40 0 80 M118 54 q-6 36 0 72" stroke="#e6eadf" stroke-width="12" fill="none"/><path d="M82 50 q-8 40 0 80 M118 54 q-6 36 0 72" stroke="#111310" stroke-width="2" fill="none" transform="translate(7 0)"/>';
+ return '<svg viewBox="0 0 240 180"><g transform="translate(120 90) scale('+f.sz+') translate(-120 -90)">'
+ +'<path d="M175 90 L225 55 Q212 90 225 125Z" fill="'+b+'"/>'
+ +'<ellipse cx="110" cy="90" rx="68" ry="44" fill="'+b+'"/>'
+ +'<clipPath id="c'+f.n.length+f.t+'"><ellipse cx="110" cy="90" rx="68" ry="44"/></clipPath>'
+ +'<g clip-path="url(#c'+f.n.length+f.t+')">'+x+'</g>'
+ +'<path d="M80 48 Q110 22 150 50Z" fill="'+a+'" opacity=".85"/>'
+ +'<circle cx="60" cy="80" r="7" fill="#e6eadf"/><circle cx="58" cy="80" r="4" fill="#111310"/></g></svg>';
+}
+
+// BỘ XỬ LÝ VIDEO ĐA NĂNG CHO POPUP XEM CHI TIẾT (HỖ TRỢ FILE .MP4, YOUTUBE, GOOGLE DRIVE)
+function buildDetailVideoHtml(vidUrl, posterUrl) {
+  if (!vidUrl) return "";
+  let url = vidUrl.trim();
+
+  // 1. Hỗ trợ link YouTube (thường hoặc Shorts)
+  let ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) {
+    return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+  }
+
+  // 2. Hỗ trợ link Google Drive
+  let driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (driveMatch) {
+    return `<iframe src="https://drive.google.com/file/d/${driveMatch[1]}/preview" allow="autoplay" allowfullscreen></iframe>`;
+  }
+
+  // 3. File .mp4 trực tiếp trong thư mục hoặc link .mp4 trực tiếp
+  let posterAttr = posterUrl ? `poster="${posterUrl}"` : "";
+  return `
+    <video autoplay loop muted playsinline controls preload="metadata" ${posterAttr}>
+      <source src="${url}" type="video/mp4">
+      Trình duyệt của bạn không hỗ trợ phát video này.
+    </video>`;
+}
+
+var cart = [], filter = "all";
+var currentPage = 1;
+const itemsPerPage = 12;
+var filteredFish = [];
+
+function money(n){ return n.toLocaleString("vi-VN"); }
+
+function renderFilters() {
+  const cats = ["all", ...new Set(FISH.map(f => f.cat).filter(c => c))];
+  let html = `<input id="q" placeholder="Tìm kiếm sinh vật..." oninput="applyFilters(1, true)">`;
+  cats.forEach(c => {
+    let label = c === "all" ? "Tất cả" : c;
+    let activeClass = filter === c ? "on" : "";
+    html += `<button class="chip ${activeClass}" data-f="${c}">${label}</button>`;
+  });
+  document.getElementById("toolsBox").innerHTML = html;
+
+  document.querySelectorAll(".chip[data-f]").forEach(function(btn){
+    btn.onclick = function(){
+      document.querySelectorAll(".chip[data-f]").forEach(x => x.classList.remove("on"));
+      btn.classList.add("on");
+      filter = btn.dataset.f;
+      applyFilters(1, true);
+    }
+  });
+}
+
+function applyFilters(page = 1, isClick = false) {
+  var qInput = document.getElementById("q");
+  var q = qInput ? qInput.value.toLowerCase() : "";
+  filteredFish = FISH.map((f, index) => ({...f, originalIndex: index}))
+                     .filter(f => (filter === "all" || f.cat === filter) && f.n.toLowerCase().indexOf(q) > -1);
+  currentPage = page;
+  renderGrid();
+  if (isClick) {
+    const mainSection = document.getElementById("sp");
+    if (mainSection) {
+      const offset = mainSection.offsetTop - 70;
+      window.scrollTo({ top: offset, behavior: "smooth" });
+    }
+  }
+}
+
+let isScrolling = false;
+let startX, startY;
+window.startPress = function(e) {
+  isScrolling = false;
+  if(e.touches) { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }
+}
+window.movePress = function(e) {
+  if(e.touches) {
+    let dx = Math.abs(e.touches[0].clientX - startX);
+    let dy = Math.abs(e.touches[0].clientY - startY);
+    if (dx > 10 || dy > 10) { isScrolling = true; }
+  }
+}
+
+// BÊN NGOÀI SHOWCASE: LUÔN GIỮ HÌNH ẢNH CỦA CÁ (KÈM NHÃN BÁO CÓ VIDEO NẾU CÓ)
+function renderGrid(){
+  var h = "";
+  var start = (currentPage - 1) * itemsPerPage;
+  var end = start + itemsPerPage;
+  var paginatedItems = filteredFish.slice(start, end);
+
+  paginatedItems.forEach(function(f){
+    var stockHtml = f.sl > 0 
+      ? '<div class="mono-stock in-stock">Còn lại: ' + f.sl + ' con</div>' 
+      : '<div class="mono-stock out-stock">Tạm hết hàng</div>';
+    
+    var btnHtml = f.sl > 0 
+      ? '<button onclick="add('+f.originalIndex+')">Thêm vào giỏ</button>'
+      : '<button disabled>Hết hàng</button>';
+
+    // Bên ngoài thẻ luôn hiển thị Hình ảnh (Anh) hoặc hình vẽ SVG
+    var cardMediaHtml = f.img ? `<img src="${f.img}" alt="${f.n}" loading="lazy">` : svg(f);
+    var videoBadgeHtml = f.vid ? `<span class="video-badge">▶ Có Video</span>` : "";
+
+    h+=`<div class="card">
+          <div class="pic" 
+               onclick="window.showFishDetail(${f.originalIndex})"
+               ontouchstart="window.startPress(event)" 
+               ontouchmove="window.movePress(event)">
+            ${cardMediaHtml}
+            ${videoBadgeHtml}
+          </div>
+          <div class="info">
+            <b>${f.n}</b>
+            <small>${f.cat} · ${f.s}</small>
+            ${stockHtml}
+            <div class="price">${money(f.p)}đ</div>
+            ${btnHtml}
+          </div>
+        </div>`;
+  });
+  
+  document.getElementById("grid").innerHTML = h || '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không có sinh vật phù hợp.</div>';
+  renderPagination();
+}
+
+function renderPagination() {
+  var totalPages = Math.ceil(filteredFish.length / itemsPerPage);
+  var paginationContainer = document.getElementById("pagination");
+  if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
+  var ph = "";
+  ph += '<button onclick="applyFilters('+(currentPage - 1)+', true)" '+(currentPage === 1 ? 'disabled' : '')+'>← Trước</button>';
+  for(var i = 1; i <= totalPages; i++) {
+    ph += '<button onclick="applyFilters('+i+', true)" class="'+(currentPage === i ? 'active' : '')+'">'+i+'</button>';
+  }
+  ph += '<button onclick="applyFilters('+(currentPage + 1)+', true)" '+(currentPage === totalPages ? 'disabled' : '')+'>Sau →</button>';
+  paginationContainer.innerHTML = ph;
+}
+
+function add(i) {
+  if (FISH[i].sl <= 0) return;
+  let existing = cart.find(item => item.index === i);
+  if (existing) {
+    if (existing.qty < FISH[i].sl) {
+      existing.qty++;
+    } else {
+      window.showModalAlert("Đạt giới hạn tồn kho", `Dòng cá <b>${FISH[i].n}</b> hiện chỉ còn tối đa <b>${FISH[i].sl} con</b> tại bể.`);
+      return;
+    }
+  } else {
+    cart.push({ index: i, qty: 1 });
+  }
+  upd();
+}
+
+function changeQty(k, delta) {
+  let item = cart[k];
+  if (!item) return;
+  let maxStock = FISH[item.index].sl;
+  let newQty = item.qty + delta;
+  if (newQty <= 0) {
+    cart.splice(k, 1);
+  } else if (newQty > maxStock) {
+    window.showModalAlert("Đạt giới hạn tồn kho", `Dòng cá <b>${FISH[item.index].n}</b> hiện chỉ còn <b>${maxStock} con</b>.`);
+  } else {
+    item.qty = newQty;
+  }
+  upd();
+}
+
+function del(k) {
+  cart.splice(k, 1);
+  upd();
+}
+
+function upd() {
+  var totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+  document.getElementById("cnt").textContent = totalCount;
+  var t = 0;
+  document.getElementById("items").innerHTML = cart.map(function(item, k) {
+    var fish = FISH[item.index];
+    var subTotal = fish.p * item.qty;
+    t += subTotal;
+    return `
+      <div class="row">
+        <div class="cart-item-info">
+          <span class="cart-item-title">${fish.n}</span>
+          <span class="cart-item-sub">${money(fish.p)}đ × ${item.qty} = <b style="color:var(--accent)">${money(subTotal)}đ</b></span>
+        </div>
+        <div class="qty-box">
+          <button class="qty-btn" onclick="changeQty(${k}, -1)">-</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${k}, 1)">+</button>
+          <a href="#" class="del-btn" onclick="del(${k});return false" title="Xóa">✕</a>
+        </div>
+      </div>`;
+  }).join("") || '<p style="color:var(--text-muted); padding:30px 0; text-align:center;">Giỏ hàng trống.</p>';
+  document.getElementById("total").textContent = money(t);
+}
+
+function toggle(){ document.getElementById("panel").classList.toggle("open"); }
+
+// ========================================================
+// MODAL CONTROLLER & HIỂN THỊ VIDEO KHI ẤN XEM CHI TIẾT
+// ========================================================
+const modalOverlay = document.getElementById('customModal');
+const modalBox = document.getElementById('modalBox');
+let modalTimer;
+
+window.closeModalOutside = function(e) {
+  if (e.target === modalOverlay) { window.closeModal(); }
+}
+window.closeModal = function() {
+  modalOverlay.classList.remove('show');
+  modalTimer = setTimeout(() => { modalBox.innerHTML = ''; }, 300);
+}
+
+window.showCheckoutModal = function() {
+  clearTimeout(modalTimer);
+  return new Promise((resolve) => {
+    modalBox.innerHTML = `
+      <h3>🧾 Thông Tin Giao Hàng</h3>
+      <p style="margin-bottom: 16px;">Vui lòng điền thông tin nhận cá để TK aqua lên hóa đơn và giao hàng chính xác nhất:</p>
+      <div class="checkout-form">
+        <div class="form-group">
+          <label>Họ và tên người nhận *</label>
+          <input type="text" id="chkName" placeholder="Ví dụ: Nguyễn Văn A" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label>Số điện thoại liên hệ (10 số) *</label>
+          <input type="tel" id="chkPhone" placeholder="Ví dụ: 0703008005" autocomplete="tel">
+        </div>
+        <div class="form-group">
+          <label>Địa chỉ giao hàng cụ thể *</label>
+          <textarea id="chkAddress" placeholder="Số nhà, tên đường, Phường/Xã, Quận/Huyện, Tỉnh/Thành phố..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Ghi chú đơn hàng (Tùy chọn)</label>
+          <input type="text" id="chkNote" placeholder="Ví dụ: Giao giờ hành chính / Gửi nhà xe...">
+        </div>
+        <div id="chkError" class="form-error"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="modalCancel" class="btn-cancel">Hủy</button>
+        <button id="modalConfirm" class="btn-confirm">Xác nhận đặt đơn</button>
+      </div>
+    `;
+    modalOverlay.classList.add('show');
+    setTimeout(() => document.getElementById('chkName').focus(), 100);
+
+    const errBox = document.getElementById('chkError');
+    const showError = (msg) => {
+      errBox.textContent = msg;
+      errBox.style.display = 'block';
+    };
+
+    document.getElementById('modalConfirm').onclick = () => {
+      const name = document.getElementById('chkName').value.trim();
+      const rawPhone = document.getElementById('chkPhone').value.replace(/[\s\.\-\+]/g, '');
+      const address = document.getElementById('chkAddress').value.trim();
+      const note = document.getElementById('chkNote').value.trim();
+
+      if (!name) {
+        showError("⚠️ Vui lòng nhập họ và tên người nhận!");
+        document.getElementById('chkName').focus();
+        return;
+      }
+      if (!/^0[0-9]{9}$/.test(rawPhone)) {
+        showError("⚠️ Số điện thoại không hợp lệ (cần đúng 10 số bắt đầu bằng số 0)!");
+        document.getElementById('chkPhone').focus();
+        return;
+      }
+      if (!address || address.length < 5) {
+        showError("⚠️ Vui lòng điền địa chỉ nhận hàng cụ thể!");
+        document.getElementById('chkAddress').focus();
+        return;
+      }
+
+      window.closeModal();
+      resolve({ name, phone: rawPhone, address, note });
+    };
+
+    document.getElementById('modalCancel').onclick = () => {
+      window.closeModal();
+      resolve(null);
+    };
+  });
+};
+
+window.showModalAlert = function(title, message) {
+  clearTimeout(modalTimer);
+  return new Promise((resolve) => {
+    modalBox.innerHTML = `
+      <h3>${title}</h3><p>${message}</p>
+      <div class="modal-actions"><button id="modalConfirm" class="btn-confirm">Đã hiểu</button></div>
+    `;
+    modalOverlay.classList.add('show');
+    document.getElementById('modalConfirm').onclick = () => { window.closeModal(); resolve(true); };
+  });
+};
+
+// KHI ẤN VÀO XEM CHI TIẾT: SẼ HIỆN VIDEO (NẾU CÓ), NẾU KHÔNG CÓ VIDEO MỚI HIỆN ẢNH
+window.showFishDetail = function(index) {
+  if (isScrolling) return;
+  clearTimeout(modalTimer);
+  
+  let f = FISH[index];
+  let detailMediaHtml = f.vid 
+      ? buildDetailVideoHtml(f.vid, f.img) 
+      : (f.img ? `<img src="${f.img}" alt="${f.n}">` : svg(f));
+  
+  modalBox.innerHTML = `
+    <div class="fish-info-wrap">
+      <div class="fish-info-pic">${detailMediaHtml}</div>
+      <h3 style="margin-bottom: 4px;">${f.n}</h3>
+      <div style="font-size: 12px; font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px; margin-bottom: 20px; color: var(--text-muted);">Phân loại: ${f.cat} · Size: ${f.s}</div>
+      
+      <div class="info-detail-row">
+        <b>Đặc Điểm & Tập Tính</b>
+        <span>${f.desc || "Đang cập nhật..."}</span>
+      </div>
+      <div class="info-detail-row">
+        <b>Môi Trường Bể</b>
+        <span>${f.env || "Đang cập nhật..."}</span>
+      </div>
+      <div class="info-detail-row">
+        <b>Khả Năng Nuôi Chung (Tank Mates)</b>
+        <span>${f.mates || "Đang cập nhật..."}</span>
+      </div>
+      
+      <button class="btn-close-info" onclick="window.closeModal()">Đóng cửa sổ</button>
+    </div>
+  `;
+  modalOverlay.classList.add('show');
+}
+
+const mainHeader = document.getElementById("mainHeader");
+const btnTop = document.getElementById("btnTop");
+
+window.addEventListener("scroll", () => {
+  let sc = window.scrollY;
+  if (sc > 40) { mainHeader.classList.add("scrolled"); } 
+  else { mainHeader.classList.remove("scrolled"); }
+
+  if (sc > 300) { btnTop.style.opacity = "1"; btnTop.style.pointerEvents = "auto"; } 
+  else { btnTop.style.opacity = "0"; btnTop.style.pointerEvents = "none"; }
+});
+
+initData();
+</script>
+
+<!-- FIREBASE CONFIG & HÓA ĐƠN CHI TIẾT DISCORD WEBHOOK CỦA TK AQUA -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-analytics.js";
+  import { getFirestore, collection, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB05d2OGQLkMiOQQrXRLtfE8tUVb3f5iMs",
+    authDomain: "tk-aqua.firebaseapp.com",
+    projectId: "tk-aqua",
+    storageBucket: "tk-aqua.firebasestorage.app",
+    messagingSenderId: "2700293713",
+    appId: "1:2700293713:web:cb704001cba8b33554ea70",
+    measurementId: "G-JTVTCH34S1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  window.datHangFirebase = async function() {
+    if (cart.length === 0) { 
+      await window.showModalAlert("Giỏ hàng trống", "Vui lòng chọn cá vào giỏ trước khi đặt hàng."); 
+      return; 
+    }
+    
+    const customer = await window.showCheckoutModal();
+    if (!customer) return;
+    
+    let btn = document.getElementById("btnDatHang");
+    let oldText = btn.textContent;
+    btn.textContent = "ĐANG TẠO HÓA ĐƠN...";
+    btn.disabled = true; 
+
+    let danhSachCa = [];
+    let tongTien = 0;
+    let tongSoLuongCon = 0;
+    let chiTietHoaDonText = "";
+
+    cart.forEach(function(item, idx) {
+      let f = FISH[item.index];
+      let thanhTien = f.p * item.qty;
+      tongTien += thanhTien;
+      tongSoLuongCon += item.qty;
+
+      danhSachCa.push({
+        ten_ca: f.n,
+        size: f.s || "",
+        so_luong: item.qty,
+        don_gia: f.p,
+        thanh_tien: thanhTien
+      });
+
+      let stt = String(idx + 1).padStart(2, '0');
+      let sizeInfo = f.s ? ` (${f.s})` : "";
+      chiTietHoaDonText += `${stt}. ${f.n}${sizeInfo}\n    SL: ${item.qty} con  ×  ${f.p.toLocaleString('vi-VN')}đ  =  ${thanhTien.toLocaleString('vi-VN')}đ\n`;
+    });
+
+    try {
+      let maSo = Math.floor(1000 + Math.random() * 9000);
+      let maDonHang = `TKA-${maSo} - ${customer.phone} - ${customer.name}`;
+      let thoiGianDat = new Date().toLocaleString('vi-VN');
+
+      await setDoc(doc(db, "don_hang", maDonHang), {
+        ma_don: `TKA-${maSo}`,
+        ten_khach: customer.name,       
+        so_dien_thoai: customer.phone,
+        dia_chi: customer.address,
+        ghi_chu: customer.note || "Không có",
+        san_pham: danhSachCa,
+        tong_so_luong: tongSoLuongCon,
+        tong_tien: tongTien,
+        ngay_dat: serverTimestamp()
+      });
+
+      const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1560272357141127288/h4kVuYdqp2JvqmnIsDp_zKvHIY0KRXdSE1oLDBzn92xBEtshkjvwQalrZeopUGdBNmxz";
+
+      const discordPayload = {
+        content: `🔔 **CÓ ĐƠN ĐẶT HÀNG MỚI TỪ WEBSITE TK AQUA!** (#TKA-${maSo})`,
+        embeds: [
+          {
+            title: `🧾 HÓA ĐƠN BÁN HÀNG #TKA-${maSo}`,
+            color: 10138470,
+            fields: [
+              {
+                name: "👤 Khách hàng",
+                value: `**${customer.name}**`,
+                inline: true
+              },
+              {
+                name: "📞 Số điện thoại",
+                value: `**${customer.phone}**`,
+                inline: true
+              },
+              {
+                name: "🕒 Thời gian đặt",
+                value: thoiGianDat,
+                inline: true
+              },
+              {
+                name: "📍 Địa chỉ giao hàng cụ thể",
+                value: customer.address,
+                inline: false
+              },
+              {
+                name: `🐟 Chi tiết danh mục cá đặt (${tongSoLuongCon} con)`,
+                value: "```yaml\n" + chiTietHoaDonText + "```",
+                inline: false
+              },
+              {
+                name: "📝 Ghi chú từ khách",
+                value: customer.note ? customer.note : "Không có ghi chú",
+                inline: true
+              },
+              {
+                name: "💰 TỔNG THANH TOÁN",
+                value: `**${tongTien.toLocaleString('vi-VN')} VNĐ** _(Chưa gồm phí ship)_`,
+                inline: true
+              }
+            ],
+            footer: {
+              text: "TK aqua · Hệ thống Báo Đơn Tự Động"
+            }
+          }
+        ]
+      };
+
+      fetch(DISCORD_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(discordPayload)
+      }).catch(err => console.log("Discord error:", err));
+
+      await window.showModalAlert(
+        "🎉 Đặt hàng thành công",
+        `Cảm ơn <b>${customer.name.toUpperCase()}</b>!<br>Mã đơn <b>#TKA-${maSo}</b> (${tongSoLuongCon} con - <b>${tongTien.toLocaleString('vi-VN')}đ</b>) đã được gửi về hệ thống. TK aqua sẽ sớm liên hệ số <b>${customer.phone}</b> để xác nhận giao đến địa chỉ của bạn.`
+      );
+      cart = []; upd(); toggle(); 
+    } catch (error) {
+      console.error("Lỗi:", error);
+      await window.showModalAlert("Lỗi hệ thống", "Có lỗi xảy ra khi tạo đơn hàng. Vui lòng gọi Hotline 0703008005 trực tiếp!");
+    } finally {
+      btn.textContent = oldText; btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

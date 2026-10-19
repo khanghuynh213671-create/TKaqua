@@ -383,26 +383,80 @@ header.scrolled .bar {
   color: var(--text-muted);
 }
 
-.hero-right { position: relative; z-index: 2; display: flex; }
+/* 3D TILT CARD & SPOTLIGHT STYLING */
+.hero-right {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  perspective: 1100px;
+}
+
 .showcase-card {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --rotate-x: 0deg;
+  --rotate-y: 0deg;
+  position: relative;
   width: 100%;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1.5px solid var(--border);
-  background: #0a0a0a;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75);
+  border-radius: 16px;
+  border: 1px solid rgba(154, 179, 102, 0.32);
+  background: rgba(18, 21, 16, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 24px 50px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rotate-x)) rotateY(var(--rotate-y));
+  transition: transform 0.12s ease-out, border-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
 }
+
+.showcase-card:hover {
+  border-color: rgba(154, 179, 102, 0.65);
+  box-shadow: 
+    0 32px 64px rgba(0, 0, 0, 0.9),
+    0 0 30px rgba(154, 179, 102, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.showcase-spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(
+    380px circle at var(--mouse-x) var(--mouse-y),
+    rgba(154, 179, 102, 0.22),
+    rgba(255, 255, 255, 0.04) 40%,
+    transparent 75%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.showcase-card:hover .showcase-spotlight {
+  opacity: 1;
+}
+
 .showcase-media {
   position: relative;
   flex: 1;
-  width: 100%;
-  min-height: 235px;
+  width: calc(100% - 20px);
+  margin: 10px 10px 0 10px;
+  min-height: 225px;
+  border-radius: 11px;
   background: #0a0a0a;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transform: translateZ(28px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
 }
+
 .showcase-media img {
   position: absolute;
   inset: 0;
@@ -411,20 +465,35 @@ header.scrolled .bar {
   object-fit: cover;
   object-position: center;
   display: block;
-  transition: transform 0.4s ease;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.showcase-card:hover .showcase-media img { transform: scale(1.05); }
+
+.showcase-card:hover .showcase-media img {
+  transform: scale(1.07);
+}
+
 .showcase-footer {
   position: relative;
-  z-index: 2;
-  background: #161914;
-  border-top: 1px solid var(--border-subtle);
+  z-index: 4;
+  background: rgba(22, 26, 20, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 0 16px 16px;
   padding: 14px 18px;
+  margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  transform-style: preserve-3d;
+  transform: translateZ(42px);
 }
+
+.showcase-caption-text {
+  transform: translateZ(15px);
+}
+
 .showcase-caption-text b {
   display: block;
   font-family: 'Montserrat', sans-serif;
@@ -434,13 +503,16 @@ header.scrolled .bar {
   text-transform: uppercase;
   letter-spacing: 0.6px;
   margin-bottom: 2px;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
 }
+
 .showcase-caption-text span {
   display: block;
   font-size: 11px;
   color: var(--text-muted);
   white-space: nowrap;
 }
+
 .showcase-badge {
   font-family: 'Montserrat', sans-serif;
   font-size: 10px;
@@ -448,11 +520,13 @@ header.scrolled .bar {
   text-transform: uppercase;
   padding: 6px 11px;
   border-radius: 6px;
-  background: var(--accent-light);
+  background: rgba(154, 179, 102, 0.16);
   color: var(--accent);
   border: 1px solid var(--border);
   white-space: nowrap;
   flex-shrink: 0;
+  transform: translateZ(22px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 
 .features { max-width: 1200px; margin: 0 auto 45px auto; padding: 0 20px; }
@@ -982,8 +1056,10 @@ footer {
       </div>
     </div>
 
+    <!-- 3D PERSPECTIVE TILT CARD & SPOTLIGHT -->
     <div class="hero-right">
-      <div class="showcase-card">
+      <div class="showcase-card" id="tiltCard">
+        <div class="showcase-spotlight"></div>
         <div class="showcase-media">
           <img src="logo.jpg" alt="TK aqua Studio">
         </div>
@@ -1504,6 +1580,35 @@ window.addEventListener("scroll", () => {
   else { btnTop.style.opacity = "0"; btnTop.style.pointerEvents = "none"; }
 });
 
+// Hiệu ứng 3D Perspective Tilt Card & Spotlight
+const tiltCard = document.getElementById("tiltCard");
+if (tiltCard && window.matchMedia("(pointer: fine)").matches) {
+  tiltCard.addEventListener("mousemove", (e) => {
+    const rect = tiltCard.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * -10;
+    const rotateY = ((x - centerX) / centerX) * 10;
+
+    tiltCard.style.setProperty("--mouse-x", `${x}px`);
+    tiltCard.style.setProperty("--mouse-y", `${y}px`);
+    tiltCard.style.setProperty("--rotate-x", `${rotateX.toFixed(2)}deg`);
+    tiltCard.style.setProperty("--rotate-y", `${rotateY.toFixed(2)}deg`);
+  });
+
+  tiltCard.addEventListener("mouseleave", () => {
+    tiltCard.style.transition = "transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.3s ease, box-shadow 0.3s ease";
+    tiltCard.style.setProperty("--rotate-x", "0deg");
+    tiltCard.style.setProperty("--rotate-y", "0deg");
+    setTimeout(() => {
+      tiltCard.style.transition = "transform 0.12s ease-out, border-color 0.3s ease, box-shadow 0.3s ease";
+    }, 500);
+  });
+}
+
 initData();
 </script>
 
@@ -1581,7 +1686,7 @@ initData();
         ngay_dat: serverTimestamp()
       });
 
-      const DISCORD_WEBHOOK_URL = "https://tk-notify.khanghuynh213671.workers.dev/";
+      const DISCORD_WEBHOOK_URL = "/api/notify";
 
       const discordPayload = {
         content: `🔔 **ĐƠN HÀNG MỚI #TKA-${maSo}**`,

@@ -80,7 +80,6 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // 1. API GUI THONG BAO DISCORD (/api/notify)
     if (url.pathname === "/api/notify" && request.method === "POST") {
       try {
         const payload = await request.json();
@@ -100,7 +99,6 @@ export default {
       }
     }
 
-    // 2. API TAO YEU CAU THANH TOAN PAYOS (/api/create-payment)
     if (url.pathname === "/api/create-payment" && request.method === "POST") {
       try {
         const body = await request.json();
@@ -147,7 +145,6 @@ export default {
       }
     }
 
-    // 3. API KIEM TRA TRANG THAI THANH TOAN (/api/check-payment)
     if (url.pathname === "/api/check-payment" && request.method === "GET") {
       try {
         const orderCode = url.searchParams.get("orderCode");
@@ -179,7 +176,6 @@ export default {
       }
     }
 
-    // 4. API NHAN WEBHOOK TU PAYOS (/api/payos-webhook)
     if (url.pathname === "/api/payos-webhook" && request.method === "POST") {
       try {
         const webhookData = await request.json();

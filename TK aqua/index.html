@@ -979,6 +979,25 @@ h2 {
 }
 .order-history-body b { color: var(--text); }
 
+.btn-resume-pay {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--accent);
+  background: var(--accent);
+  color: #111310;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-resume-pay:hover { background: transparent; color: var(--accent); }
+.btn-resume-pay:disabled { opacity: 0.5; cursor: wait; }
+
 .modal-actions { display: flex; gap: 12px; margin-top: 10px; }
 .modal-actions button, .modal-actions a {
   flex: 1; padding: 12px; border-radius: 8px;
@@ -2150,6 +2169,83 @@ initData();
     } catch (e) {}
   }
 
+  window.resumePayment = async function(o) {
+    if (!o || !o.order_code_num) {
+      await window.showModalAlert("Không thể mở thanh toán", "Đơn này thiếu mã thanh toán. Vui lòng liên hệ Zalo 0703.008.005.");
+      return;
+    }
+
+    let info = null;
+    try {
+      const res = await fetch(API_BASE + "/api/check-payment?orderCode=" + o.order_code_num + "&t=" + Date.now(), { cache: "no-store" });
+      const json = await res.json();
+      info = json && json.data ? json.data : null;
+    } catch (e) {
+      console.log("Không kiểm tra được trạng thái:", e);
+    }
+
+    if (info && (info.status === "PAID" || (Number(info.amount) > 0 && Number(info.amountPaid) >= Number(info.amount)))) {
+      saveOrderToLocalHistory(Object.assign({}, o, { trang_thai: "Đã thanh toán", paid: true }));
+      await window.showModalAlert("Đơn đã thanh toán", "Đơn hàng <b>#" + o.ma_don + "</b> đã được thanh toán đầy đủ. Cảm ơn bạn!");
+      return;
+    }
+    if (info && (info.status === "CANCELLED" || info.status === "EXPIRED")) {
+      await window.showModalAlert("Link thanh toán đã hết hạn", "Đơn <b>#" + o.ma_don + "</b> không còn mã thanh toán hợp lệ. Vui lòng liên hệ Zalo <b>0703.008.005</b> để được hỗ trợ.");
+      return;
+    }
+
+    const saved = o.payos ? o.payos : {};
+    const checkoutUrl = saved.checkoutUrl ? saved.checkoutUrl : (info && info.id ? "https://pay.payos.vn/web/" + info.id : "");
+    const payData = {
+      qrCode: saved.qrCode ? saved.qrCode : checkoutUrl,
+      checkoutUrl: checkoutUrl ? checkoutUrl : "#",
+      accountNumber: saved.accountNumber ? saved.accountNumber : "",
+      description: saved.description ? saved.description : ""
+    };
+    if (!payData.qrCode) {
+      await window.showModalAlert("Không tìm thấy mã thanh toán", "Vui lòng liên hệ Zalo <b>0703.008.005</b> để được hỗ trợ.");
+      return;
+    }
+
+    const docId = o._docId ? o._docId : (o.ma_don + " - " + o.so_dien_thoai + " - " + o.ten_khach);
+    const orderDocRef = doc(db, "don_hang", docId);
+
+    const onPaymentSuccess = async function() {
+      try {
+        await setDoc(orderDocRef, {
+          trang_thai: "Đã thanh toán",
+          paid: true,
+          ngay_thanh_toan: serverTimestamp()
+        }, { merge: true });
+      } catch (e) {}
+      saveOrderToLocalHistory(Object.assign({}, o, { trang_thai: "Đã thanh toán", paid: true }));
+    };
+
+    const listenFirestorePaid = function(cb) {
+      return onSnapshot(orderDocRef, function(snap) {
+        const data = snap.data();
+        if (data && (data.trang_thai === "Đã thanh toán" || data.paid === true)) {
+          cb();
+        }
+      });
+    };
+
+    await window.showPayOSModal(
+      payData,
+      {
+        maDon: o.ma_don,
+        orderCodeNum: o.order_code_num,
+        tenKhach: o.ten_khach ? o.ten_khach : "",
+        sdt: o.so_dien_thoai,
+        tienHang: o.tien_hang ? o.tien_hang : 0,
+        phiShip: o.phi_ship ? o.phi_ship : 0,
+        tongCong: o.tong_tien ? o.tong_tien : 0
+      },
+      onPaymentSuccess,
+      listenFirestorePaid
+    );
+  };
+
   window.openOrderLookup = async function() {
     clearTimeout(modalTimer);
     const savedPhone = localStorage.getItem("tka_last_phone") ? localStorage.getItem("tka_last_phone") : "";
@@ -2174,7 +2270,7 @@ initData();
         return;
       }
 
-      container.innerHTML = orders.map(function(o) {
+      container.innerHTML = orders.map(function(o, idx) {
         const isPaid = (o.trang_thai === "Đã thanh toán" || o.paid === true);
         const badgeClass = isPaid ? "paid" : "pending";
         const badgeText = isPaid ? "✅ Đã thanh toán" : "⏳ Chờ thanh toán";
@@ -2193,8 +2289,20 @@ initData();
           + '<div><b>Vận chuyển:</b> ' + (o.phuong_thuc_ship ? o.phuong_thuc_ship : "Tiêu chuẩn") + '</div>'
           + '<div><b>Địa chỉ:</b> ' + (o.dia_chi ? o.dia_chi : "") + '</div>'
           + '<div style="margin-top:4px;"><b>Tổng thanh toán:</b> <span style="color:var(--accent); font-weight:800;">' + money(o.tong_tien) + 'đ</span></div>'
+          + (!isPaid ? '<button class="btn-resume-pay" data-idx="' + idx + '">Xem lại mã QR thanh toán</button>' : '')
           + '</div></div>';
       }).join("");
+
+      container.querySelectorAll(".btn-resume-pay").forEach(function(btn) {
+        btn.onclick = async function() {
+          const order = orders[Number(btn.dataset.idx)];
+          btn.disabled = true;
+          btn.textContent = "Đang tải...";
+          await window.resumePayment(order);
+          btn.disabled = false;
+          btn.textContent = "Xem lại mã QR thanh toán";
+        };
+      });
     };
 
     const runSearch = async function(keyword) {
@@ -2373,6 +2481,17 @@ initData();
         }
       } catch (payErr) {
         console.error("Lỗi gọi API payOS:", payErr);
+      }
+
+      if (payosPaymentData) {
+        const payosSaved = {
+          qrCode: payosPaymentData.qrCode ? payosPaymentData.qrCode : "",
+          checkoutUrl: payosPaymentData.checkoutUrl ? payosPaymentData.checkoutUrl : "",
+          accountNumber: payosPaymentData.accountNumber ? payosPaymentData.accountNumber : "",
+          description: payosPaymentData.description ? payosPaymentData.description : ""
+        };
+        try { await setDoc(orderDocRef, { payos: payosSaved }, { merge: true }); } catch (e) { console.log("Save payos error:", e); }
+        saveOrderToLocalHistory(Object.assign({}, orderRecord, { payos: payosSaved, ngay_dat_text: thoiGianDat }));
       }
 
       cart = []; upd(); toggle();

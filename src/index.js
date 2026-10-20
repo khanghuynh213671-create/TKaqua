@@ -13,7 +13,6 @@ async function createSignature(dataStr, key) {
     .join("");
 }
 
-const DEFAULT_DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1561567434861838446/eMtq9IqnPh_RUMCleTkvvMBKnrv5Z9K6JQn_PfBsI_DwUkWdVhW6j0uWBSPjFEQtwjQb";
 const FIREBASE_PROJECT_ID = "tk-aqua";
 
 const corsHeaders = {
@@ -78,9 +77,7 @@ function jsonResponse(data, status) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    let discordUrl = DEFAULT_DISCORD_WEBHOOK;
-    if (env.DISCORD_WEBHOOK_URL) {
-      discordUrl = env.DISCORD_WEBHOOK_URL;
+    const discordUrl = env.DISCORD_WEBHOOK_URL;
     }
 
     if (request.method === "OPTIONS") {

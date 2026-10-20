@@ -21,6 +21,25 @@
   --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
+/* HIỆU ỨNG CHUYỂN TRANG MƯỢT CHUẨN GPU (KHÔNG LỆCH KHUNG) */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: 340ms cubic-bezier(0.32, 0.72, 0, 1) both slide-out-left;
+}
+::view-transition-new(root) {
+  animation: 340ms cubic-bezier(0.32, 0.72, 0, 1) both slide-in-right;
+}
+@keyframes slide-out-left {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-20%); opacity: 0.6; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
 html { scroll-behavior: smooth; background-color: var(--bg); }
 * { box-sizing: border-box; }
 body {
@@ -784,24 +803,108 @@ h2 {
   font-size: 11.5px; font-weight: 700; text-transform: uppercase;
   color: var(--accent); margin-bottom: 6px; letter-spacing: 0.5px;
 }
-.form-group input, .form-group textarea {
+.form-group input, .form-group textarea, .form-group select {
   width: 100%; padding: 11px 14px; border-radius: 8px;
   border: 1px solid var(--border-subtle); background: #0e100d;
   color: var(--text); font-family: 'Roboto', sans-serif; font-size: 14px;
   outline: none; transition: border-color 0.2s;
 }
 .form-group textarea { resize: vertical; min-height: 68px; }
-.form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
 .form-error {
   color: #ff8a80; font-size: 12.5px; margin-top: 8px;
   display: none; text-align: center; font-weight: 500;
 }
 
+.checkout-summary-box {
+  background: #0e100d;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 12px;
+}
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+  color: var(--text-muted);
+}
+.summary-line.total {
+  border-top: 1px dashed var(--border-subtle);
+  margin-top: 6px;
+  padding-top: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text);
+}
+.summary-line.total b {
+  color: var(--accent);
+  font-size: 16px;
+}
+
+/* GIAO DIỆN POPUP THANH TOÁN QR PAYOS */
+.payos-qr-box {
+  background: #0e100d;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 14px 0;
+  text-align: center;
+}
+.payos-qr-img-wrap {
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+.payos-qr-img-wrap img {
+  width: 210px;
+  height: 210px;
+  display: block;
+}
+.payos-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+.payos-info-row:last-child { border-bottom: none; }
+.payos-info-row span { color: var(--text-muted); }
+.payos-info-row b { color: var(--accent); font-family: 'Montserrat', sans-serif; }
+.payos-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--accent-light);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+}
+.pulse-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulseAnim 1.4s infinite ease-in-out;
+}
+@keyframes pulseAnim {
+  0%, 100% { transform: scale(0.85); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
 .modal-actions { display: flex; gap: 12px; margin-top: 10px; }
-.modal-actions button {
+.modal-actions button, .modal-actions a {
   flex: 1; padding: 12px; border-radius: 8px;
   font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px;
   text-transform: uppercase; cursor: pointer; transition: 0.2s;
+  text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
 }
 .btn-cancel { background: transparent; color: var(--text); border: 1px solid var(--border-subtle); }
 .btn-cancel:hover { border-color: var(--accent); color: var(--accent); }
@@ -971,7 +1074,8 @@ footer {
     </a>
 
     <nav class="header-nav">
-      <a href="#sp" class="active">Danh mục</a>
+      <a href="#sp" class="active">Cá cảnh</a>
+      <a href="#pk">Phụ kiện</a>
       <a href="giao-hang.html">Giao hàng</a>
       <a href="bao-hanh.html">Bảo hành</a>
       <a href="ho-tro.html">Hỗ trợ</a>
@@ -996,7 +1100,8 @@ footer {
   </div>
 
   <nav class="mobile-nav-strip">
-    <a href="#sp">Danh mục</a>
+    <a href="#sp">Cá cảnh</a>
+    <a href="#pk">Phụ kiện</a>
     <a href="giao-hang.html">Giao hàng</a>
     <a href="bao-hanh.html">Bảo hành</a>
     <a href="ho-tro.html">Hỗ trợ</a>
@@ -1017,7 +1122,7 @@ footer {
           <span class="line-highlight">Tuyển Chọn &amp; Thuần Dưỡng</span>
         </h1>
         <p class="hero-desc">
-          Cá khỏe, đã kiểm dịch và thuần nước ổn định. Tư vấn setup bể Biotope &amp; Thủy sinh chuyên sâu.
+          Cá khỏe, đã kiểm dịch và thuần nước ổn định.<br>Tư vấn setup bể Biotope &amp; Thủy sinh chuyên sâu.
         </p>
         <div class="hero-btns">
           <a href="#sp" class="btn-primary">Xem danh mục ↓</a>
@@ -1100,6 +1205,7 @@ footer {
   </div>
 </section>
 
+<!-- DANH MỤC CÁ CẢNH -->
 <main id="sp">
   <div class="tools" id="toolsBox">
     <input id="q" placeholder="Đang tải dữ liệu..." readonly>
@@ -1107,6 +1213,16 @@ footer {
   <h2>DANH MỤC CÁ CẢNH</h2>
   <div class="grid" id="grid"></div>
   <div id="pagination" class="pagination"></div>
+</main>
+
+<!-- DANH MỤC PHỤ KIỆN -->
+<main id="pk" style="margin-top: 20px;">
+  <div class="tools" id="accToolsBox">
+    <input id="qAcc" placeholder="Đang tải dữ liệu..." readonly>
+  </div>
+  <h2>DANH MỤC PHỤ KIỆN</h2>
+  <div class="grid" id="accGrid"></div>
+  <div id="accPagination" class="pagination"></div>
 </main>
 
 <section class="map-section">
@@ -1152,8 +1268,14 @@ footer {
 
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?output=csv";
+const ACC_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?gid=1785201873&single=true&output=csv";
+const DRIVE_MEDIA_FOLDER = "https://drive.google.com/drive/folders/1padV_SE7vklFONfDdJQo6y8Frbwvd1wd?usp=sharing";
 
 var FISH = [
+  { sl: 1, n:"Đang tải dữ liệu...", p:0, cat:"Kho", s:"...", b:"#9ab366", a:"#4f6132", t:"stripe", sz:.8, desc: "Vui lòng đợi giây lát..." }
+];
+
+var ACC = [
   { sl: 1, n:"Đang tải dữ liệu...", p:0, cat:"Kho", s:"...", b:"#9ab366", a:"#4f6132", t:"stripe", sz:.8, desc: "Vui lòng đợi giây lát..." }
 ];
 
@@ -1164,11 +1286,47 @@ async function initData() {
     const parsedData = parseCSV(textData);
     if (parsedData.length > 0) { FISH = parsedData; }
   } catch (error) {
-    console.error("Lỗi đồng bộ:", error);
+    console.error("Lỗi đồng bộ cá cảnh:", error);
   }
+
+  if (ACC_CSV_URL) {
+    try {
+      const responseAcc = await fetch(ACC_CSV_URL);
+      const textDataAcc = await responseAcc.text();
+      const parsedAcc = parseCSV(textDataAcc);
+      if (parsedAcc.length > 0) { ACC = parsedAcc; }
+    } catch (error) {
+      console.error("Lỗi đồng bộ phụ kiện:", error);
+    }
+  }
+
   renderFilters();
   applyFilters(1, false);
+  renderAccFilters();
+  applyAccFilters(1, false);
   upd();
+}
+
+// Trích xuất ID file từ mọi định dạng link Google Drive
+function extractDriveId(url) {
+  if (!url) return null;
+  let match = url.trim().match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+// Chuyển đổi link ảnh (nếu cột Anh trống nhưng cột Video có link Drive thì tự lấy thumbnail từ Video Drive)
+function resolveThumbnailUrl(imgRaw, vidRaw) {
+  let cleanImg = imgRaw ? imgRaw.trim() : "";
+  if (cleanImg) {
+    let driveId = extractDriveId(cleanImg);
+    if (driveId) return `https://lh3.googleusercontent.com/d/${driveId}`;
+    return cleanImg;
+  }
+  if (vidRaw) {
+    let vidDriveId = extractDriveId(vidRaw);
+    if (vidDriveId) return `https://lh3.googleusercontent.com/d/${vidDriveId}`;
+  }
+  return "";
 }
 
 function parseCSV(str) {
@@ -1206,8 +1364,11 @@ function parseCSV(str) {
       return realKey ? obj[realKey] : "";
     };
 
+    const rawImg = getVal('Anh');
+    const rawVid = getVal('Video');
+
     result.push({
-      n: getVal('TenCa') || "Chưa đặt tên",
+      n: getVal('TenCa') || getVal('TenSP') || "Chưa đặt tên",
       p: parseInt(getVal('Gia')) || 0,
       sl: parseInt(getVal('SoLuong')) || 0,
       cat: getVal('PhanLoai') || "Khác",
@@ -1216,8 +1377,8 @@ function parseCSV(str) {
       a: getVal('MauLung') || "#4f6132",
       t: getVal('HoaVan') || "stripe",
       sz: parseFloat(getVal('KichThuocVe')) || 1,
-      img: getVal('Anh') || "",
-      vid: getVal('Video') || "",
+      img: resolveThumbnailUrl(rawImg, rawVid),
+      vid: rawVid || "",
       desc: getVal('MoTa') || "",
       env: getVal('MoiTruong') || "",
       mates: getVal('NuoiChung') || ""
@@ -1227,7 +1388,10 @@ function parseCSV(str) {
 }
 
 function svg(f){
- var b=f.b,a=f.a,x="";
+ var b = (f.b && f.b.startsWith('#')) ? f.b : "#9ab366";
+ var a = (f.a && f.a.startsWith('#')) ? f.a : "#4f6132";
+ var sz = !isNaN(f.sz) && f.sz > 0 ? f.sz : 0.85;
+ var x="";
  if(f.t=="stripe")x='<path d="M95 62 q-8 28 0 56" stroke="'+a+'" stroke-width="9" fill="none"/><path d="M120 66 q-6 24 0 48" stroke="'+a+'" stroke-width="5" fill="none"/>';
  if(f.t=="head")x='<ellipse cx="62" cy="78" rx="24" ry="22" fill="'+a+'"/>';
  if(f.t=="saddle")x='<path d="M85 40 Q125 70 150 40 Q140 90 90 95Z" fill="'+a+'"/><rect x="48" y="62" width="8" height="34" fill="'+a+'"/>';
@@ -1235,13 +1399,24 @@ function svg(f){
  if(f.t=="dots")x='<circle cx="55" cy="82" r="9" fill="'+a+'"/><path d="M92 90 l50 -4" stroke="#9ab366" stroke-width="3"/><path d="M92 102 l50 -4" stroke="#9ab366" stroke-width="3"/>';
  if(f.t=="zebra")x=[78,96,114,132].map(function(v){return '<rect x="'+v+'" y="46" width="7" height="88" fill="'+a+'"/>'}).join("");
  if(f.t=="nemo")x='<path d="M82 50 q-8 40 0 80 M118 54 q-6 36 0 72" stroke="#e6eadf" stroke-width="12" fill="none"/><path d="M82 50 q-8 40 0 80 M118 54 q-6 36 0 72" stroke="#111310" stroke-width="2" fill="none" transform="translate(7 0)"/>';
- return '<svg viewBox="0 0 240 180"><g transform="translate(120 90) scale('+f.sz+') translate(-120 -90)">'
+ return '<svg viewBox="0 0 240 180"><g transform="translate(120 90) scale('+sz+') translate(-120 -90)">'
  +'<path d="M175 90 L225 55 Q212 90 225 125Z" fill="'+b+'"/>'
  +'<ellipse cx="110" cy="90" rx="68" ry="44" fill="'+b+'"/>'
- +'<clipPath id="c'+f.n.length+f.t+'"><ellipse cx="110" cy="90" rx="68" ry="44"/></clipPath>'
- +'<g clip-path="url(#c'+f.n.length+f.t+')">'+x+'</g>'
+ +'<clipPath id="c'+f.n.length+'"><ellipse cx="110" cy="90" rx="68" ry="44"/></clipPath>'
+ +'<g clip-path="url(#c'+f.n.length+')">'+x+'</g>'
  +'<path d="M80 48 Q110 22 150 50Z" fill="'+a+'" opacity=".85"/>'
  +'<circle cx="60" cy="80" r="7" fill="#e6eadf"/><circle cx="58" cy="80" r="4" fill="#111310"/></g></svg>';
+}
+
+function svgAcc(f){
+ var b = (f.b && f.b.startsWith('#')) ? f.b : "#9ab366";
+ var a = (f.a && f.a.startsWith('#')) ? f.a : "#4f6132";
+ return '<svg viewBox="0 0 240 180"><g transform="translate(120 90) scale(0.85) translate(-120 -90)">'
+ +'<rect x="65" y="40" width="110" height="100" rx="16" fill="'+a+'" stroke="'+b+'" stroke-width="4" opacity="0.9"/>'
+ +'<path d="M65 72 L175 72" stroke="'+b+'" stroke-width="3"/>'
+ +'<rect x="95" y="26" width="50" height="14" rx="5" fill="'+b+'"/>'
+ +'<circle cx="120" cy="106" r="18" fill="'+b+'" opacity="0.85"/>'
+ +'</g></svg>';
 }
 
 function buildDetailVideoHtml(vidUrl, posterUrl) {
@@ -1253,9 +1428,9 @@ function buildDetailVideoHtml(vidUrl, posterUrl) {
     return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
   }
 
-  let driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (driveMatch) {
-    return `<iframe src="https://drive.google.com/file/d/${driveMatch[1]}/preview" allow="autoplay" allowfullscreen></iframe>`;
+  let driveId = extractDriveId(url);
+  if (driveId) {
+    return `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
   }
 
   let posterAttr = posterUrl ? `poster="${posterUrl}"` : "";
@@ -1265,13 +1440,20 @@ function buildDetailVideoHtml(vidUrl, posterUrl) {
     </video>`;
 }
 
-var cart = [], filter = "all";
-var currentPage = 1;
+var cart = [];
 const itemsPerPage = 12;
+
+var filter = "all";
+var currentPage = 1;
 var filteredFish = [];
+
+var accFilter = "all";
+var accCurrentPage = 1;
+var filteredAcc = [];
 
 function money(n){ return n.toLocaleString("vi-VN"); }
 
+/* --- BỘ LỌC & HIỂN THỊ DANH MỤC CÁ CẢNH --- */
 function renderFilters() {
   const cats = ["all", ...new Set(FISH.map(f => f.cat).filter(c => c))];
   let html = `<input id="q" placeholder="Tìm tên cá, dòng cá..." oninput="applyFilters(1, true)">`;
@@ -1282,9 +1464,9 @@ function renderFilters() {
   });
   document.getElementById("toolsBox").innerHTML = html;
 
-  document.querySelectorAll(".chip[data-f]").forEach(function(btn){
+  document.querySelectorAll("#toolsBox .chip[data-f]").forEach(function(btn){
     btn.onclick = function(){
-      document.querySelectorAll(".chip[data-f]").forEach(x => x.classList.remove("on"));
+      document.querySelectorAll("#toolsBox .chip[data-f]").forEach(x => x.classList.remove("on"));
       btn.classList.add("on");
       filter = btn.dataset.f;
       applyFilters(1, true);
@@ -1334,7 +1516,7 @@ function renderGrid(){
       : '<div class="mono-stock out-stock">Hết hàng</div>';
     
     var btnHtml = f.sl > 0 
-      ? '<button onclick="add('+f.originalIndex+')">Thêm vào giỏ</button>'
+      ? `<button onclick="add(${f.originalIndex}, 'fish')">Thêm vào giỏ</button>`
       : '<button disabled>Hết hàng</button>';
 
     var cardMediaHtml = f.img ? `<img src="${f.img}" alt="${f.n}" loading="lazy">` : svg(f);
@@ -1342,7 +1524,7 @@ function renderGrid(){
 
     h+=`<div class="card">
           <div class="pic" 
-               onclick="window.showFishDetail(${f.originalIndex})"
+               onclick="window.showFishDetail(${f.originalIndex}, 'fish')"
                ontouchstart="window.startPress(event)" 
                ontouchmove="window.movePress(event)">
             ${cardMediaHtml}
@@ -1375,18 +1557,125 @@ function renderPagination() {
   paginationContainer.innerHTML = ph;
 }
 
-function add(i) {
-  if (FISH[i].sl <= 0) return;
-  let existing = cart.find(item => item.index === i);
+/* --- BỘ LỌC & HIỂN THỊ DANH MỤC PHỤ KIỆN --- */
+function renderAccFilters() {
+  const cats = ["all", ...new Set(ACC.map(f => f.cat).filter(c => c))];
+  let html = `<input id="qAcc" placeholder="Tìm tên phụ kiện, thiết bị..." oninput="applyAccFilters(1, true)">`;
+  cats.forEach(c => {
+    let label = c === "all" ? "Tất cả" : c;
+    let activeClass = accFilter === c ? "on" : "";
+    html += `<button class="chip ${activeClass}" data-af="${c}">${label}</button>`;
+  });
+  document.getElementById("accToolsBox").innerHTML = html;
+
+  document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(btn){
+    btn.onclick = function(){
+      document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(x => x.classList.remove("on"));
+      btn.classList.add("on");
+      accFilter = btn.dataset.af;
+      applyAccFilters(1, true);
+    }
+  });
+}
+
+function applyAccFilters(page = 1, isClick = false) {
+  var qInput = document.getElementById("qAcc");
+  var q = qInput ? qInput.value.toLowerCase() : "";
+  filteredAcc = ACC.map((f, index) => ({...f, originalIndex: index}))
+                   .filter(f => (accFilter === "all" || f.cat === accFilter) && f.n.toLowerCase().indexOf(q) > -1);
+  accCurrentPage = page;
+  renderAccGrid();
+  if (isClick) {
+    const accSection = document.getElementById("pk");
+    if (accSection) {
+      const offset = accSection.offsetTop - 85;
+      window.scrollTo({ top: offset, behavior: "smooth" });
+    }
+  }
+}
+
+function renderAccGrid(){
+  var h = "";
+  var start = (accCurrentPage - 1) * itemsPerPage;
+  var end = start + itemsPerPage;
+  var paginatedItems = filteredAcc.slice(start, end);
+
+  paginatedItems.forEach(function(f){
+    var stockHtml = f.sl > 0 
+      ? '<div class="mono-stock in-stock">Sẵn có: ' + f.sl + '</div>' 
+      : '<div class="mono-stock out-stock">Hết hàng</div>';
+    
+    var btnHtml = f.sl > 0 
+      ? `<button onclick="add(${f.originalIndex}, 'acc')">Thêm vào giỏ</button>`
+      : '<button disabled>Hết hàng</button>';
+
+    var cardMediaHtml = f.img ? `<img src="${f.img}" alt="${f.n}" loading="lazy">` : svgAcc(f);
+    var videoBadgeHtml = f.vid ? `<span class="video-badge">▶ Video</span>` : "";
+
+    h+=`<div class="card">
+          <div class="pic" 
+               onclick="window.showFishDetail(${f.originalIndex}, 'acc')"
+               ontouchstart="window.startPress(event)" 
+               ontouchmove="window.movePress(event)">
+            ${cardMediaHtml}
+            ${videoBadgeHtml}
+          </div>
+          <div class="info">
+            <b>${f.n}</b>
+            <small>${f.cat} · ${f.s}</small>
+            ${stockHtml}
+            <div class="price">${money(f.p)}đ</div>
+            ${btnHtml}
+          </div>
+        </div>`;
+  });
+  
+  document.getElementById("accGrid").innerHTML = h || '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy phụ kiện phù hợp.</div>';
+  renderAccPagination();
+}
+
+function renderAccPagination() {
+  var totalPages = Math.ceil(filteredAcc.length / itemsPerPage);
+  var paginationContainer = document.getElementById("accPagination");
+  if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
+  var ph = "";
+  ph += '<button onclick="applyAccFilters('+(accCurrentPage - 1)+', true)" '+(accCurrentPage === 1 ? 'disabled' : '')+'>← Trước</button>';
+  for(var i = 1; i <= totalPages; i++) {
+    ph += '<button onclick="applyAccFilters('+i+', true)" class="'+(accCurrentPage === i ? 'active' : '')+'">'+i+'</button>';
+  }
+  ph += '<button onclick="applyAccFilters('+(accCurrentPage + 1)+', true)" '+(accCurrentPage === totalPages ? 'disabled' : '')+'>Sau →</button>';
+  paginationContainer.innerHTML = ph;
+}
+
+/* --- QUẢN LÝ GIỎ HÀNG CHUNG --- */
+function getItemSource(type) {
+  return type === 'acc' ? ACC : FISH;
+}
+
+function getCartItemsSubtotal() {
+  return cart.reduce((sum, item) => {
+    var source = getItemSource(item.type);
+    var product = source[item.index];
+    return sum + (product ? product.p * item.qty : 0);
+  }, 0);
+}
+
+function add(i, type = 'fish') {
+  const source = getItemSource(type);
+  const product = source[i];
+  if (!product || product.sl <= 0) return;
+  let unitLabel = type === 'acc' ? 'sản phẩm' : 'cá thể';
+
+  let existing = cart.find(item => item.index === i && item.type === type);
   if (existing) {
-    if (existing.qty < FISH[i].sl) {
+    if (existing.qty < product.sl) {
       existing.qty++;
     } else {
-      window.showModalAlert("Giới hạn tồn kho", `<b>${FISH[i].n}</b> hiện chỉ còn tối đa <b>${FISH[i].sl}</b> cá thể.`);
+      window.showModalAlert("Giới hạn tồn kho", `<b>${product.n}</b> hiện chỉ còn tối đa <b>${product.sl}</b> ${unitLabel}.`);
       return;
     }
   } else {
-    cart.push({ index: i, qty: 1 });
+    cart.push({ index: i, type: type, qty: 1 });
   }
   upd();
 }
@@ -1394,12 +1683,16 @@ function add(i) {
 function changeQty(k, delta) {
   let item = cart[k];
   if (!item) return;
-  let maxStock = FISH[item.index].sl;
+  const source = getItemSource(item.type);
+  const product = source[item.index];
+  let maxStock = product.sl;
+  let unitLabel = item.type === 'acc' ? 'sản phẩm' : 'cá thể';
   let newQty = item.qty + delta;
+
   if (newQty <= 0) {
     cart.splice(k, 1);
   } else if (newQty > maxStock) {
-    window.showModalAlert("Giới hạn tồn kho", `<b>${FISH[item.index].n}</b> hiện chỉ còn <b>${maxStock}</b> cá thể.`);
+    window.showModalAlert("Giới hạn tồn kho", `<b>${product.n}</b> hiện chỉ còn <b>${maxStock}</b> ${unitLabel}.`);
   } else {
     item.qty = newQty;
   }
@@ -1416,14 +1709,15 @@ function upd() {
   document.getElementById("cnt").textContent = totalCount;
   var t = 0;
   document.getElementById("items").innerHTML = cart.map(function(item, k) {
-    var fish = FISH[item.index];
-    var subTotal = fish.p * item.qty;
+    var source = getItemSource(item.type);
+    var product = source[item.index];
+    var subTotal = product.p * item.qty;
     t += subTotal;
     return `
       <div class="row">
         <div class="cart-item-info">
-          <span class="cart-item-title">${fish.n}</span>
-          <span class="cart-item-sub">${money(fish.p)}đ × ${item.qty} = <b style="color:var(--accent)">${money(subTotal)}đ</b></span>
+          <span class="cart-item-title">${product.n}</span>
+          <span class="cart-item-sub">${money(product.p)}đ × ${item.qty} = <b style="color:var(--accent)">${money(subTotal)}đ</b></span>
         </div>
         <div class="qty-box">
           <button class="qty-btn" onclick="changeQty(${k}, -1)">-</button>
@@ -1441,21 +1735,30 @@ function toggle(){ document.getElementById("panel").classList.toggle("open"); }
 const modalOverlay = document.getElementById('customModal');
 const modalBox = document.getElementById('modalBox');
 let modalTimer;
+let activePaymentUnsub = null;
 
 window.closeModalOutside = function(e) {
   if (e.target === modalOverlay) { window.closeModal(); }
 }
 window.closeModal = function() {
+  if (activePaymentUnsub) {
+    activePaymentUnsub();
+    activePaymentUnsub = null;
+  }
   modalOverlay.classList.remove('show');
   modalTimer = setTimeout(() => { modalBox.innerHTML = ''; }, 300);
 }
 
-window.showCheckoutModal = function() {
+// BẢNG THÔNG TIN NHẬN HÀNG + CHỌN PHƯƠNG THỨC VẬN CHUYỂN (3 MỨC)
+window.showCheckoutModal = function(tienHang = 0) {
   clearTimeout(modalTimer);
   return new Promise((resolve) => {
+    const defaultShip = 110000;
+    const initGrandTotal = tienHang + defaultShip;
+
     modalBox.innerHTML = `
       <h3>Thông Tin Nhận Hàng</h3>
-      <p style="margin-bottom: 16px;">Điền thông tin để TK aqua xác nhận và điều phối vận chuyển:</p>
+      <p style="margin-bottom: 16px;">Điền thông tin để TK aqua xác nhận và khởi tạo mã thanh toán:</p>
       <div class="checkout-form">
         <div class="form-group">
           <label>Người nhận *</label>
@@ -1470,18 +1773,52 @@ window.showCheckoutModal = function() {
           <textarea id="chkAddress" placeholder="Số nhà, đường, Phường/Xã, Quận/Huyện, Tỉnh/TP..."></textarea>
         </div>
         <div class="form-group">
+          <label>Khu vực & Phương thức giao hàng *</label>
+          <select id="chkShipping">
+            <option value="110000" data-label="Nội thành TP.HCM (Hộp đóng hàng + Ship Grab/Ahamove)">Nội thành TP.HCM (Hộp + Ship app): +110.000đ</option>
+            <option value="210000" data-label="Tỉnh / Ngoại thành (Hộp đóng hàng + Xe khách)">Tỉnh / Ngoại thành (Hộp + Xe khách): +210.000đ</option>
+            <option value="500000" data-label="Quốc tế / Đi máy bay (Đóng gói chuyên dụng + Cước bay)">Quốc tế / Đi máy bay (Đóng gói + Cước bay): +500.000đ</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label>Ghi chú</label>
           <input type="text" id="chkNote" placeholder="Giao giờ hành chính, gửi nhà xe...">
         </div>
+
+        <div class="checkout-summary-box">
+          <div class="summary-line">
+            <span>Tiền sản phẩm:</span>
+            <b>${money(tienHang)}đ</b>
+          </div>
+          <div class="summary-line">
+            <span>Phí đóng gói & vận chuyển:</span>
+            <b id="lblShipFee">${money(defaultShip)}đ</b>
+          </div>
+          <div class="summary-line total">
+            <span>TỔNG THANH TOÁN:</span>
+            <b id="lblGrandTotal">${money(initGrandTotal)}đ</b>
+          </div>
+        </div>
+
         <div id="chkError" class="form-error"></div>
       </div>
       <div class="modal-actions">
         <button id="modalCancel" class="btn-cancel">Hủy</button>
-        <button id="modalConfirm" class="btn-confirm">Xác nhận đặt</button>
+        <button id="modalConfirm" class="btn-confirm">Tiếp tục thanh toán</button>
       </div>
     `;
     modalOverlay.classList.add('show');
     setTimeout(() => document.getElementById('chkName').focus(), 100);
+
+    const shipSelect = document.getElementById('chkShipping');
+    const lblShipFee = document.getElementById('lblShipFee');
+    const lblGrandTotal = document.getElementById('lblGrandTotal');
+
+    shipSelect.onchange = () => {
+      const fee = parseInt(shipSelect.value) || 0;
+      lblShipFee.textContent = money(fee) + 'đ';
+      lblGrandTotal.textContent = money(tienHang + fee) + 'đ';
+    };
 
     const errBox = document.getElementById('chkError');
     const showError = (msg) => {
@@ -1494,6 +1831,8 @@ window.showCheckoutModal = function() {
       const rawPhone = document.getElementById('chkPhone').value.replace(/[\s\.\-\+]/g, '');
       const address = document.getElementById('chkAddress').value.trim();
       const note = document.getElementById('chkNote').value.trim();
+      const shipFee = parseInt(shipSelect.value) || 110000;
+      const shipMethod = shipSelect.options[shipSelect.selectedIndex].getAttribute('data-label');
 
       if (!name) {
         showError("Vui lòng nhập họ tên người nhận.");
@@ -1512,7 +1851,7 @@ window.showCheckoutModal = function() {
       }
 
       window.closeModal();
-      resolve({ name, phone: rawPhone, address, note });
+      resolve({ name, phone: rawPhone, address, note, shipFee, shipMethod });
     };
 
     document.getElementById('modalCancel').onclick = () => {
@@ -1534,31 +1873,119 @@ window.showModalAlert = function(title, message) {
   });
 };
 
-window.showFishDetail = function(index) {
+// POPUP QUÉT MÃ QR PAYOS & TỰ ĐỘNG LẮNG NGHE KẾT QUẢ THANH TOÁN
+window.showPayOSModal = function(paymentInfo, orderInfo, listenOrderPaid) {
+  clearTimeout(modalTimer);
+  return new Promise((resolve) => {
+    const qrRaw = paymentInfo.qrCode || "";
+    const checkoutUrl = paymentInfo.checkoutUrl || "#";
+    const qrImgSrc = qrRaw
+      ? `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=6&data=${encodeURIComponent(qrRaw)}`
+      : "";
+
+    modalBox.innerHTML = `
+      <h3>Thanh Toán Đơn #${orderInfo.maDon}</h3>
+      <p style="margin-bottom: 10px; font-size: 13px;">Mở App Ngân hàng bất kỳ để quét mã VietQR payOS bên dưới (số tiền & nội dung đã được khóa tự động):</p>
+
+      <div class="payos-qr-box">
+        ${qrImgSrc ? `<div class="payos-qr-img-wrap"><img src="${qrImgSrc}" alt="Mã QR payOS"></div>` : ''}
+        <div class="payos-info-row">
+          <span>Mã đơn hàng:</span>
+          <b>#${orderInfo.maDon}</b>
+        </div>
+        <div class="payos-info-row">
+          <span>Tiền sản phẩm:</span>
+          <b>${money(orderInfo.tienHang)}đ</b>
+        </div>
+        <div class="payos-info-row">
+          <span>Phí đóng gói & ship:</span>
+          <b>${money(orderInfo.phiShip)}đ</b>
+        </div>
+        <div class="payos-info-row">
+          <span>Tổng thanh toán:</span>
+          <b style="font-size: 15px; color: #ffcc00;">${money(orderInfo.tongCong)}đ</b>
+        </div>
+        ${paymentInfo.accountNumber ? `
+        <div class="payos-info-row">
+          <span>Số tài khoản nhận:</span>
+          <b>${paymentInfo.accountNumber}</b>
+        </div>` : ''}
+        ${paymentInfo.description ? `
+        <div class="payos-info-row">
+          <span>Nội dung CK:</span>
+          <b>${paymentInfo.description}</b>
+        </div>` : ''}
+
+        <div class="payos-status-badge" id="payosStatusBadge">
+          <span class="pulse-dot"></span>
+          <span>Đang chờ xác nhận thanh toán tự động...</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <a href="${checkoutUrl}" target="_blank" class="btn-cancel">Mở cổng payOS ↗</a>
+        <button id="modalConfirm" class="btn-confirm">Đã chuyển / Đóng</button>
+      </div>
+    `;
+    modalOverlay.classList.add('show');
+
+    if (typeof listenOrderPaid === 'function') {
+      activePaymentUnsub = listenOrderPaid(() => {
+        const badge = document.getElementById('payosStatusBadge');
+        if (badge) {
+          badge.innerHTML = `✅ ĐÃ NHẬN ĐỦ TIỀN! ĐƠN HÀNG HOÀN TẤT`;
+          badge.style.background = "rgba(154, 179, 102, 0.28)";
+          badge.style.color = "#ffffff";
+        }
+        setTimeout(async () => {
+          window.closeModal();
+          await window.showModalAlert(
+            "Thanh toán thành công",
+            `Cảm ơn <b>${orderInfo.tenKhach.toUpperCase()}</b>!<br>Hệ thống đã nhận đủ <b>${money(orderInfo.tongCong)}đ</b> cho đơn hàng <b>#${orderInfo.maDon}</b>. TK aqua sẽ sớm liên hệ số <b>${orderInfo.sdt}</b> để gửi hàng.`
+          );
+          resolve(true);
+        }, 1200);
+      });
+    }
+
+    document.getElementById('modalConfirm').onclick = () => {
+      window.closeModal();
+      resolve(false);
+    };
+  });
+};
+
+window.showFishDetail = function(index, type = 'fish') {
   if (isScrolling) return;
   clearTimeout(modalTimer);
   
-  let f = FISH[index];
+  let source = getItemSource(type);
+  let f = source[index];
+  let defaultSvg = type === 'acc' ? svgAcc(f) : svg(f);
   let detailMediaHtml = f.vid 
       ? buildDetailVideoHtml(f.vid, f.img) 
-      : (f.img ? `<img src="${f.img}" alt="${f.n}">` : svg(f));
+      : (f.img ? `<img src="${f.img}" alt="${f.n}">` : defaultSvg);
+
+  let label1 = type === 'acc' ? "Công Dụng & Đặc Điểm" : "Đặc Điểm & Tập Tính";
+  let label2 = type === 'acc' ? "Hướng Dẫn Sử Dụng" : "Thông Số Nước & Bể";
+  let label3 = type === 'acc' ? "Thông Tin Bổ Sung" : "Cá Nuôi Chung (Tank Mates)";
   
   modalBox.innerHTML = `
     <div class="fish-info-wrap">
       <div class="fish-info-pic">${detailMediaHtml}</div>
       <h3 style="margin-bottom: 4px;">${f.n}</h3>
-      <div style="font-size: 12px; font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px; margin-bottom: 20px; color: var(--text-muted);">Phân loại: ${f.cat} · Size: ${f.s}</div>
+      <div style="font-size: 12px; font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px; margin-bottom: 20px; color: var(--text-muted);">Phân loại: ${f.cat} · ${f.s}</div>
       
       <div class="info-detail-row">
-        <b>Đặc Điểm & Tập Tính</b>
+        <b>${label1}</b>
         <span>${f.desc || "Đang cập nhật."}</span>
       </div>
       <div class="info-detail-row">
-        <b>Thông Số Nước & Bể</b>
+        <b>${label2}</b>
         <span>${f.env || "Đang cập nhật."}</span>
       </div>
       <div class="info-detail-row">
-        <b>Cá Nuôi Chung (Tank Mates)</b>
+        <b>${label3}</b>
         <span>${f.mates || "Đang cập nhật."}</span>
       </div>
       
@@ -1615,7 +2042,7 @@ initData();
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-analytics.js";
-  import { getFirestore, collection, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  import { getFirestore, collection, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB05d2OGQLkMiOQQrXRLtfE8tUVb3f5iMs",
@@ -1633,11 +2060,12 @@ initData();
 
   window.datHangFirebase = async function() {
     if (cart.length === 0) { 
-      await window.showModalAlert("Giỏ hàng trống", "Vui lòng chọn cá trước khi đặt hàng."); 
+      await window.showModalAlert("Giỏ hàng trống", "Vui lòng chọn sản phẩm trước khi đặt hàng."); 
       return; 
     }
     
-    const customer = await window.showCheckoutModal();
+    const tamTinhHang = getCartItemsSubtotal();
+    const customer = await window.showCheckoutModal(tamTinhHang);
     if (!customer) return;
     
     let btn = document.getElementById("btnDatHang");
@@ -1645,18 +2073,21 @@ initData();
     btn.textContent = "ĐANG XỬ LÝ...";
     btn.disabled = true; 
 
-    let danhSachCa = [];
-    let tongTien = 0;
-    let tongSoLuongCon = 0;
+    let danhSachSP = [];
+    let tienHang = 0;
+    let tongSoLuong = 0;
     let chiTietHoaDonText = "";
 
     cart.forEach(function(item, idx) {
-      let f = FISH[item.index];
+      let source = item.type === 'acc' ? ACC : FISH;
+      let f = source[item.index];
       let thanhTien = f.p * item.qty;
-      tongTien += thanhTien;
-      tongSoLuongCon += item.qty;
+      let donVi = item.type === 'acc' ? "sp" : "con";
+      tienHang += thanhTien;
+      tongSoLuong += item.qty;
 
-      danhSachCa.push({
+      danhSachSP.push({
+        loai: item.type === 'acc' ? "Phụ kiện" : "Cá cảnh",
         ten_ca: f.n,
         size: f.s || "",
         so_luong: item.qty,
@@ -1666,30 +2097,43 @@ initData();
 
       let stt = String(idx + 1).padStart(2, '0');
       let sizeInfo = f.s ? ` (${f.s})` : "";
-      chiTietHoaDonText += `${stt}. ${f.n}${sizeInfo}\n    SL: ${item.qty} con  ×  ${f.p.toLocaleString('vi-VN')}đ  =  ${thanhTien.toLocaleString('vi-VN')}đ\n`;
+      chiTietHoaDonText += `${stt}. ${f.n}${sizeInfo}\n    SL: ${item.qty} ${donVi}  ×  ${f.p.toLocaleString('vi-VN')}đ  =  ${thanhTien.toLocaleString('vi-VN')}đ\n`;
     });
 
+    const phiShip = customer.shipFee || 0;
+    const phuongThucShip = customer.shipMethod || "Tiêu chuẩn";
+    const tongTien = tienHang + phiShip;
+
     try {
-      let maSo = Math.floor(1000 + Math.random() * 9000);
+      // Tạo mã đơn số nguyên duy nhất dùng chung cho Firebase và payOS
+      let maSo = Number(String(Date.now()).slice(-6) + String(Math.floor(10 + Math.random() * 90)));
       let maDonHang = `TKA-${maSo} - ${customer.phone} - ${customer.name}`;
       let thoiGianDat = new Date().toLocaleString('vi-VN');
+      const orderDocRef = doc(db, "don_hang", maDonHang);
 
-      await setDoc(doc(db, "don_hang", maDonHang), {
+      // 1. Lưu vào Firebase Firestore (Trạng thái ban đầu: Chờ thanh toán)
+      await setDoc(orderDocRef, {
         ma_don: `TKA-${maSo}`,
+        order_code_num: maSo,
+        trang_thai: "Chờ thanh toán",
         ten_khach: customer.name,       
         so_dien_thoai: customer.phone,
         dia_chi: customer.address,
+        phuong_thuc_ship: phuongThucShip,
+        phi_ship: phiShip,
+        tien_hang: tienHang,
         ghi_chu: customer.note || "Không có",
-        san_pham: danhSachCa,
-        tong_so_luong: tongSoLuongCon,
+        san_pham: danhSachSP,
+        tong_so_luong: tongSoLuong,
         tong_tien: tongTien,
         ngay_dat: serverTimestamp()
       });
 
+      // 2. Gửi thông báo qua API / Discord
       const DISCORD_WEBHOOK_URL = "/api/notify";
 
       const discordPayload = {
-        content: `🔔 **ĐƠN HÀNG MỚI #TKA-${maSo}**`,
+        content: `🔔 **ĐƠN HÀNG MỚI #TKA-${maSo} (CHỜ THANH TOÁN)**`,
         embeds: [
           {
             title: `HÓA ĐƠN #TKA-${maSo}`,
@@ -1699,9 +2143,10 @@ initData();
               { name: "Điện thoại", value: `**${customer.phone}**`, inline: true },
               { name: "Thời gian", value: thoiGianDat, inline: true },
               { name: "Địa chỉ", value: customer.address, inline: false },
-              { name: `Danh mục (${tongSoLuongCon} con)`, value: "```yaml\n" + chiTietHoaDonText + "```", inline: false },
+              { name: "Vận chuyển", value: `${phuongThucShip} (+${phiShip.toLocaleString('vi-VN')}đ)`, inline: false },
+              { name: `Danh mục (${tongSoLuong} món)`, value: "```yaml\n" + chiTietHoaDonText + "```", inline: false },
               { name: "Ghi chú", value: customer.note ? customer.note : "Không", inline: true },
-              { name: "TỔNG CỘNG", value: `**${tongTien.toLocaleString('vi-VN')} VNĐ** _(Chưa phí ship)_`, inline: true }
+              { name: "TỔNG THANH TOÁN", value: `**${tongTien.toLocaleString('vi-VN')} VNĐ** _(Đã gồm ship & hộp)_`, inline: true }
             ],
             footer: { text: "TK aqua · Hệ thống Tự Động" }
           }
@@ -1714,11 +2159,91 @@ initData();
         body: JSON.stringify(discordPayload)
       }).catch(err => console.log("Discord error:", err));
 
-      await window.showModalAlert(
-        "Đặt hàng thành công",
-        `Cảm ơn <b>${customer.name.toUpperCase()}</b>.<br>Đơn hàng <b>#TKA-${maSo}</b> (${tongSoLuongCon} cá thể — <b>${tongTien.toLocaleString('vi-VN')}đ</b>) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>${customer.phone}</b> để xác nhận lịch giao.`
-      );
-      cart = []; upd(); toggle(); 
+      // 3. Tự động ghi đơn hàng vào Google Sheet nội bộ qua Apps Script Web App
+      const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwIvuLes3qi8AH3AINWDDzLPVigzNvp5kDLhYl0azjWWfqf3C2j9ynNSD4Wr7lzfpVvIg/exec";
+
+      let chuoiChiTietSP = danhSachSP.map(sp => {
+        let dv = sp.loai === "Phụ kiện" ? "sp" : "con";
+        let sz = sp.size ? ` (${sp.size})` : "";
+        return `${sp.ten_ca}${sz} x${sp.so_luong} ${dv}`;
+      }).join(", ") + ` | Ship: ${phuongThucShip} (+${phiShip.toLocaleString('vi-VN')}đ)`;
+
+      const sheetPayload = {
+        ma_don: `TKA-${maSo}`,
+        thoi_gian: thoiGianDat,
+        ten_khach: customer.name,
+        so_dien_thoai: customer.phone,
+        dia_chi: customer.address,
+        chi_tiet_sp: chuoiChiTietSP,
+        chi_tiet_ca: chuoiChiTietSP,
+        tong_so_luong: tongSoLuong,
+        tong_tien: tongTien,
+        ghi_chu: (customer.note ? customer.note + " | " : "") + phuongThucShip
+      };
+
+      fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(sheetPayload)
+      }).catch(err => console.log("Google Sheet error:", err));
+
+      // 4. Gọi API Cloudflare Worker tạo mã thanh toán payOS
+      let payosPaymentData = null;
+      try {
+        const payRes = await fetch("/api/create-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderCode: maSo,
+            amount: tongTien,
+            description: `TKA ${maSo}`,
+            buyerName: customer.name,
+            buyerPhone: customer.phone,
+            buyerAddress: customer.address
+          })
+        });
+        const payJson = await payRes.json();
+        if (payJson && payJson.data && (payJson.data.qrCode || payJson.data.checkoutUrl)) {
+          payosPaymentData = payJson.data;
+        } else if (payJson && (payJson.qrCode || payJson.checkoutUrl)) {
+          payosPaymentData = payJson;
+        }
+      } catch (payErr) {
+        console.error("Lỗi gọi API payOS:", payErr);
+      }
+
+      cart = []; upd(); toggle();
+
+      // 5. Hiển thị popup quét mã QR payOS (hoặc thông báo dự phòng nếu lỗi mạng)
+      if (payosPaymentData) {
+        const listenOrderPaid = (onPaidCallback) => {
+          return onSnapshot(orderDocRef, (snap) => {
+            const data = snap.data();
+            if (data && (data.trang_thai === "Đã thanh toán" || data.paid === true)) {
+              onPaidCallback();
+            }
+          });
+        };
+
+        await window.showPayOSModal(
+          payosPaymentData,
+          {
+            maDon: `TKA-${maSo}`,
+            tenKhach: customer.name,
+            sdt: customer.phone,
+            tienHang: tienHang,
+            phiShip: phiShip,
+            tongCong: tongTien
+          },
+          listenOrderPaid
+        );
+      } else {
+        await window.showModalAlert(
+          "Đặt hàng thành công",
+          `Cảm ơn <b>${customer.name.toUpperCase()}</b>.<br>Đơn hàng <b>#TKA-${maSo}</b> (${tongSoLuong} sản phẩm — Tổng cộng <b>${tongTien.toLocaleString('vi-VN')}đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>${customer.phone}</b> để gửi mã thanh toán và xác nhận lịch giao.`
+        );
+      }
     } catch (error) {
       console.error("Lỗi:", error);
       await window.showModalAlert("Lỗi hệ thống", "Không thể tạo đơn lúc này. Vui lòng gọi trực tiếp 0703.008.005.");

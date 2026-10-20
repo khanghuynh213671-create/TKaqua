@@ -21,7 +21,7 @@
   --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
-/* HIỆU ỨNG CHUYỂN TRANG MƯỢT CHUẨN GPU (KHÔNG LỆCH KHUNG) */
+/* HIỆU ỨNG CHUYỂN TRANG MƯỢT CHUẨN GPU */
 @view-transition {
   navigation: auto;
 }
@@ -125,10 +125,11 @@ header.scrolled .bar {
   letter-spacing: 0.4px;
   color: var(--text-muted);
   text-decoration: none;
-  padding: 7px 14px;
+  padding: 7px 13px;
   border-radius: 999px;
   white-space: nowrap;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 .header-nav a:hover, .header-nav a.active {
   color: var(--text);
@@ -156,6 +157,7 @@ header.scrolled .bar {
   font-weight: 700;
   white-space: nowrap;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 .hotline-link:hover {
   border-color: var(--accent);
@@ -233,6 +235,7 @@ header.scrolled .bar {
   padding: 5px 12px;
   border-radius: 999px;
   transition: 0.2s;
+  cursor: pointer;
 }
 .mobile-nav-strip a:hover {
   color: var(--text);
@@ -782,7 +785,7 @@ h2 {
   background: var(--bg-card);
   border: 1.5px solid var(--border);
   border-radius: 16px;
-  padding: 30px 26px; width: 92%; max-width: 460px;
+  padding: 30px 26px; width: 92%; max-width: 480px;
   text-align: center;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
   transform: scale(0.95); transition: 0.25s ease;
@@ -898,6 +901,87 @@ h2 {
   0%, 100% { transform: scale(0.85); opacity: 0.5; }
   50% { transform: scale(1.2); opacity: 1; }
 }
+
+/* GIAO DIỆN TRA CỨU ĐƠN HÀNG (KHÔNG CẦN ĐĂNG NHẬP) */
+.order-lookup-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.order-lookup-bar input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: #0e100d;
+  color: var(--text);
+  font-size: 13.5px;
+  outline: none;
+}
+.order-lookup-bar input:focus { border-color: var(--accent); }
+.order-lookup-bar button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #111310;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.order-history-list {
+  text-align: left;
+  max-height: 360px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.order-history-card {
+  background: #0e100d;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 14px;
+}
+.order-history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+.order-history-head b {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13.5px;
+  color: var(--accent);
+}
+.order-badge {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+.order-badge.paid {
+  background: rgba(154, 179, 102, 0.2);
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+.order-badge.pending {
+  background: rgba(255, 204, 0, 0.12);
+  color: #ffcc00;
+  border: 1px solid rgba(255, 204, 0, 0.3);
+}
+.order-history-body {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.order-history-body b { color: var(--text); }
 
 .modal-actions { display: flex; gap: 12px; margin-top: 10px; }
 .modal-actions button, .modal-actions a {
@@ -1076,6 +1160,7 @@ footer {
     <nav class="header-nav">
       <a href="#sp" class="active">Cá cảnh</a>
       <a href="#pk">Phụ kiện</a>
+      <a onclick="window.openOrderLookup()">Đơn đã đặt</a>
       <a href="giao-hang.html">Giao hàng</a>
       <a href="bao-hanh.html">Bảo hành</a>
       <a href="ho-tro.html">Hỗ trợ</a>
@@ -1083,10 +1168,10 @@ footer {
     </nav>
 
     <div class="header-actions">
-      <a href="tel:0703008005" class="hotline-link" title="Hotline">
+      <button class="hotline-link" onclick="window.openOrderLookup()" title="Tra cứu đơn hàng đã đặt">
         <span class="status-dot"></span>
-        0703.008.005
-      </a>
+        Tra cứu đơn
+      </button>
       <button class="cart" id="cartBtn" onclick="toggle()">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -1102,6 +1187,7 @@ footer {
   <nav class="mobile-nav-strip">
     <a href="#sp">Cá cảnh</a>
     <a href="#pk">Phụ kiện</a>
+    <a onclick="window.openOrderLookup()">📦 Đơn đã đặt</a>
     <a href="giao-hang.html">Giao hàng</a>
     <a href="bao-hanh.html">Bảo hành</a>
     <a href="ho-tro.html">Hỗ trợ</a>
@@ -1247,7 +1333,8 @@ footer {
   <div id="items"></div>
   <p style="margin: 25px 0 15px 0;"><b>Tổng cộng: <span id="total" style="font-family:'Montserrat', sans-serif; font-size: 20px; color: var(--accent);">0</span>đ</b></p>
   <button id="btnDatHang" class="cart" style="width:100%; justify-content:center; padding: 12px;" onclick="window.datHangFirebase()">Đặt hàng ngay</button>
-  <button class="chip" style="width:100%; margin-top:10px;" onclick="toggle()">Đóng</button>
+  <button class="chip" style="width:100%; margin-top:10px;" onclick="window.openOrderLookup()">📦 Xem đơn đã đặt</button>
+  <button class="chip" style="width:100%; margin-top:8px;" onclick="toggle()">Đóng</button>
 </aside>
 
 <footer>TK aqua · Hotline/Zalo: 0703.008.005 · TP. Hồ Chí Minh</footer>
@@ -1308,14 +1395,12 @@ async function initData() {
   upd();
 }
 
-// Trích xuất ID file từ mọi định dạng link Google Drive
 function extractDriveId(url) {
   if (!url) return null;
   let match = url.trim().match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]+)/);
   return match ? match[1] : null;
 }
 
-// Chuyển đổi link ảnh (nếu cột Anh trống nhưng cột Video có link Drive thì tự lấy thumbnail từ Video Drive)
 function resolveThumbnailUrl(imgRaw, vidRaw) {
   let cleanImg = imgRaw ? imgRaw.trim() : "";
   if (cleanImg) {
@@ -1452,7 +1537,7 @@ var accFilter = "all";
 var accCurrentPage = 1;
 var filteredAcc = [];
 
-function money(n){ return n.toLocaleString("vi-VN"); }
+function money(n){ return Number(n || 0).toLocaleString("vi-VN"); }
 
 /* --- BỘ LỌC & HIỂN THỊ DANH MỤC CÁ CẢNH --- */
 function renderFilters() {
@@ -1761,6 +1846,9 @@ window.showCheckoutModal = function(tienHang = 0) {
   return new Promise((resolve) => {
     const defaultShip = 110000;
     const initGrandTotal = tienHang + defaultShip;
+    const savedPhone = localStorage.getItem("tka_last_phone") || "";
+    const savedName = localStorage.getItem("tka_last_name") || "";
+    const savedAddress = localStorage.getItem("tka_last_address") || "";
 
     modalBox.innerHTML = `
       <h3>Thông Tin Nhận Hàng</h3>
@@ -1768,15 +1856,15 @@ window.showCheckoutModal = function(tienHang = 0) {
       <div class="checkout-form">
         <div class="form-group">
           <label>Người nhận *</label>
-          <input type="text" id="chkName" placeholder="Nguyễn Văn A" autocomplete="name">
+          <input type="text" id="chkName" placeholder="Nguyễn Văn A" autocomplete="name" value="${savedName}">
         </div>
         <div class="form-group">
           <label>Số điện thoại *</label>
-          <input type="tel" id="chkPhone" placeholder="0703008005" autocomplete="tel">
+          <input type="tel" id="chkPhone" placeholder="0703008005" autocomplete="tel" value="${savedPhone}">
         </div>
         <div class="form-group">
           <label>Địa chỉ nhận hàng *</label>
-          <textarea id="chkAddress" placeholder="Số nhà, đường, Phường/Xã, Quận/Huyện, Tỉnh/TP..."></textarea>
+          <textarea id="chkAddress" placeholder="Số nhà, đường, Phường/Xã, Quận/Huyện, Tỉnh/TP...">${savedAddress}</textarea>
         </div>
         <div class="form-group">
           <label>Khu vực & Phương thức giao hàng *</label>
@@ -1856,6 +1944,11 @@ window.showCheckoutModal = function(tienHang = 0) {
         return;
       }
 
+      // Lưu lại thông tin cơ bản trên máy khách để tiện tra cứu đơn
+      localStorage.setItem("tka_last_phone", rawPhone);
+      localStorage.setItem("tka_last_name", name);
+      localStorage.setItem("tka_last_address", address);
+
       window.closeModal();
       resolve({ name, phone: rawPhone, address, note, shipFee, shipMethod });
     };
@@ -1930,7 +2023,7 @@ window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, liste
 
       <div class="modal-actions">
         <a href="${checkoutUrl}" target="_blank" class="btn-cancel">Mở cổng payOS ↗</a>
-        <button id="modalConfirm" class="btn-confirm">Đóng</button>
+        <button id="modalConfirm" class="btn-confirm">Kiểm tra / Đóng</button>
       </div>
     `;
     modalOverlay.classList.add('show');
@@ -1958,37 +2051,51 @@ window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, liste
       setTimeout(async () => {
         window.closeModal();
         await window.showModalAlert(
-          "Thanh toán thành công",
-          `Cảm ơn <b>${orderInfo.tenKhach.toUpperCase()}</b>!<br>Hệ thống đã nhận đủ <b>${money(orderInfo.tongCong)}đ</b> cho đơn hàng <b>#${orderInfo.maDon}</b>. TK aqua sẽ sớm liên hệ số <b>${orderInfo.sdt}</b> để gửi hàng.`
+          "Xác Nhận Thanh Toán Thành Công",
+          `Cảm ơn <b>${orderInfo.tenKhach.toUpperCase()}</b>!<br>Hệ thống đã nhận đủ <b>${money(orderInfo.tongCong)}đ</b> cho đơn hàng <b>#${orderInfo.maDon}</b>.<br>Bạn có thể xem lại trạng thái đơn bất cứ lúc nào tại mục <b>Tra cứu đơn</b>.`
         );
         resolve(true);
-      }, 1200);
+      }, 900);
     };
 
-    // Cơ chế 1: Tự động hỏi trạng thái payOS mỗi 3 giây
-    activePaymentInterval = setInterval(async () => {
-      if (isConfirmed) return;
+    const checkPayOSNow = async () => {
+      if (isConfirmed) return false;
       try {
-        const res = await fetch(`${API_BASE}/api/check-payment?orderCode=${orderInfo.orderCodeNum}`);
+        const res = await fetch(`${API_BASE}/api/check-payment?orderCode=${orderInfo.orderCodeNum}&t=${Date.now()}`, {
+          cache: "no-store"
+        });
         const resJson = await res.json();
-        if (resJson && resJson.data && resJson.data.status === "PAID") {
+        const st = resJson && resJson.data ? resJson.data.status : null;
+        const paidAmt = resJson && resJson.data ? Number(resJson.data.amountPaid || 0) : 0;
+        const reqAmt = resJson && resJson.data ? Number(resJson.data.amount || 0) : 0;
+        if (st === "PAID" || (reqAmt > 0 && paidAmt >= reqAmt)) {
           await handleSuccess();
+          return true;
         }
       } catch (e) {
         console.log("Đang kiểm tra trạng thái thanh toán...", e);
       }
-    }, 3000);
+      return false;
+    };
 
-    // Cơ chế 2: Lắng nghe đồng bộ từ Firestore
+    // Cơ chế 1: Tự động hỏi trạng thái payOS mỗi 2.5 giây
+    activePaymentInterval = setInterval(checkPayOSNow, 2500);
+
+    // Cơ chế 2: Lắng nghe đồng bộ thời gian thực từ Firestore (khi Webhook Cloudflare cập nhật)
     if (typeof listenFirestorePaid === 'function') {
       activePaymentUnsub = listenFirestorePaid(() => {
         handleSuccess();
       });
     }
 
-    document.getElementById('modalConfirm').onclick = () => {
-      window.closeModal();
-      resolve(false);
+    document.getElementById('modalConfirm').onclick = async () => {
+      const btn = document.getElementById('modalConfirm');
+      if (btn) btn.textContent = "ĐANG KIỂM TRA...";
+      const ok = await checkPayOSNow();
+      if (!ok) {
+        window.closeModal();
+        resolve(false);
+      }
     };
   });
 };
@@ -2080,7 +2187,7 @@ initData();
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-analytics.js";
-  import { getFirestore, collection, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  import { getFirestore, collection, doc, setDoc, getDocs, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB05d2OGQLkMiOQQrXRLtfE8tUVb3f5iMs",
@@ -2107,7 +2214,6 @@ initData();
       });
       if (!res.ok) throw new Error("Worker notify failed");
     } catch (e) {
-      // Dự phòng bắn trực tiếp vào Discord nếu mở file local
       fetch(DIRECT_DISCORD_WEBHOOK, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2115,6 +2221,121 @@ initData();
       }).catch(err => console.log("Discord error:", err));
     }
   }
+
+  // LƯU MÃ ĐƠN VÀO TRÌNH DUYỆT CỦA KHÁCH ĐỂ XEM LẠI KHÔNG CẦN ĐĂNG NHẬP
+  function saveOrderToLocalHistory(orderSummary) {
+    try {
+      let list = JSON.parse(localStorage.getItem("tka_order_history") || "[]");
+      list = list.filter(x => x.ma_don !== orderSummary.ma_don);
+      list.unshift(orderSummary);
+      localStorage.setItem("tka_order_history", JSON.stringify(list.slice(0, 20)));
+    } catch (e) {}
+  }
+
+  // POPUP TRA CỨU ĐƠN HÀNG ĐÃ ĐẶT (KHÔNG CẦN ĐĂNG NHẬP)
+  window.openOrderLookup = async function() {
+    clearTimeout(modalTimer);
+    const savedPhone = localStorage.getItem("tka_last_phone") || "";
+
+    modalBox.innerHTML = `
+      <h3>Đơn Hàng Đã Đặt</h3>
+      <p style="margin-bottom: 12px; font-size: 13px;">Nhập <b>Số điện thoại</b> hoặc <b>Mã đơn</b> (VD: TKA-92881161) để xem trạng thái đơn hàng:</p>
+      <div class="order-lookup-bar">
+        <input type="text" id="lookupInput" placeholder="Nhập SĐT hoặc Mã đơn..." value="${savedPhone}">
+        <button id="btnLookupSearch">Tìm kiếm</button>
+      </div>
+      <div id="lookupResults" class="order-history-list">
+        <div style="text-align:center; padding: 20px; color: var(--text-muted);">Đang tải đơn hàng...</div>
+      </div>
+      <button class="btn-close-info" onclick="window.closeModal()">Đóng</button>
+    `;
+    modalOverlay.classList.add('show');
+
+    const renderOrderCards = (orders) => {
+      const container = document.getElementById("lookupResults");
+      if (!container) return;
+      if (!orders || orders.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 24px 10px; color: var(--text-muted);">Chưa tìm thấy đơn hàng nào. Hãy nhập số điện thoại đã dùng khi đặt hàng.</div>`;
+        return;
+      }
+
+      container.innerHTML = orders.map(o => {
+        const isPaid = o.trang_thai === "Đã thanh toán" || o.paid === true;
+        const badgeClass = isPaid ? "paid" : "pending";
+        const badgeText = isPaid ? "✅ Đã thanh toán" : "⏳ Chờ thanh toán";
+        const spList = Array.isArray(o.san_pham)
+          ? o.san_pham.map(sp => `${sp.ten_ca}${sp.size ? ' ('+sp.size+')' : ''} × ${sp.so_luong}`).join(", ")
+          : "";
+
+        return `
+          <div class="order-history-card">
+            <div class="order-history-head">
+              <b>#${o.ma_don || ''}</b>
+              <span class="order-badge ${badgeClass}">${badgeText}</span>
+            </div>
+            <div class="order-history-body">
+              <div><b>Khách hàng:</b> ${o.ten_khach || ''} (${o.so_dien_thoai || ''})</div>
+              <div><b>Sản phẩm:</b> ${spList}</div>
+              <div><b>Vận chuyển:</b> ${o.phuong_thuc_ship || 'Tiêu chuẩn'}</div>
+              <div><b>Địa chỉ:</b> ${o.dia_chi || ''}</div>
+              <div style="margin-top:4px;"><b>Tổng thanh toán:</b> <span style="color:var(--accent); font-weight:800;">${money(o.tong_tien)}đ</span></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    };
+
+    const runSearch = async (keyword) => {
+      const container = document.getElementById("lookupResults");
+      if (container) container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Đang tra cứu dữ liệu...</div>`;
+
+      let kw = (keyword || "").trim();
+      let results = [];
+
+      try {
+        if (kw) {
+          let cleanPhone = kw.replace(/[\s\.\-]/g, '');
+          if (/^0[0-9]{8,10}$/.test(cleanPhone)) {
+            const qPhone = query(collection(db, "don_hang"), where("so_dien_thoai", "==", cleanPhone));
+            const snap = await getDocs(qPhone);
+            snap.forEach(d => results.push(d.data()));
+          } else {
+            let code = kw.toUpperCase().replace(/^#/, '');
+            if (!code.startsWith("TKA-")) code = "TKA-" + code.replace(/^TKA\s*/, '');
+            const qCode = query(collection(db, "don_hang"), where("ma_don", "==", code));
+            const snap = await getDocs(qCode);
+            snap.forEach(d => results.push(d.data()));
+          }
+        } else {
+          const localList = JSON.parse(localStorage.getItem("tka_order_history") || "[]");
+          if (localList.length > 0 && localList[0].so_dien_thoai) {
+            const qPhone = query(collection(db, "don_hang"), where("so_dien_thoai", "==", localList[0].so_dien_thoai));
+            const snap = await getDocs(qPhone);
+            snap.forEach(d => results.push(d.data()));
+          } else {
+            results = localList;
+          }
+        }
+      } catch (err) {
+        console.error("Lookup error:", err);
+        results = JSON.parse(localStorage.getItem("tka_order_history") || "[]");
+      }
+
+      // Sắp xếp đơn mới nhất lên đầu
+      results.sort((a, b) => (b.order_code_num || 0) - (a.order_code_num || 0));
+      renderOrderCards(results);
+    };
+
+    document.getElementById("btnLookupSearch").onclick = () => {
+      const val = document.getElementById("lookupInput").value;
+      runSearch(val);
+    };
+    document.getElementById("lookupInput").onkeydown = (e) => {
+      if (e.key === "Enter") runSearch(e.target.value);
+    };
+
+    await runSearch(savedPhone);
+  };
 
   window.datHangFirebase = async function() {
     if (cart.length === 0) { 
@@ -2168,8 +2389,7 @@ initData();
       let thoiGianDat = new Date().toLocaleString('vi-VN');
       const orderDocRef = doc(db, "don_hang", maDonHang);
 
-      // 1. Lưu vào Firebase Firestore (Trạng thái ban đầu: Chờ thanh toán)
-      await setDoc(orderDocRef, {
+      const orderRecord = {
         ma_don: `TKA-${maSo}`,
         order_code_num: maSo,
         trang_thai: "Chờ thanh toán",
@@ -2184,7 +2404,11 @@ initData();
         tong_so_luong: tongSoLuong,
         tong_tien: tongTien,
         ngay_dat: serverTimestamp()
-      });
+      };
+
+      // 1. Lưu vào Firebase Firestore + Lưu vào bộ nhớ trình duyệt của khách
+      await setDoc(orderDocRef, orderRecord);
+      saveOrderToLocalHistory({ ...orderRecord, ngay_dat_text: thoiGianDat });
 
       // 2. Gửi thông báo đơn mới về Discord
       const discordPayload = {
@@ -2265,29 +2489,16 @@ initData();
 
       cart = []; upd(); toggle();
 
-      // 5. Hiển thị popup quét mã QR payOS & tự động xác nhận khi khách chuyển tiền
+      // 5. Hiển thị popup quét mã QR payOS & tự động nhảy sang xác nhận ngay khi tiền về
       if (payosPaymentData) {
         const onPaymentSuccess = async () => {
-          // Đổi trạng thái trên Firebase thành "Đã thanh toán"
           await setDoc(orderDocRef, {
             trang_thai: "Đã thanh toán",
+            paid: true,
             ngay_thanh_toan: serverTimestamp()
           }, { merge: true });
 
-          // Báo xác nhận đã thu đủ tiền về Discord
-          sendDiscordNotification({
-            content: `✅ **ĐƠN HÀNG #TKA-${maSo} ĐÃ THANH TOÁN THÀNH CÔNG!**`,
-            embeds: [{
-              title: `ĐÃ NHẬN ĐỦ TIỀN — ĐƠN #TKA-${maSo}`,
-              color: 5763719,
-              fields: [
-                { name: "Khách hàng", value: `**${customer.name}** (${customer.phone})`, inline: true },
-                { name: "Số tiền đã nhận", value: `**${tongTien.toLocaleString('vi-VN')} VNĐ**`, inline: true },
-                { name: "Địa chỉ giao", value: customer.address, inline: false }
-              ],
-              footer: { text: "TK aqua · Đã đối soát tự động" }
-            }]
-          });
+          saveOrderToLocalHistory({ ...orderRecord, trang_thai: "Đã thanh toán", paid: true });
         };
 
         const listenFirestorePaid = (cb) => {
@@ -2316,7 +2527,7 @@ initData();
       } else {
         await window.showModalAlert(
           "Đặt hàng thành công",
-          `Cảm ơn <b>${customer.name.toUpperCase()}</b>.<br>Đơn hàng <b>#TKA-${maSo}</b> (${tongSoLuong} sản phẩm — Tổng cộng <b>${tongTien.toLocaleString('vi-VN')}đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>${customer.phone}</b> để gửi mã thanh toán và xác nhận lịch giao.`
+          `Cảm ơn <b>${customer.name.toUpperCase()}</b>.<br>Đơn hàng <b>#TKA-${maSo}</b> (${tongSoLuong} sản phẩm — Tổng cộng <b>${tongTien.toLocaleString('vi-VN')}đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>${customer.phone}</b> để xác nhận lịch giao.`
         );
       }
     } catch (error) {

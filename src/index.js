@@ -9,7 +9,7 @@ async function createSignature(dataStr, key) {
   );
   const signature = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(dataStr));
   return Array.from(new Uint8Array(signature))
-    .map(b => b.toString(16).padStart(2, "0"))
+    .map(function(b) { return b.toString(16).padStart(2, "0"); })
     .join("");
 }
 
@@ -25,7 +25,7 @@ const corsHeaders = {
 
 async function markOrderPaidInFirestore(orderCode) {
   try {
-    const queryUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
+    const queryUrl = "https://firestore.googleapis.com/v1/projects/" + FIREBASE_PROJECT_ID + "/databases/(default)/documents:runQuery";
     const queryBody = {
       structuredQuery: {
         from: [{ collectionId: "don_hang" }],
@@ -33,7 +33,7 @@ async function markOrderPaidInFirestore(orderCode) {
           fieldFilter: {
             field: { fieldPath: "ma_don" },
             op: "EQUAL",
-            value: { stringValue: `TKA-${orderCode}` }
+            value: { stringValue: "TKA-" + orderCode }
           }
         },
         limit: 1
@@ -49,7 +49,7 @@ async function markOrderPaidInFirestore(orderCode) {
 
     if (Array.isArray(qData) && qData[0] && qData[0].document) {
       const docName = qData[0].document.name;
-      const patchUrl = `https://firestore.googleapis.com/v1/${docName}?updateMask.fieldPaths=trang_thai&updateMask.fieldPaths=paid`;
+      const patchUrl = "https://firestore.googleapis.com/v1/" + docName + "?updateMask.fieldPaths=trang_thai&updateMask.fieldPaths=paid";
       await fetch(patchUrl, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -71,7 +71,6 @@ async function markOrderPaidInFirestore(orderCode) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    
     let discordUrl = DEFAULT_DISCORD_WEBHOOK;
     if (env.DISCORD_WEBHOOK_URL) {
       discordUrl = env.DISCORD_WEBHOOK_URL;
@@ -81,7 +80,7 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // 1. API GỬI THÔNG BÁO DISCORD (/api/notify)
+    // 1. API GUI THONG BAO DISCORD (/api/notify)
     if (url.pathname === "/api/notify" && request.method === "POST") {
       try {
         const payload = await request.json();
@@ -101,14 +100,14 @@ export default {
       }
     }
 
-    // 2. API TẠO YÊU CẦU THANH TOÁN PAYOS (/api/create-payment)
+    // 2. API TAO YEU CAU THANH TOAN PAYOS (/api/create-payment)
     if (url.pathname === "/api/create-payment" && request.method === "POST") {
       try {
         const body = await request.json();
         const orderCode = Number(body.orderCode);
         const amount = Number(body.amount);
-        
-        let rawDesc = `TKA ${orderCode}`;
+
+        let rawDesc = "TKA " + orderCode;
         if (body.description) {
           rawDesc = body.description;
         }
@@ -116,7 +115,7 @@ export default {
         const cancelUrl = "https://tkaqua.khanghuynh213671.workers.dev";
         const returnUrl = "https://tkaqua.khanghuynh213671.workers.dev";
 
-        const signData = `amount=${amount}&cancelUrl=${cancelUrl}&description=${description}&orderCode=${orderCode}&returnUrl=${returnUrl}`;
+        const signData = "amount=" + amount + "&cancelUrl=" + cancelUrl + "&description=" + description + "&orderCode=" + orderCode + "&returnUrl=" + returnUrl;
         const signature = await createSignature(signData, env.PAYOS_CHECKSUM_KEY);
 
         const response = await fetch("https://api-merchant.payos.vn/v2/payment-requests", {
@@ -127,12 +126,12 @@ export default {
             "x-api-key": env.PAYOS_API_KEY
           },
           body: JSON.stringify({
-            orderCode,
-            amount,
-            description,
-            cancelUrl,
-            returnUrl,
-            signature
+            orderCode: orderCode,
+            amount: amount,
+            description: description,
+            cancelUrl: cancelUrl,
+            returnUrl: returnUrl,
+            signature: signature
           })
         });
 
@@ -148,11 +147,11 @@ export default {
       }
     }
 
-    // 3. API KIỂM TRA TRẠNG THÁI THANH TOÁN (/api/check-payment)
+    // 3. API KIEM TRA TRANG THAI THANH TOAN (/api/check-payment)
     if (url.pathname === "/api/check-payment" && request.method === "GET") {
       try {
         const orderCode = url.searchParams.get("orderCode");
-        const response = await fetch(`https://api-merchant.payos.vn/v2/payment-requests/${orderCode}`, {
+        const response = await fetch("https://api-merchant.payos.vn/v2/payment-requests/" + orderCode, {
           method: "GET",
           headers: {
             "x-client-id": env.PAYOS_CLIENT_ID,
@@ -162,9 +161,9 @@ export default {
         const resData = await response.json();
 
         if (resData && resData.data) {
-          const isStatusPaid = resData.data.status === "PAID";
-          const isAmountFull = resData.data.amountPaid > 0 && resData.data.amountPaid >= resData.data.amount;
-          if (isStatusPaid || isAmountFull) {
+          if (resData.data.status === "PAID") {
+            await markOrderPaidInFirestore(orderCode);
+          } else if (resData.data.amountPaid > 0 && resData.data.amountPaid >= resData.data.amount) {
             await markOrderPaidInFirestore(orderCode);
           }
         }
@@ -180,12 +179,15 @@ export default {
       }
     }
 
-    // 4. API NHẬN WEBHOOK TỪ PAYOS (/api/payos-webhook)
+    // 4. API NHAN WEBHOOK TU PAYOS (/api/payos-webhook)
     if (url.pathname === "/api/payos-webhook" && request.method === "POST") {
       try {
         const webhookData = await request.json();
         if (webhookData.code === "00" && webhookData.data) {
-          const { orderCode, amount, description } = webhookData.data;
+          const orderCode = webhookData.data.orderCode;
+          const amount = webhookData.data.amount;
+          const description = webhookData.data.description;
+
           if (orderCode !== 123) {
             await markOrderPaidInFirestore(orderCode);
 
@@ -198,13 +200,13 @@ export default {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                content: `✅ **[WEBHOOK PAYOS] ĐƠN HÀNG #TKA-${orderCode} ĐÃ THANH TOÁN THÀNH CÔNG!**`,
+                content: "✅ **[WEBHOOK PAYOS] ĐƠN HÀNG #TKA-" + orderCode + " ĐÃ THANH TOÁN THÀNH CÔNG!**",
                 embeds: [{
-                  title: `XÁC NHẬN THANH TOÁN #TKA-${orderCode}`,
+                  title: "XÁC NHẬN THANH TOÁN #TKA-" + orderCode,
                   color: 5763719,
                   fields: [
-                    { name: "Số tiền thực nhận", value: `**${Number(amount).toLocaleString("vi-VN")} VNĐ**`, inline: true },
-                    { name: "Nội dung CK", value: `\`${descText}\``, inline: true }
+                    { name: "Số tiền thực nhận", value: "**" + Number(amount).toLocaleString("vi-VN") + " VNĐ**", inline: true },
+                    { name: "Nội dung CK", value: "`" + descText + "`", inline: true }
                   ],
                   footer: { text: "TK aqua · payOS Auto Webhook" }
                 }]

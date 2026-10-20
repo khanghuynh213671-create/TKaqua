@@ -1270,6 +1270,7 @@ footer {
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?output=csv";
 const ACC_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?gid=1785201873&single=true&output=csv";
 const DRIVE_MEDIA_FOLDER = "https://drive.google.com/drive/folders/1padV_SE7vklFONfDdJQo6y8Frbwvd1wd?usp=sharing";
+const API_BASE = "https://tkaqua.khanghuynh213671.workers.dev";
 
 var FISH = [
   { sl: 1, n:"Đang tải dữ liệu...", p:0, cat:"Kho", s:"...", b:"#9ab366", a:"#4f6132", t:"stripe", sz:.8, desc: "Vui lòng đợi giây lát..." }
@@ -1736,6 +1737,7 @@ const modalOverlay = document.getElementById('customModal');
 const modalBox = document.getElementById('modalBox');
 let modalTimer;
 let activePaymentUnsub = null;
+let activePaymentInterval = null;
 
 window.closeModalOutside = function(e) {
   if (e.target === modalOverlay) { window.closeModal(); }
@@ -1744,6 +1746,10 @@ window.closeModal = function() {
   if (activePaymentUnsub) {
     activePaymentUnsub();
     activePaymentUnsub = null;
+  }
+  if (activePaymentInterval) {
+    clearInterval(activePaymentInterval);
+    activePaymentInterval = null;
   }
   modalOverlay.classList.remove('show');
   modalTimer = setTimeout(() => { modalBox.innerHTML = ''; }, 300);
@@ -1873,8 +1879,8 @@ window.showModalAlert = function(title, message) {
   });
 };
 
-// POPUP QUÉT MÃ QR PAYOS & TỰ ĐỘNG LẮNG NGHE KẾT QUẢ THANH TOÁN
-window.showPayOSModal = function(paymentInfo, orderInfo, listenOrderPaid) {
+// POPUP QUÉT MÃ QR PAYOS & TỰ ĐỘNG KIỂM TRA / ĐỐI SOÁT TIỀN VỀ
+window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, listenFirestorePaid) {
   clearTimeout(modalTimer);
   return new Promise((resolve) => {
     const qrRaw = paymentInfo.qrCode || "";
@@ -1924,27 +1930,59 @@ window.showPayOSModal = function(paymentInfo, orderInfo, listenOrderPaid) {
 
       <div class="modal-actions">
         <a href="${checkoutUrl}" target="_blank" class="btn-cancel">Mở cổng payOS ↗</a>
-        <button id="modalConfirm" class="btn-confirm">Đã chuyển / Đóng</button>
+        <button id="modalConfirm" class="btn-confirm">Đóng</button>
       </div>
     `;
     modalOverlay.classList.add('show');
 
-    if (typeof listenOrderPaid === 'function') {
-      activePaymentUnsub = listenOrderPaid(() => {
-        const badge = document.getElementById('payosStatusBadge');
-        if (badge) {
-          badge.innerHTML = `✅ ĐÃ NHẬN ĐỦ TIỀN! ĐƠN HÀNG HOÀN TẤT`;
-          badge.style.background = "rgba(154, 179, 102, 0.28)";
-          badge.style.color = "#ffffff";
+    let isConfirmed = false;
+    const handleSuccess = async () => {
+      if (isConfirmed) return;
+      isConfirmed = true;
+      if (activePaymentInterval) {
+        clearInterval(activePaymentInterval);
+        activePaymentInterval = null;
+      }
+
+      const badge = document.getElementById('payosStatusBadge');
+      if (badge) {
+        badge.innerHTML = `✅ ĐÃ NHẬN ĐỦ TIỀN! ĐƠN HÀNG HOÀN TẤT`;
+        badge.style.background = "rgba(154, 179, 102, 0.35)";
+        badge.style.color = "#ffffff";
+      }
+
+      if (typeof onPaymentSuccess === 'function') {
+        await onPaymentSuccess();
+      }
+
+      setTimeout(async () => {
+        window.closeModal();
+        await window.showModalAlert(
+          "Thanh toán thành công",
+          `Cảm ơn <b>${orderInfo.tenKhach.toUpperCase()}</b>!<br>Hệ thống đã nhận đủ <b>${money(orderInfo.tongCong)}đ</b> cho đơn hàng <b>#${orderInfo.maDon}</b>. TK aqua sẽ sớm liên hệ số <b>${orderInfo.sdt}</b> để gửi hàng.`
+        );
+        resolve(true);
+      }, 1200);
+    };
+
+    // Cơ chế 1: Tự động hỏi trạng thái payOS mỗi 3 giây
+    activePaymentInterval = setInterval(async () => {
+      if (isConfirmed) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/check-payment?orderCode=${orderInfo.orderCodeNum}`);
+        const resJson = await res.json();
+        if (resJson && resJson.data && resJson.data.status === "PAID") {
+          await handleSuccess();
         }
-        setTimeout(async () => {
-          window.closeModal();
-          await window.showModalAlert(
-            "Thanh toán thành công",
-            `Cảm ơn <b>${orderInfo.tenKhach.toUpperCase()}</b>!<br>Hệ thống đã nhận đủ <b>${money(orderInfo.tongCong)}đ</b> cho đơn hàng <b>#${orderInfo.maDon}</b>. TK aqua sẽ sớm liên hệ số <b>${orderInfo.sdt}</b> để gửi hàng.`
-          );
-          resolve(true);
-        }, 1200);
+      } catch (e) {
+        console.log("Đang kiểm tra trạng thái thanh toán...", e);
+      }
+    }, 3000);
+
+    // Cơ chế 2: Lắng nghe đồng bộ từ Firestore
+    if (typeof listenFirestorePaid === 'function') {
+      activePaymentUnsub = listenFirestorePaid(() => {
+        handleSuccess();
       });
     }
 
@@ -2058,6 +2096,26 @@ initData();
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
 
+  const DIRECT_DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1561567434861838446/eMtq9IqnPh_RUMCleTkvvMBKnrv5Z9K6JQn_PfBsI_DwUkWdVhW6j0uWBSPjFEQtwjQb";
+
+  async function sendDiscordNotification(payload) {
+    try {
+      const res = await fetch(`${API_BASE}/api/notify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("Worker notify failed");
+    } catch (e) {
+      // Dự phòng bắn trực tiếp vào Discord nếu mở file local
+      fetch(DIRECT_DISCORD_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).catch(err => console.log("Discord error:", err));
+    }
+  }
+
   window.datHangFirebase = async function() {
     if (cart.length === 0) { 
       await window.showModalAlert("Giỏ hàng trống", "Vui lòng chọn sản phẩm trước khi đặt hàng."); 
@@ -2105,7 +2163,6 @@ initData();
     const tongTien = tienHang + phiShip;
 
     try {
-      // Tạo mã đơn số nguyên duy nhất dùng chung cho Firebase và payOS
       let maSo = Number(String(Date.now()).slice(-6) + String(Math.floor(10 + Math.random() * 90)));
       let maDonHang = `TKA-${maSo} - ${customer.phone} - ${customer.name}`;
       let thoiGianDat = new Date().toLocaleString('vi-VN');
@@ -2129,9 +2186,7 @@ initData();
         ngay_dat: serverTimestamp()
       });
 
-      // 2. Gửi thông báo qua API / Discord
-      const DISCORD_WEBHOOK_URL = "/api/notify";
-
+      // 2. Gửi thông báo đơn mới về Discord
       const discordPayload = {
         content: `🔔 **ĐƠN HÀNG MỚI #TKA-${maSo} (CHỜ THANH TOÁN)**`,
         embeds: [
@@ -2152,12 +2207,7 @@ initData();
           }
         ]
       };
-
-      fetch(DISCORD_WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(discordPayload)
-      }).catch(err => console.log("Discord error:", err));
+      sendDiscordNotification(discordPayload);
 
       // 3. Tự động ghi đơn hàng vào Google Sheet nội bộ qua Apps Script Web App
       const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwIvuLes3qi8AH3AINWDDzLPVigzNvp5kDLhYl0azjWWfqf3C2j9ynNSD4Wr7lzfpVvIg/exec";
@@ -2191,7 +2241,7 @@ initData();
       // 4. Gọi API Cloudflare Worker tạo mã thanh toán payOS
       let payosPaymentData = null;
       try {
-        const payRes = await fetch("/api/create-payment", {
+        const payRes = await fetch(`${API_BASE}/api/create-payment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -2215,13 +2265,36 @@ initData();
 
       cart = []; upd(); toggle();
 
-      // 5. Hiển thị popup quét mã QR payOS (hoặc thông báo dự phòng nếu lỗi mạng)
+      // 5. Hiển thị popup quét mã QR payOS & tự động xác nhận khi khách chuyển tiền
       if (payosPaymentData) {
-        const listenOrderPaid = (onPaidCallback) => {
+        const onPaymentSuccess = async () => {
+          // Đổi trạng thái trên Firebase thành "Đã thanh toán"
+          await setDoc(orderDocRef, {
+            trang_thai: "Đã thanh toán",
+            ngay_thanh_toan: serverTimestamp()
+          }, { merge: true });
+
+          // Báo xác nhận đã thu đủ tiền về Discord
+          sendDiscordNotification({
+            content: `✅ **ĐƠN HÀNG #TKA-${maSo} ĐÃ THANH TOÁN THÀNH CÔNG!**`,
+            embeds: [{
+              title: `ĐÃ NHẬN ĐỦ TIỀN — ĐƠN #TKA-${maSo}`,
+              color: 5763719,
+              fields: [
+                { name: "Khách hàng", value: `**${customer.name}** (${customer.phone})`, inline: true },
+                { name: "Số tiền đã nhận", value: `**${tongTien.toLocaleString('vi-VN')} VNĐ**`, inline: true },
+                { name: "Địa chỉ giao", value: customer.address, inline: false }
+              ],
+              footer: { text: "TK aqua · Đã đối soát tự động" }
+            }]
+          });
+        };
+
+        const listenFirestorePaid = (cb) => {
           return onSnapshot(orderDocRef, (snap) => {
             const data = snap.data();
             if (data && (data.trang_thai === "Đã thanh toán" || data.paid === true)) {
-              onPaidCallback();
+              cb();
             }
           });
         };
@@ -2230,13 +2303,15 @@ initData();
           payosPaymentData,
           {
             maDon: `TKA-${maSo}`,
+            orderCodeNum: maSo,
             tenKhach: customer.name,
             sdt: customer.phone,
             tienHang: tienHang,
             phiShip: phiShip,
             tongCong: tongTien
           },
-          listenOrderPaid
+          onPaymentSuccess,
+          listenFirestorePaid
         );
       } else {
         await window.showModalAlert(

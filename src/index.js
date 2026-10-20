@@ -13,6 +13,41 @@ async function createSignature(dataStr, key) {
     .join("");
 }
 
+/* ---- Kiểm tra chữ ký webhook payOS ---- */
+function sortObjByKey(obj) {
+  const out = {};
+  Object.keys(obj).sort().forEach(function (k) { out[k] = obj[k]; });
+  return out;
+}
+
+function webhookDataToString(data) {
+  return Object.keys(data).sort().map(function (k) {
+    let v = data[k];
+    if (v === null || v === undefined || v === "null" || v === "undefined") {
+      v = "";
+    } else if (Array.isArray(v)) {
+      v = JSON.stringify(v.map(function (i) {
+        return (i && typeof i === "object") ? sortObjByKey(i) : i;
+      }));
+    } else if (typeof v === "object") {
+      v = JSON.stringify(sortObjByKey(v));
+    }
+    return k + "=" + v;
+  }).join("&");
+}
+
+async function verifyPayosWebhook(webhookData, checksumKey) {
+  if (!webhookData || !webhookData.data || !webhookData.signature || !checksumKey) return false;
+  const expected = await createSignature(webhookDataToString(webhookData.data), checksumKey);
+  const given = String(webhookData.signature).toLowerCase();
+  if (expected.length !== given.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i++) {
+    diff |= expected.charCodeAt(i) ^ given.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
 const FIREBASE_PROJECT_ID = "tk-aqua";
 const DEFAULT_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbwIvuLes3qi8AH3AINWDDzLPVigzNvp5kDLhYl0azjWWfqf3C2j9ynNSD4Wr7lzfpVvIg/exec";
 
@@ -242,6 +277,10 @@ export default {
     if (url.pathname === "/api/payos-webhook" && request.method === "POST") {
       try {
         const webhookData = await request.json();
+        const validSignature = await verifyPayosWebhook(webhookData, env.PAYOS_CHECKSUM_KEY);
+        if (!validSignature) {
+          return jsonResponse({ error: "Invalid signature" }, 401);
+        }
         if (webhookData.code === "00" && webhookData.data) {
           const orderCode = webhookData.data.orderCode;
           if (orderCode !== 123) {

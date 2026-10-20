@@ -1050,6 +1050,43 @@ h2 {
 .btn-map:hover { background: transparent; color: var(--accent); }
 .map-iframe { flex: 1.2; min-width: 300px; min-height: 340px; border-left: 1px solid var(--border-subtle); }
 .map-iframe iframe { width: 100%; height: 100%; border: none; display: block; }
+.price.price-ask {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--border);
+}
+.price.price-ask:hover { text-decoration-color: var(--accent); }
+.info .btn-ask {
+  margin-top: auto;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  transition: 0.2s;
+}
+.info .btn-ask:hover { background: var(--accent); color: #111310; }
+
+.footer-links {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 10px 22px; margin-bottom: 18px;
+}
+.footer-links a {
+  font-family: 'Montserrat', sans-serif; font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-muted); text-decoration: none; transition: 0.2s;
+}
+.footer-links a:hover { color: var(--accent); }
 footer {
   text-align: center; color: var(--text-muted); padding: 40px 20px;
   font-family: 'Montserrat', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;
@@ -1174,6 +1211,7 @@ footer {
 
     <nav class="header-nav">
       <a href="#sp" class="active">Cá cảnh</a>
+      <a href="#pl">Pleco</a>
       <a href="#pk">Phụ kiện</a>
       <a onclick="window.openOrderLookup()">Đơn đã đặt</a>
       <a href="giao-hang.html">Giao hàng</a>
@@ -1201,7 +1239,8 @@ footer {
 
   <nav class="mobile-nav-strip">
     <a href="#sp">Cá cảnh</a>
-    <a href="#pk">Phụ kiện</a>
+    <a href="#pl">Pleco</a>
+      <a href="#pk">Phụ kiện</a>
     <a onclick="window.openOrderLookup()">📦 Đơn đã đặt</a>
     <a href="giao-hang.html">Giao hàng</a>
     <a href="bao-hanh.html">Bảo hành</a>
@@ -1315,6 +1354,16 @@ footer {
   <div id="pagination" class="pagination"></div>
 </main>
 
+<!-- DANH MỤC PLECO -->
+<main id="pl" style="margin-top: 20px;">
+  <div class="tools" id="plToolsBox">
+    <input id="qPl" placeholder="Đang tải dữ liệu..." readonly>
+  </div>
+  <h2>DANH MỤC PLECO</h2>
+  <div class="grid" id="plGrid"></div>
+  <div id="plPagination" class="pagination"></div>
+</main>
+
 <!-- DANH MỤC PHỤ KIỆN -->
 <main id="pk" style="margin-top: 20px;">
   <div class="tools" id="accToolsBox">
@@ -1351,7 +1400,16 @@ footer {
   <button class="chip" style="width:100%; margin-top:8px;" onclick="toggle()">Đóng</button>
 </aside>
 
-<footer>TK aqua · Hotline/Zalo: 0703.008.005 · TP. Hồ Chí Minh</footer>
+<footer>
+  <div class="footer-links">
+    <a href="bao-hanh.html">Chính sách bảo hành</a>
+    <a href="giao-hang.html">Chính sách giao hàng</a>
+    <a href="chinh-sach-thanh-toan.html">Chính sách thanh toán</a>
+    <a href="chinh-sach-bao-mat.html">Chính sách bảo mật thông tin</a>
+    <a href="ho-tro.html">Thông tin liên hệ</a>
+  </div>
+  <div>TK aqua · Hotline/Zalo: 0703.008.005 · TP. Hồ Chí Minh</div>
+</footer>
 
 <button id="btnTop" onclick="window.scrollTo(0,0)" title="Lên đầu trang">↑</button>
 
@@ -1372,12 +1430,17 @@ const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4
 const ACC_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?gid=1785201873&single=true&output=csv";
 const DRIVE_MEDIA_FOLDER = "https://drive.google.com/drive/folders/1padV_SE7vklFONfDdJQo6y8Frbwvd1wd?usp=sharing";
 const API_BASE = "https://tkaqua.khanghuynh213671.workers.dev";
+const PLECO_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSa8H3gMwtXhLMbl2Vns3bWyOfMXIBxhaVDa2B2xgPEnodgMWwTNbhRiXa3pSJz3InIpY_M_o6qHiDv/pub?output=csv";
 
 var FISH = [
   { sl: 1, n:"Đang tải dữ liệu...", p:0, cat:"Kho", s:"...", b:"#9ab366", a:"#4f6132", t:"stripe", sz:.8, desc: "Vui lòng đợi giây lát..." }
 ];
 
 var ACC = [
+  { sl: 1, n:"Đang tải dữ liệu...", p:0, cat:"Kho", s:"...", b:"#9ab366", a:"#4f6132", t:"stripe", sz:.8, desc: "Vui lòng đợi giây lát..." }
+];
+
+var PLECO = [
   { sl: 1, n:"Đang tải dữ liệu...", p:0, cat:"Kho", s:"...", b:"#9ab366", a:"#4f6132", t:"stripe", sz:.8, desc: "Vui lòng đợi giây lát..." }
 ];
 
@@ -1402,8 +1465,19 @@ async function initData() {
     }
   }
 
+  try {
+    const responsePl = await fetch(PLECO_CSV_URL);
+    const textDataPl = await responsePl.text();
+    const parsedPl = parseCSV(textDataPl);
+    if (parsedPl.length > 0) { PLECO = parsedPl; }
+  } catch (error) {
+    console.error("Lỗi đồng bộ Pleco:", error);
+  }
+
   renderFilters();
   applyFilters(1, false);
+  renderPlecoFilters();
+  applyPlecoFilters(1, false);
   renderAccFilters();
   applyAccFilters(1, false);
   upd();
@@ -1554,6 +1628,10 @@ var filteredFish = [];
 var accFilter = "all";
 var accCurrentPage = 1;
 var filteredAcc = [];
+
+var plecoFilter = "all";
+var plecoCurrentPage = 1;
+var filteredPleco = [];
 
 function money(n){ return Number(n ? n : 0).toLocaleString("vi-VN"); }
 
@@ -1745,9 +1823,108 @@ function renderAccPagination() {
   paginationContainer.innerHTML = ph;
 }
 
+/* --- DANH MUC PLECO --- */
+function renderPlecoFilters() {
+  const rawCats = PLECO.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
+  const cats = ["all"].concat(Array.from(new Set(rawCats)));
+  let html = '<input id="qPl" placeholder="Tìm tên Pleco..." oninput="applyPlecoFilters(1, true)">';
+  cats.forEach(function(c) {
+    let label = c === "all" ? "Tất cả" : c;
+    let activeClass = plecoFilter === c ? "on" : "";
+    html += '<button class="chip ' + activeClass + '" data-pf="' + c + '">' + label + '</button>';
+  });
+  document.getElementById("plToolsBox").innerHTML = html;
+
+  document.querySelectorAll("#plToolsBox .chip[data-pf]").forEach(function(btn){
+    btn.onclick = function(){
+      document.querySelectorAll("#plToolsBox .chip[data-pf]").forEach(function(x) { x.classList.remove("on"); });
+      btn.classList.add("on");
+      plecoFilter = btn.dataset.pf;
+      applyPlecoFilters(1, true);
+    };
+  });
+}
+
+function applyPlecoFilters(page, isClick) {
+  if (page === undefined) page = 1;
+  var qInput = document.getElementById("qPl");
+  var q = qInput ? qInput.value.toLowerCase() : "";
+  filteredPleco = PLECO.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
+                       .filter(function(f) { return (plecoFilter === "all" || f.cat === plecoFilter) && f.n.toLowerCase().indexOf(q) > -1; });
+  plecoCurrentPage = page;
+  renderPlecoGrid();
+  if (isClick) {
+    const plSection = document.getElementById("pl");
+    if (plSection) {
+      const offset = plSection.offsetTop - 85;
+      window.scrollTo({ top: offset, behavior: "smooth" });
+    }
+  }
+}
+
+function renderPlecoGrid(){
+  var h = "";
+  var start = (plecoCurrentPage - 1) * itemsPerPage;
+  var end = start + itemsPerPage;
+  var paginatedItems = filteredPleco.slice(start, end);
+
+  paginatedItems.forEach(function(f){
+    var noPrice = !(f.p > 0);
+    var detailCall = 'window.showFishDetail(' + f.originalIndex + ', \'pleco\')';
+
+    var stockHtml = noPrice ? ''
+      : (f.sl > 0
+        ? '<div class="mono-stock in-stock">Sẵn có: ' + f.sl + '</div>'
+        : '<div class="mono-stock out-stock">Hết hàng</div>');
+
+    var priceHtml = noPrice
+      ? '<div class="price price-ask" onclick="' + detailCall + '">Tìm hiểu thêm</div>'
+      : '<div class="price">' + money(f.p) + 'đ</div>';
+
+    var btnHtml = noPrice
+      ? '<a class="btn-ask" href="https://zalo.me/0703008005" target="_blank">Tư vấn Zalo</a>'
+      : (f.sl > 0
+        ? '<button onclick="add(' + f.originalIndex + ', \'pleco\')">Thêm vào giỏ</button>'
+        : '<button disabled>Hết hàng</button>');
+
+    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svg(f);
+    var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
+
+    h += '<div class="card">'
+      + '<div class="pic" onclick="' + detailCall + '" ontouchstart="window.startPress(event)" ontouchmove="window.movePress(event)">'
+      + cardMediaHtml + videoBadgeHtml
+      + '</div>'
+      + '<div class="info">'
+      + '<b>' + f.n + '</b>'
+      + '<small>' + f.cat + ' · ' + f.s + '</small>'
+      + stockHtml
+      + priceHtml
+      + btnHtml
+      + '</div></div>';
+  });
+
+  document.getElementById("plGrid").innerHTML = h ? h : '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy dòng Pleco phù hợp.</div>';
+  renderPlecoPagination();
+}
+
+function renderPlecoPagination() {
+  var totalPages = Math.ceil(filteredPleco.length / itemsPerPage);
+  var paginationContainer = document.getElementById("plPagination");
+  if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
+  var ph = "";
+  ph += '<button onclick="applyPlecoFilters('+(plecoCurrentPage - 1)+', true)" '+(plecoCurrentPage === 1 ? 'disabled' : '')+'>← Trước</button>';
+  for(var i = 1; i <= totalPages; i++) {
+    ph += '<button onclick="applyPlecoFilters('+i+', true)" class="'+(plecoCurrentPage === i ? 'active' : '')+'">'+i+'</button>';
+  }
+  ph += '<button onclick="applyPlecoFilters('+(plecoCurrentPage + 1)+', true)" '+(plecoCurrentPage === totalPages ? 'disabled' : '')+'>Sau →</button>';
+  paginationContainer.innerHTML = ph;
+}
+
 /* --- GIO HANG CHUNG --- */
 function getItemSource(type) {
-  return type === 'acc' ? ACC : FISH;
+  if (type === 'acc') return ACC;
+  if (type === 'pleco') return PLECO;
+  return FISH;
 }
 
 function getCartItemsSubtotal() {
@@ -1762,7 +1939,7 @@ function add(i, type) {
   if (!type) type = 'fish';
   const source = getItemSource(type);
   const product = source[i];
-  if (!product || product.sl <= 0) return;
+  if (!product || product.sl <= 0 || !(product.p > 0)) return;
   let unitLabel = type === 'acc' ? 'sản phẩm' : 'cá thể';
 
   let existing = cart.find(function(item) { return item.index === i && item.type === type; });
@@ -2092,6 +2269,7 @@ window.showFishDetail = function(index, type) {
     + '<div class="info-detail-row"><b>' + label1 + '</b><span>' + (f.desc ? f.desc : "Đang cập nhật.") + '</span></div>'
     + '<div class="info-detail-row"><b>' + label2 + '</b><span>' + (f.env ? f.env : "Đang cập nhật.") + '</span></div>'
     + '<div class="info-detail-row"><b>' + label3 + '</b><span>' + (f.mates ? f.mates : "Đang cập nhật.") + '</span></div>'
+    + ((type === 'pleco' && !(f.p > 0)) ? '<a class="btn-close-info" href="https://zalo.me/0703008005" target="_blank" style="display:block;text-align:center;text-decoration:none;background:var(--accent);color:#111310;">Hỏi giá qua Zalo</a>' : '')
     + '<button class="btn-close-info" onclick="window.closeModal()">Đóng</button>'
     + '</div>';
   modalOverlay.classList.add('show');
@@ -2382,7 +2560,7 @@ initData();
     let tongSoLuong = 0;
 
     cart.forEach(function(item) {
-      let source = item.type === 'acc' ? ACC : FISH;
+      let source = getItemSource(item.type);
       let f = source[item.index];
       let thanhTien = f.p * item.qty;
       tienHang += thanhTien;
@@ -2467,7 +2645,7 @@ initData();
           body: JSON.stringify({
             orderCode: maSo,
             amount: tongTien,
-            description: "TKA " + maSo,
+            description: "Than tang TK TKA-" + maSo,
             buyerName: customer.name,
             buyerPhone: customer.phone,
             buyerAddress: customer.address

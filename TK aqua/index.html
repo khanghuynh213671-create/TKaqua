@@ -2140,25 +2140,19 @@ initData();
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
 
-  const DIRECT_DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1561567434861838446/eMtq9IqnPh_RUMCleTkvvMBKnrv5Z9K6JQn_PfBsI_DwUkWdVhW6j0uWBSPjFEQtwjQb";
-
+  
   async function sendDiscordNotification(payload) {
     try {
-      const res = await fetch(API_BASE + "/api/notify", {
+      await fetch(API_BASE + "/api/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error("Worker notify failed");
     } catch (e) {
-      fetch(DIRECT_DISCORD_WEBHOOK, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      }).catch(function(err) { console.log("Discord error:", err); });
+      console.error("Notify error:", e);
     }
   }
-
+  
   function saveOrderToLocalHistory(orderSummary) {
     try {
       let raw = localStorage.getItem("tka_order_history");

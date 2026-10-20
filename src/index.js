@@ -214,7 +214,7 @@ export default {
         const orderCode = Number(body.orderCode);
         const amount = Number(body.amount);
 
-        let rawDesc = "TKA " + orderCode;
+        let rawDesc = "Than tang TK TKA-" + orderCode;
         if (body.description) {
           rawDesc = body.description;
         }

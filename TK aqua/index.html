@@ -21,7 +21,6 @@
   --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
-/* HIỆU ỨNG CHUYỂN TRANG MƯỢT CHUẨN GPU */
 @view-transition {
   navigation: auto;
 }
@@ -405,7 +404,6 @@ header.scrolled .bar {
   color: var(--text-muted);
 }
 
-/* 3D TILT CARD & SPOTLIGHT STYLING */
 .hero-right {
   position: relative;
   z-index: 2;
@@ -847,7 +845,6 @@ h2 {
   font-size: 16px;
 }
 
-/* GIAO DIỆN POPUP THANH TOÁN QR PAYOS */
 .payos-qr-box {
   background: #0e100d;
   border: 1px solid var(--border);
@@ -902,7 +899,6 @@ h2 {
   50% { transform: scale(1.2); opacity: 1; }
 }
 
-/* GIAO DIỆN TRA CỨU ĐƠN HÀNG (KHÔNG CẦN ĐĂNG NHẬP) */
 .order-lookup-bar {
   display: flex;
   gap: 8px;
@@ -1247,7 +1243,6 @@ footer {
       </div>
     </div>
 
-    <!-- 3D PERSPECTIVE TILT CARD & SPOTLIGHT -->
     <div class="hero-right">
       <div class="showcase-card" id="tiltCard">
         <div class="showcase-spotlight"></div>
@@ -1397,20 +1392,26 @@ async function initData() {
 
 function extractDriveId(url) {
   if (!url) return null;
-  let match = url.trim().match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]+)/);
-  return match ? match[1] : null;
+  let s = url.trim();
+  let m1 = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (m1) return m1[1];
+  let m2 = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m2) return m2[1];
+  let m3 = s.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+  if (m3) return m3[1];
+  return null;
 }
 
 function resolveThumbnailUrl(imgRaw, vidRaw) {
   let cleanImg = imgRaw ? imgRaw.trim() : "";
   if (cleanImg) {
     let driveId = extractDriveId(cleanImg);
-    if (driveId) return `https://lh3.googleusercontent.com/d/${driveId}`;
+    if (driveId) return "https://lh3.googleusercontent.com/d/" + driveId;
     return cleanImg;
   }
   if (vidRaw) {
     let vidDriveId = extractDriveId(vidRaw);
-    if (vidDriveId) return `https://lh3.googleusercontent.com/d/${vidDriveId}`;
+    if (vidDriveId) return "https://lh3.googleusercontent.com/d/" + vidDriveId;
   }
   return "";
 }
@@ -1436,7 +1437,7 @@ function parseCSV(str) {
   if (row.length > 0) rows.push(row);
   if (rows.length < 2) return [];
 
-  const headers = rows[0].map(h => h.trim());
+  const headers = rows[0].map(function(h) { return h.trim(); });
   const result = [];
   
   for (let i = 1; i < rows.length; i++) {
@@ -1445,29 +1446,30 @@ function parseCSV(str) {
     for (let j = 0; j < headers.length; j++) {
       obj[headers[j]] = rows[i][j] ? rows[i][j].trim() : "";
     }
-    const getVal = (key) => {
-      const realKey = Object.keys(obj).find(k => k.replace(/\s/g, '') === key);
+    const getVal = function(key) {
+      const realKey = Object.keys(obj).find(function(k) { return k.replace(/\s/g, '') === key; });
       return realKey ? obj[realKey] : "";
     };
 
     const rawImg = getVal('Anh');
     const rawVid = getVal('Video');
+    const ten = getVal('TenCa') ? getVal('TenCa') : (getVal('TenSP') ? getVal('TenSP') : "Chưa đặt tên");
 
     result.push({
-      n: getVal('TenCa') || getVal('TenSP') || "Chưa đặt tên",
-      p: parseInt(getVal('Gia')) || 0,
-      sl: parseInt(getVal('SoLuong')) || 0,
-      cat: getVal('PhanLoai') || "Khác",
-      s: getVal('Size') || "",
-      b: getVal('MauBung') || "#9ab366",
-      a: getVal('MauLung') || "#4f6132",
-      t: getVal('HoaVan') || "stripe",
-      sz: parseFloat(getVal('KichThuocVe')) || 1,
+      n: ten,
+      p: parseInt(getVal('Gia')) ? parseInt(getVal('Gia')) : 0,
+      sl: parseInt(getVal('SoLuong')) ? parseInt(getVal('SoLuong')) : 0,
+      cat: getVal('PhanLoai') ? getVal('PhanLoai') : "Khác",
+      s: getVal('Size') ? getVal('Size') : "",
+      b: getVal('MauBung') ? getVal('MauBung') : "#9ab366",
+      a: getVal('MauLung') ? getVal('MauLung') : "#4f6132",
+      t: getVal('HoaVan') ? getVal('HoaVan') : "stripe",
+      sz: parseFloat(getVal('KichThuocVe')) ? parseFloat(getVal('KichThuocVe')) : 1,
       img: resolveThumbnailUrl(rawImg, rawVid),
-      vid: rawVid || "",
-      desc: getVal('MoTa') || "",
-      env: getVal('MoiTruong') || "",
-      mates: getVal('NuoiChung') || ""
+      vid: rawVid ? rawVid : "",
+      desc: getVal('MoTa') ? getVal('MoTa') : "",
+      env: getVal('MoiTruong') ? getVal('MoiTruong') : "",
+      mates: getVal('NuoiChung') ? getVal('NuoiChung') : ""
     });
   }
   return result;
@@ -1476,8 +1478,8 @@ function parseCSV(str) {
 function svg(f){
  var b = (f.b && f.b.startsWith('#')) ? f.b : "#9ab366";
  var a = (f.a && f.a.startsWith('#')) ? f.a : "#4f6132";
- var sz = !isNaN(f.sz) && f.sz > 0 ? f.sz : 0.85;
- var x="";
+ var sz = (!isNaN(f.sz) && f.sz > 0) ? f.sz : 0.85;
+ var x = "";
  if(f.t=="stripe")x='<path d="M95 62 q-8 28 0 56" stroke="'+a+'" stroke-width="9" fill="none"/><path d="M120 66 q-6 24 0 48" stroke="'+a+'" stroke-width="5" fill="none"/>';
  if(f.t=="head")x='<ellipse cx="62" cy="78" rx="24" ry="22" fill="'+a+'"/>';
  if(f.t=="saddle")x='<path d="M85 40 Q125 70 150 40 Q140 90 90 95Z" fill="'+a+'"/><rect x="48" y="62" width="8" height="34" fill="'+a+'"/>';
@@ -1511,19 +1513,16 @@ function buildDetailVideoHtml(vidUrl, posterUrl) {
 
   let ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   if (ytMatch) {
-    return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    return '<iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '?autoplay=1&mute=1&loop=1&playlist=' + ytMatch[1] + '" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
   }
 
   let driveId = extractDriveId(url);
   if (driveId) {
-    return `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
+    return '<iframe src="https://drive.google.com/file/d/' + driveId + '/preview" allow="autoplay" allowfullscreen></iframe>';
   }
 
-  let posterAttr = posterUrl ? `poster="${posterUrl}"` : "";
-  return `
-    <video autoplay loop muted playsinline controls preload="metadata" ${posterAttr}>
-      <source src="${url}" type="video/mp4">
-    </video>`;
+  let posterAttr = posterUrl ? 'poster="' + posterUrl + '"' : '';
+  return '<video autoplay loop muted playsinline controls preload="metadata" ' + posterAttr + '><source src="' + url + '" type="video/mp4"></video>';
 }
 
 var cart = [];
@@ -1537,34 +1536,36 @@ var accFilter = "all";
 var accCurrentPage = 1;
 var filteredAcc = [];
 
-function money(n){ return Number(n || 0).toLocaleString("vi-VN"); }
+function money(n){ return Number(n ? n : 0).toLocaleString("vi-VN"); }
 
-/* --- BỘ LỌC & HIỂN THỊ DANH MỤC CÁ CẢNH --- */
+/* --- DANH MUC CA CANH --- */
 function renderFilters() {
-  const cats = ["all", ...new Set(FISH.map(f => f.cat).filter(c => c))];
-  let html = `<input id="q" placeholder="Tìm tên cá, dòng cá..." oninput="applyFilters(1, true)">`;
-  cats.forEach(c => {
+  const rawCats = FISH.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
+  const cats = ["all"].concat(Array.from(new Set(rawCats)));
+  let html = '<input id="q" placeholder="Tìm tên cá, dòng cá..." oninput="applyFilters(1, true)">';
+  cats.forEach(function(c) {
     let label = c === "all" ? "Tất cả" : c;
     let activeClass = filter === c ? "on" : "";
-    html += `<button class="chip ${activeClass}" data-f="${c}">${label}</button>`;
+    html += '<button class="chip ' + activeClass + '" data-f="' + c + '">' + label + '</button>';
   });
   document.getElementById("toolsBox").innerHTML = html;
 
   document.querySelectorAll("#toolsBox .chip[data-f]").forEach(function(btn){
     btn.onclick = function(){
-      document.querySelectorAll("#toolsBox .chip[data-f]").forEach(x => x.classList.remove("on"));
+      document.querySelectorAll("#toolsBox .chip[data-f]").forEach(function(x) { x.classList.remove("on"); });
       btn.classList.add("on");
       filter = btn.dataset.f;
       applyFilters(1, true);
-    }
+    };
   });
 }
 
-function applyFilters(page = 1, isClick = false) {
+function applyFilters(page, isClick) {
+  if (page === undefined) page = 1;
   var qInput = document.getElementById("q");
   var q = qInput ? qInput.value.toLowerCase() : "";
-  filteredFish = FISH.map((f, index) => ({...f, originalIndex: index}))
-                     .filter(f => (filter === "all" || f.cat === filter) && f.n.toLowerCase().indexOf(q) > -1);
+  filteredFish = FISH.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
+                     .filter(function(f) { return (filter === "all" || f.cat === filter) && f.n.toLowerCase().indexOf(q) > -1; });
   currentPage = page;
   renderGrid();
   if (isClick) {
@@ -1581,14 +1582,14 @@ let startX, startY;
 window.startPress = function(e) {
   isScrolling = false;
   if(e.touches) { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }
-}
+};
 window.movePress = function(e) {
   if(e.touches) {
     let dx = Math.abs(e.touches[0].clientX - startX);
     let dy = Math.abs(e.touches[0].clientY - startY);
     if (dx > 10 || dy > 10) { isScrolling = true; }
   }
-}
+};
 
 function renderGrid(){
   var h = "";
@@ -1602,31 +1603,26 @@ function renderGrid(){
       : '<div class="mono-stock out-stock">Hết hàng</div>';
     
     var btnHtml = f.sl > 0 
-      ? `<button onclick="add(${f.originalIndex}, 'fish')">Thêm vào giỏ</button>`
+      ? '<button onclick="add(' + f.originalIndex + ', \'fish\')">Thêm vào giỏ</button>'
       : '<button disabled>Hết hàng</button>';
 
-    var cardMediaHtml = f.img ? `<img src="${f.img}" alt="${f.n}" loading="lazy">` : svg(f);
-    var videoBadgeHtml = f.vid ? `<span class="video-badge">▶ Video</span>` : "";
+    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svg(f);
+    var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
 
-    h+=`<div class="card">
-          <div class="pic" 
-               onclick="window.showFishDetail(${f.originalIndex}, 'fish')"
-               ontouchstart="window.startPress(event)" 
-               ontouchmove="window.movePress(event)">
-            ${cardMediaHtml}
-            ${videoBadgeHtml}
-          </div>
-          <div class="info">
-            <b>${f.n}</b>
-            <small>${f.cat} · ${f.s}</small>
-            ${stockHtml}
-            <div class="price">${money(f.p)}đ</div>
-            ${btnHtml}
-          </div>
-        </div>`;
+    h += '<div class="card">'
+      + '<div class="pic" onclick="window.showFishDetail(' + f.originalIndex + ', \'fish\')" ontouchstart="window.startPress(event)" ontouchmove="window.movePress(event)">'
+      + cardMediaHtml + videoBadgeHtml
+      + '</div>'
+      + '<div class="info">'
+      + '<b>' + f.n + '</b>'
+      + '<small>' + f.cat + ' · ' + f.s + '</small>'
+      + stockHtml
+      + '<div class="price">' + money(f.p) + 'đ</div>'
+      + btnHtml
+      + '</div></div>';
   });
   
-  document.getElementById("grid").innerHTML = h || '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy dòng cá phù hợp.</div>';
+  document.getElementById("grid").innerHTML = h ? h : '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy dòng cá phù hợp.</div>';
   renderPagination();
 }
 
@@ -1643,32 +1639,34 @@ function renderPagination() {
   paginationContainer.innerHTML = ph;
 }
 
-/* --- BỘ LỌC & HIỂN THỊ DANH MỤC PHỤ KIỆN --- */
+/* --- DANH MUC PHU KIEN --- */
 function renderAccFilters() {
-  const cats = ["all", ...new Set(ACC.map(f => f.cat).filter(c => c))];
-  let html = `<input id="qAcc" placeholder="Tìm tên phụ kiện, thiết bị..." oninput="applyAccFilters(1, true)">`;
-  cats.forEach(c => {
+  const rawCats = ACC.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
+  const cats = ["all"].concat(Array.from(new Set(rawCats)));
+  let html = '<input id="qAcc" placeholder="Tìm tên phụ kiện, thiết bị..." oninput="applyAccFilters(1, true)">';
+  cats.forEach(function(c) {
     let label = c === "all" ? "Tất cả" : c;
     let activeClass = accFilter === c ? "on" : "";
-    html += `<button class="chip ${activeClass}" data-af="${c}">${label}</button>`;
+    html += '<button class="chip ' + activeClass + '" data-af="' + c + '">' + label + '</button>';
   });
   document.getElementById("accToolsBox").innerHTML = html;
 
   document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(btn){
     btn.onclick = function(){
-      document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(x => x.classList.remove("on"));
+      document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(x) { x.classList.remove("on"); });
       btn.classList.add("on");
       accFilter = btn.dataset.af;
       applyAccFilters(1, true);
-    }
+    };
   });
 }
 
-function applyAccFilters(page = 1, isClick = false) {
+function applyAccFilters(page, isClick) {
+  if (page === undefined) page = 1;
   var qInput = document.getElementById("qAcc");
   var q = qInput ? qInput.value.toLowerCase() : "";
-  filteredAcc = ACC.map((f, index) => ({...f, originalIndex: index}))
-                   .filter(f => (accFilter === "all" || f.cat === accFilter) && f.n.toLowerCase().indexOf(q) > -1);
+  filteredAcc = ACC.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
+                   .filter(function(f) { return (accFilter === "all" || f.cat === accFilter) && f.n.toLowerCase().indexOf(q) > -1; });
   accCurrentPage = page;
   renderAccGrid();
   if (isClick) {
@@ -1692,31 +1690,26 @@ function renderAccGrid(){
       : '<div class="mono-stock out-stock">Hết hàng</div>';
     
     var btnHtml = f.sl > 0 
-      ? `<button onclick="add(${f.originalIndex}, 'acc')">Thêm vào giỏ</button>`
+      ? '<button onclick="add(' + f.originalIndex + ', \'acc\')">Thêm vào giỏ</button>'
       : '<button disabled>Hết hàng</button>';
 
-    var cardMediaHtml = f.img ? `<img src="${f.img}" alt="${f.n}" loading="lazy">` : svgAcc(f);
-    var videoBadgeHtml = f.vid ? `<span class="video-badge">▶ Video</span>` : "";
+    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svgAcc(f);
+    var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
 
-    h+=`<div class="card">
-          <div class="pic" 
-               onclick="window.showFishDetail(${f.originalIndex}, 'acc')"
-               ontouchstart="window.startPress(event)" 
-               ontouchmove="window.movePress(event)">
-            ${cardMediaHtml}
-            ${videoBadgeHtml}
-          </div>
-          <div class="info">
-            <b>${f.n}</b>
-            <small>${f.cat} · ${f.s}</small>
-            ${stockHtml}
-            <div class="price">${money(f.p)}đ</div>
-            ${btnHtml}
-          </div>
-        </div>`;
+    h += '<div class="card">'
+      + '<div class="pic" onclick="window.showFishDetail(' + f.originalIndex + ', \'acc\')" ontouchstart="window.startPress(event)" ontouchmove="window.movePress(event)">'
+      + cardMediaHtml + videoBadgeHtml
+      + '</div>'
+      + '<div class="info">'
+      + '<b>' + f.n + '</b>'
+      + '<small>' + f.cat + ' · ' + f.s + '</small>'
+      + stockHtml
+      + '<div class="price">' + money(f.p) + 'đ</div>'
+      + btnHtml
+      + '</div></div>';
   });
   
-  document.getElementById("accGrid").innerHTML = h || '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy phụ kiện phù hợp.</div>';
+  document.getElementById("accGrid").innerHTML = h ? h : '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy phụ kiện phù hợp.</div>';
   renderAccPagination();
 }
 
@@ -1733,31 +1726,32 @@ function renderAccPagination() {
   paginationContainer.innerHTML = ph;
 }
 
-/* --- QUẢN LÝ GIỎ HÀNG CHUNG --- */
+/* --- GIO HANG CHUNG --- */
 function getItemSource(type) {
   return type === 'acc' ? ACC : FISH;
 }
 
 function getCartItemsSubtotal() {
-  return cart.reduce((sum, item) => {
+  return cart.reduce(function(sum, item) {
     var source = getItemSource(item.type);
     var product = source[item.index];
     return sum + (product ? product.p * item.qty : 0);
   }, 0);
 }
 
-function add(i, type = 'fish') {
+function add(i, type) {
+  if (!type) type = 'fish';
   const source = getItemSource(type);
   const product = source[i];
   if (!product || product.sl <= 0) return;
   let unitLabel = type === 'acc' ? 'sản phẩm' : 'cá thể';
 
-  let existing = cart.find(item => item.index === i && item.type === type);
+  let existing = cart.find(function(item) { return item.index === i && item.type === type; });
   if (existing) {
     if (existing.qty < product.sl) {
       existing.qty++;
     } else {
-      window.showModalAlert("Giới hạn tồn kho", `<b>${product.n}</b> hiện chỉ còn tối đa <b>${product.sl}</b> ${unitLabel}.`);
+      window.showModalAlert("Giới hạn tồn kho", "<b>" + product.n + "</b> hiện chỉ còn tối đa <b>" + product.sl + "</b> " + unitLabel + ".");
       return;
     }
   } else {
@@ -1778,7 +1772,7 @@ function changeQty(k, delta) {
   if (newQty <= 0) {
     cart.splice(k, 1);
   } else if (newQty > maxStock) {
-    window.showModalAlert("Giới hạn tồn kho", `<b>${product.n}</b> hiện chỉ còn <b>${maxStock}</b> ${unitLabel}.`);
+    window.showModalAlert("Giới hạn tồn kho", "<b>" + product.n + "</b> hiện chỉ còn <b>" + maxStock + "</b> " + unitLabel + ".");
   } else {
     item.qty = newQty;
   }
@@ -1791,28 +1785,27 @@ function del(k) {
 }
 
 function upd() {
-  var totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+  var totalCount = cart.reduce(function(sum, item) { return sum + item.qty; }, 0);
   document.getElementById("cnt").textContent = totalCount;
   var t = 0;
-  document.getElementById("items").innerHTML = cart.map(function(item, k) {
+  var htmlItems = cart.map(function(item, k) {
     var source = getItemSource(item.type);
     var product = source[item.index];
     var subTotal = product.p * item.qty;
     t += subTotal;
-    return `
-      <div class="row">
-        <div class="cart-item-info">
-          <span class="cart-item-title">${product.n}</span>
-          <span class="cart-item-sub">${money(product.p)}đ × ${item.qty} = <b style="color:var(--accent)">${money(subTotal)}đ</b></span>
-        </div>
-        <div class="qty-box">
-          <button class="qty-btn" onclick="changeQty(${k}, -1)">-</button>
-          <span class="qty-num">${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty(${k}, 1)">+</button>
-          <a href="#" class="del-btn" onclick="del(${k});return false" title="Xóa">✕</a>
-        </div>
-      </div>`;
-  }).join("") || '<p style="color:var(--text-muted); padding:30px 0; text-align:center;">Giỏ hàng trống.</p>';
+    return '<div class="row">'
+      + '<div class="cart-item-info">'
+      + '<span class="cart-item-title">' + product.n + '</span>'
+      + '<span class="cart-item-sub">' + money(product.p) + 'đ × ' + item.qty + ' = <b style="color:var(--accent)">' + money(subTotal) + 'đ</b></span>'
+      + '</div>'
+      + '<div class="qty-box">'
+      + '<button class="qty-btn" onclick="changeQty(' + k + ', -1)">-</button>'
+      + '<span class="qty-num">' + item.qty + '</span>'
+      + '<button class="qty-btn" onclick="changeQty(' + k + ', 1)">+</button>'
+      + '<a href="#" class="del-btn" onclick="del(' + k + ');return false" title="Xóa">✕</a>'
+      + '</div></div>';
+  }).join("");
+  document.getElementById("items").innerHTML = htmlItems ? htmlItems : '<p style="color:var(--text-muted); padding:30px 0; text-align:center;">Giỏ hàng trống.</p>';
   document.getElementById("total").textContent = money(t);
 }
 
@@ -1826,7 +1819,7 @@ let activePaymentInterval = null;
 
 window.closeModalOutside = function(e) {
   if (e.target === modalOverlay) { window.closeModal(); }
-}
+};
 window.closeModal = function() {
   if (activePaymentUnsub) {
     activePaymentUnsub();
@@ -1837,95 +1830,78 @@ window.closeModal = function() {
     activePaymentInterval = null;
   }
   modalOverlay.classList.remove('show');
-  modalTimer = setTimeout(() => { modalBox.innerHTML = ''; }, 300);
+  modalTimer = setTimeout(function() { modalBox.innerHTML = ''; }, 300);
+};
+
+function isValidVNPhone(p) {
+  if (!p || p.length !== 10 || p.charAt(0) !== '0') return false;
+  for (var i = 0; i < p.length; i++) {
+    var c = p.charCodeAt(i);
+    if (c < 48 || c > 57) return false;
+  }
+  return true;
 }
 
-// BẢNG THÔNG TIN NHẬN HÀNG + CHỌN PHƯƠNG THỨC VẬN CHUYỂN (3 MỨC)
-window.showCheckoutModal = function(tienHang = 0) {
+window.showCheckoutModal = function(tienHang) {
+  if (!tienHang) tienHang = 0;
   clearTimeout(modalTimer);
-  return new Promise((resolve) => {
+  return new Promise(function(resolve) {
     const defaultShip = 110000;
     const initGrandTotal = tienHang + defaultShip;
-    const savedPhone = localStorage.getItem("tka_last_phone") || "";
-    const savedName = localStorage.getItem("tka_last_name") || "";
-    const savedAddress = localStorage.getItem("tka_last_address") || "";
+    const savedPhone = localStorage.getItem("tka_last_phone") ? localStorage.getItem("tka_last_phone") : "";
+    const savedName = localStorage.getItem("tka_last_name") ? localStorage.getItem("tka_last_name") : "";
+    const savedAddress = localStorage.getItem("tka_last_address") ? localStorage.getItem("tka_last_address") : "";
 
-    modalBox.innerHTML = `
-      <h3>Thông Tin Nhận Hàng</h3>
-      <p style="margin-bottom: 16px;">Điền thông tin để TK aqua xác nhận và khởi tạo mã thanh toán:</p>
-      <div class="checkout-form">
-        <div class="form-group">
-          <label>Người nhận *</label>
-          <input type="text" id="chkName" placeholder="Nguyễn Văn A" autocomplete="name" value="${savedName}">
-        </div>
-        <div class="form-group">
-          <label>Số điện thoại *</label>
-          <input type="tel" id="chkPhone" placeholder="0703008005" autocomplete="tel" value="${savedPhone}">
-        </div>
-        <div class="form-group">
-          <label>Địa chỉ nhận hàng *</label>
-          <textarea id="chkAddress" placeholder="Số nhà, đường, Phường/Xã, Quận/Huyện, Tỉnh/TP...">${savedAddress}</textarea>
-        </div>
-        <div class="form-group">
-          <label>Khu vực & Phương thức giao hàng *</label>
-          <select id="chkShipping">
-            <option value="110000" data-label="Nội thành TP.HCM (Hộp đóng hàng + Ship Grab/Ahamove)">Nội thành TP.HCM (Hộp + Ship app): +110.000đ</option>
-            <option value="210000" data-label="Tỉnh / Ngoại thành (Hộp đóng hàng + Xe khách)">Tỉnh / Ngoại thành (Hộp + Xe khách): +210.000đ</option>
-            <option value="500000" data-label="Quốc tế / Đi máy bay (Đóng gói chuyên dụng + Cước bay)">Quốc tế / Đi máy bay (Đóng gói + Cước bay): +500.000đ</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Ghi chú</label>
-          <input type="text" id="chkNote" placeholder="Giao giờ hành chính, gửi nhà xe...">
-        </div>
+    modalBox.innerHTML = '<h3>Thông Tin Nhận Hàng</h3>'
+      + '<p style="margin-bottom: 16px;">Điền thông tin để TK aqua xác nhận và khởi tạo mã thanh toán:</p>'
+      + '<div class="checkout-form">'
+      + '<div class="form-group"><label>Người nhận *</label><input type="text" id="chkName" placeholder="Nguyễn Văn A" autocomplete="name" value="' + savedName + '"></div>'
+      + '<div class="form-group"><label>Số điện thoại *</label><input type="tel" id="chkPhone" placeholder="0703008005" autocomplete="tel" value="' + savedPhone + '"></div>'
+      + '<div class="form-group"><label>Địa chỉ nhận hàng *</label><textarea id="chkAddress" placeholder="Số nhà, đường, Phường/Xã, Quận/Huyện, Tỉnh/TP...">' + savedAddress + '</textarea></div>'
+      + '<div class="form-group"><label>Khu vực & Phương thức giao hàng *</label>'
+      + '<select id="chkShipping">'
+      + '<option value="110000" data-label="Nội thành TP.HCM (Hộp đóng hàng + Ship Grab/Ahamove)">Nội thành TP.HCM (Hộp + Ship app): +110.000đ</option>'
+      + '<option value="210000" data-label="Tỉnh / Ngoại thành (Hộp đóng hàng + Xe khách)">Tỉnh / Ngoại thành (Hộp + Xe khách): +210.000đ</option>'
+      + '<option value="500000" data-label="Quốc tế / Đi máy bay (Đóng gói chuyên dụng + Cước bay)">Quốc tế / Đi máy bay (Đóng gói + Cước bay): +500.000đ</option>'
+      + '</select></div>'
+      + '<div class="form-group"><label>Ghi chú</label><input type="text" id="chkNote" placeholder="Giao giờ hành chính, gửi nhà xe..."></div>'
+      + '<div class="checkout-summary-box">'
+      + '<div class="summary-line"><span>Tiền sản phẩm:</span><b>' + money(tienHang) + 'đ</b></div>'
+      + '<div class="summary-line"><span>Phí đóng gói & vận chuyển:</span><b id="lblShipFee">' + money(defaultShip) + 'đ</b></div>'
+      + '<div class="summary-line total"><span>TỔNG THANH TOÁN:</span><b id="lblGrandTotal">' + money(initGrandTotal) + 'đ</b></div>'
+      + '</div>'
+      + '<div id="chkError" class="form-error"></div>'
+      + '</div>'
+      + '<div class="modal-actions">'
+      + '<button id="modalCancel" class="btn-cancel">Hủy</button>'
+      + '<button id="modalConfirm" class="btn-confirm">Tiếp tục thanh toán</button>'
+      + '</div>';
 
-        <div class="checkout-summary-box">
-          <div class="summary-line">
-            <span>Tiền sản phẩm:</span>
-            <b>${money(tienHang)}đ</b>
-          </div>
-          <div class="summary-line">
-            <span>Phí đóng gói & vận chuyển:</span>
-            <b id="lblShipFee">${money(defaultShip)}đ</b>
-          </div>
-          <div class="summary-line total">
-            <span>TỔNG THANH TOÁN:</span>
-            <b id="lblGrandTotal">${money(initGrandTotal)}đ</b>
-          </div>
-        </div>
-
-        <div id="chkError" class="form-error"></div>
-      </div>
-      <div class="modal-actions">
-        <button id="modalCancel" class="btn-cancel">Hủy</button>
-        <button id="modalConfirm" class="btn-confirm">Tiếp tục thanh toán</button>
-      </div>
-    `;
     modalOverlay.classList.add('show');
-    setTimeout(() => document.getElementById('chkName').focus(), 100);
+    setTimeout(function() { document.getElementById('chkName').focus(); }, 100);
 
     const shipSelect = document.getElementById('chkShipping');
     const lblShipFee = document.getElementById('lblShipFee');
     const lblGrandTotal = document.getElementById('lblGrandTotal');
 
-    shipSelect.onchange = () => {
-      const fee = parseInt(shipSelect.value) || 0;
+    shipSelect.onchange = function() {
+      const fee = parseInt(shipSelect.value) ? parseInt(shipSelect.value) : 0;
       lblShipFee.textContent = money(fee) + 'đ';
       lblGrandTotal.textContent = money(tienHang + fee) + 'đ';
     };
 
     const errBox = document.getElementById('chkError');
-    const showError = (msg) => {
+    const showError = function(msg) {
       errBox.textContent = msg;
       errBox.style.display = 'block';
     };
 
-    document.getElementById('modalConfirm').onclick = () => {
+    document.getElementById('modalConfirm').onclick = function() {
       const name = document.getElementById('chkName').value.trim();
       const rawPhone = document.getElementById('chkPhone').value.replace(/[\s\.\-\+]/g, '');
       const address = document.getElementById('chkAddress').value.trim();
       const note = document.getElementById('chkNote').value.trim();
-      const shipFee = parseInt(shipSelect.value) || 110000;
+      const shipFee = parseInt(shipSelect.value) ? parseInt(shipSelect.value) : 110000;
       const shipMethod = shipSelect.options[shipSelect.selectedIndex].getAttribute('data-label');
 
       if (!name) {
@@ -1933,7 +1909,7 @@ window.showCheckoutModal = function(tienHang = 0) {
         document.getElementById('chkName').focus();
         return;
       }
-      if (!/^0[0-9]{9}$/.test(rawPhone)) {
+      if (!isValidVNPhone(rawPhone)) {
         showError("Số điện thoại gồm 10 chữ số, bắt đầu bằng số 0.");
         document.getElementById('chkPhone').focus();
         return;
@@ -1944,16 +1920,15 @@ window.showCheckoutModal = function(tienHang = 0) {
         return;
       }
 
-      // Lưu lại thông tin cơ bản trên máy khách để tiện tra cứu đơn
       localStorage.setItem("tka_last_phone", rawPhone);
       localStorage.setItem("tka_last_name", name);
       localStorage.setItem("tka_last_address", address);
 
       window.closeModal();
-      resolve({ name, phone: rawPhone, address, note, shipFee, shipMethod });
+      resolve({ name: name, phone: rawPhone, address: address, note: note, shipFee: shipFee, shipMethod: shipMethod });
     };
 
-    document.getElementById('modalCancel').onclick = () => {
+    document.getElementById('modalCancel').onclick = function() {
       window.closeModal();
       resolve(null);
     };
@@ -1962,74 +1937,51 @@ window.showCheckoutModal = function(tienHang = 0) {
 
 window.showModalAlert = function(title, message) {
   clearTimeout(modalTimer);
-  return new Promise((resolve) => {
-    modalBox.innerHTML = `
-      <h3>${title}</h3><p>${message}</p>
-      <div class="modal-actions"><button id="modalConfirm" class="btn-confirm">Đóng</button></div>
-    `;
+  return new Promise(function(resolve) {
+    modalBox.innerHTML = '<h3>' + title + '</h3><p>' + message + '</p>'
+      + '<div class="modal-actions"><button id="modalConfirm" class="btn-confirm">Đóng</button></div>';
     modalOverlay.classList.add('show');
-    document.getElementById('modalConfirm').onclick = () => { window.closeModal(); resolve(true); };
+    document.getElementById('modalConfirm').onclick = function() { window.closeModal(); resolve(true); };
   });
 };
 
-// POPUP QUÉT MÃ QR PAYOS & TỰ ĐỘNG KIỂM TRA / ĐỐI SOÁT TIỀN VỀ
 window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, listenFirestorePaid) {
   clearTimeout(modalTimer);
-  return new Promise((resolve) => {
-    const qrRaw = paymentInfo.qrCode || "";
-    const checkoutUrl = paymentInfo.checkoutUrl || "#";
+  return new Promise(function(resolve) {
+    const qrRaw = paymentInfo.qrCode ? paymentInfo.qrCode : "";
+    const checkoutUrl = paymentInfo.checkoutUrl ? paymentInfo.checkoutUrl : "#";
     const qrImgSrc = qrRaw
-      ? `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=6&data=${encodeURIComponent(qrRaw)}`
+      ? "https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=6&data=" + encodeURIComponent(qrRaw)
       : "";
 
-    modalBox.innerHTML = `
-      <h3>Thanh Toán Đơn #${orderInfo.maDon}</h3>
-      <p style="margin-bottom: 10px; font-size: 13px;">Mở App Ngân hàng bất kỳ để quét mã VietQR payOS bên dưới (số tiền & nội dung đã được khóa tự động):</p>
+    let accRow = paymentInfo.accountNumber
+      ? '<div class="payos-info-row"><span>Số tài khoản nhận:</span><b>' + paymentInfo.accountNumber + '</b></div>'
+      : '';
+    let descRow = paymentInfo.description
+      ? '<div class="payos-info-row"><span>Nội dung CK:</span><b>' + paymentInfo.description + '</b></div>'
+      : '';
 
-      <div class="payos-qr-box">
-        ${qrImgSrc ? `<div class="payos-qr-img-wrap"><img src="${qrImgSrc}" alt="Mã QR payOS"></div>` : ''}
-        <div class="payos-info-row">
-          <span>Mã đơn hàng:</span>
-          <b>#${orderInfo.maDon}</b>
-        </div>
-        <div class="payos-info-row">
-          <span>Tiền sản phẩm:</span>
-          <b>${money(orderInfo.tienHang)}đ</b>
-        </div>
-        <div class="payos-info-row">
-          <span>Phí đóng gói & ship:</span>
-          <b>${money(orderInfo.phiShip)}đ</b>
-        </div>
-        <div class="payos-info-row">
-          <span>Tổng thanh toán:</span>
-          <b style="font-size: 15px; color: #ffcc00;">${money(orderInfo.tongCong)}đ</b>
-        </div>
-        ${paymentInfo.accountNumber ? `
-        <div class="payos-info-row">
-          <span>Số tài khoản nhận:</span>
-          <b>${paymentInfo.accountNumber}</b>
-        </div>` : ''}
-        ${paymentInfo.description ? `
-        <div class="payos-info-row">
-          <span>Nội dung CK:</span>
-          <b>${paymentInfo.description}</b>
-        </div>` : ''}
+    modalBox.innerHTML = '<h3>Thanh Toán Đơn #' + orderInfo.maDon + '</h3>'
+      + '<p style="margin-bottom: 10px; font-size: 13px;">Mở App Ngân hàng bất kỳ để quét mã VietQR payOS bên dưới (số tiền & nội dung đã được khóa tự động):</p>'
+      + '<div class="payos-qr-box">'
+      + (qrImgSrc ? '<div class="payos-qr-img-wrap"><img src="' + qrImgSrc + '" alt="Mã QR payOS"></div>' : '')
+      + '<div class="payos-info-row"><span>Mã đơn hàng:</span><b>#' + orderInfo.maDon + '</b></div>'
+      + '<div class="payos-info-row"><span>Tiền sản phẩm:</span><b>' + money(orderInfo.tienHang) + 'đ</b></div>'
+      + '<div class="payos-info-row"><span>Phí đóng gói & ship:</span><b>' + money(orderInfo.phiShip) + 'đ</b></div>'
+      + '<div class="payos-info-row"><span>Tổng thanh toán:</span><b style="font-size: 15px; color: #ffcc00;">' + money(orderInfo.tongCong) + 'đ</b></div>'
+      + accRow + descRow
+      + '<div class="payos-status-badge" id="payosStatusBadge">'
+      + '<span class="pulse-dot"></span><span>Đang chờ xác nhận thanh toán tự động...</span>'
+      + '</div></div>'
+      + '<div class="modal-actions">'
+      + '<a href="' + checkoutUrl + '" target="_blank" class="btn-cancel">Mở cổng payOS ↗</a>'
+      + '<button id="modalConfirm" class="btn-confirm">Kiểm tra / Đóng</button>'
+      + '</div>';
 
-        <div class="payos-status-badge" id="payosStatusBadge">
-          <span class="pulse-dot"></span>
-          <span>Đang chờ xác nhận thanh toán tự động...</span>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <a href="${checkoutUrl}" target="_blank" class="btn-cancel">Mở cổng payOS ↗</a>
-        <button id="modalConfirm" class="btn-confirm">Kiểm tra / Đóng</button>
-      </div>
-    `;
     modalOverlay.classList.add('show');
 
     let isConfirmed = false;
-    const handleSuccess = async () => {
+    const handleSuccess = async function() {
       if (isConfirmed) return;
       isConfirmed = true;
       if (activePaymentInterval) {
@@ -2039,7 +1991,7 @@ window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, liste
 
       const badge = document.getElementById('payosStatusBadge');
       if (badge) {
-        badge.innerHTML = `✅ ĐÃ NHẬN ĐỦ TIỀN! ĐƠN HÀNG HOÀN TẤT`;
+        badge.innerHTML = '✅ ĐÃ NHẬN ĐỦ TIỀN! ĐƠN HÀNG HOÀN TẤT';
         badge.style.background = "rgba(154, 179, 102, 0.35)";
         badge.style.color = "#ffffff";
       }
@@ -2048,26 +2000,26 @@ window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, liste
         await onPaymentSuccess();
       }
 
-      setTimeout(async () => {
+      setTimeout(async function() {
         window.closeModal();
         await window.showModalAlert(
           "Xác Nhận Thanh Toán Thành Công",
-          `Cảm ơn <b>${orderInfo.tenKhach.toUpperCase()}</b>!<br>Hệ thống đã nhận đủ <b>${money(orderInfo.tongCong)}đ</b> cho đơn hàng <b>#${orderInfo.maDon}</b>.<br>Bạn có thể xem lại trạng thái đơn bất cứ lúc nào tại mục <b>Tra cứu đơn</b>.`
+          "Cảm ơn <b>" + orderInfo.tenKhach.toUpperCase() + "</b>!<br>Hệ thống đã nhận đủ <b>" + money(orderInfo.tongCong) + "đ</b> cho đơn hàng <b>#" + orderInfo.maDon + "</b>.<br>Bạn có thể xem lại trạng thái đơn bất cứ lúc nào tại mục <b>Tra cứu đơn</b>."
         );
         resolve(true);
       }, 900);
     };
 
-    const checkPayOSNow = async () => {
+    const checkPayOSNow = async function() {
       if (isConfirmed) return false;
       try {
-        const res = await fetch(`${API_BASE}/api/check-payment?orderCode=${orderInfo.orderCodeNum}&t=${Date.now()}`, {
+        const res = await fetch(API_BASE + "/api/check-payment?orderCode=" + orderInfo.orderCodeNum + "&t=" + Date.now(), {
           cache: "no-store"
         });
         const resJson = await res.json();
-        const st = resJson && resJson.data ? resJson.data.status : null;
-        const paidAmt = resJson && resJson.data ? Number(resJson.data.amountPaid || 0) : 0;
-        const reqAmt = resJson && resJson.data ? Number(resJson.data.amount || 0) : 0;
+        const st = (resJson && resJson.data) ? resJson.data.status : null;
+        const paidAmt = (resJson && resJson.data && resJson.data.amountPaid) ? Number(resJson.data.amountPaid) : 0;
+        const reqAmt = (resJson && resJson.data && resJson.data.amount) ? Number(resJson.data.amount) : 0;
         if (st === "PAID" || (reqAmt > 0 && paidAmt >= reqAmt)) {
           await handleSuccess();
           return true;
@@ -2078,17 +2030,15 @@ window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, liste
       return false;
     };
 
-    // Cơ chế 1: Tự động hỏi trạng thái payOS mỗi 2.5 giây
     activePaymentInterval = setInterval(checkPayOSNow, 2500);
 
-    // Cơ chế 2: Lắng nghe đồng bộ thời gian thực từ Firestore (khi Webhook Cloudflare cập nhật)
     if (typeof listenFirestorePaid === 'function') {
-      activePaymentUnsub = listenFirestorePaid(() => {
+      activePaymentUnsub = listenFirestorePaid(function() {
         handleSuccess();
       });
     }
 
-    document.getElementById('modalConfirm').onclick = async () => {
+    document.getElementById('modalConfirm').onclick = async function() {
       const btn = document.getElementById('modalConfirm');
       if (btn) btn.textContent = "ĐANG KIỂM TRA...";
       const ok = await checkPayOSNow();
@@ -2100,7 +2050,8 @@ window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, liste
   });
 };
 
-window.showFishDetail = function(index, type = 'fish') {
+window.showFishDetail = function(index, type) {
+  if (!type) type = 'fish';
   if (isScrolling) return;
   clearTimeout(modalTimer);
   
@@ -2109,41 +2060,28 @@ window.showFishDetail = function(index, type = 'fish') {
   let defaultSvg = type === 'acc' ? svgAcc(f) : svg(f);
   let detailMediaHtml = f.vid 
       ? buildDetailVideoHtml(f.vid, f.img) 
-      : (f.img ? `<img src="${f.img}" alt="${f.n}">` : defaultSvg);
+      : (f.img ? '<img src="' + f.img + '" alt="' + f.n + '">' : defaultSvg);
 
   let label1 = type === 'acc' ? "Công Dụng & Đặc Điểm" : "Đặc Điểm & Tập Tính";
   let label2 = type === 'acc' ? "Hướng Dẫn Sử Dụng" : "Thông Số Nước & Bể";
   let label3 = type === 'acc' ? "Thông Tin Bổ Sung" : "Cá Nuôi Chung (Tank Mates)";
   
-  modalBox.innerHTML = `
-    <div class="fish-info-wrap">
-      <div class="fish-info-pic">${detailMediaHtml}</div>
-      <h3 style="margin-bottom: 4px;">${f.n}</h3>
-      <div style="font-size: 12px; font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px; margin-bottom: 20px; color: var(--text-muted);">Phân loại: ${f.cat} · ${f.s}</div>
-      
-      <div class="info-detail-row">
-        <b>${label1}</b>
-        <span>${f.desc || "Đang cập nhật."}</span>
-      </div>
-      <div class="info-detail-row">
-        <b>${label2}</b>
-        <span>${f.env || "Đang cập nhật."}</span>
-      </div>
-      <div class="info-detail-row">
-        <b>${label3}</b>
-        <span>${f.mates || "Đang cập nhật."}</span>
-      </div>
-      
-      <button class="btn-close-info" onclick="window.closeModal()">Đóng</button>
-    </div>
-  `;
+  modalBox.innerHTML = '<div class="fish-info-wrap">'
+    + '<div class="fish-info-pic">' + detailMediaHtml + '</div>'
+    + '<h3 style="margin-bottom: 4px;">' + f.n + '</h3>'
+    + '<div style="font-size: 12px; font-family:\'Montserrat\',sans-serif; text-transform:uppercase; letter-spacing:1px; margin-bottom: 20px; color: var(--text-muted);">Phân loại: ' + f.cat + ' · ' + f.s + '</div>'
+    + '<div class="info-detail-row"><b>' + label1 + '</b><span>' + (f.desc ? f.desc : "Đang cập nhật.") + '</span></div>'
+    + '<div class="info-detail-row"><b>' + label2 + '</b><span>' + (f.env ? f.env : "Đang cập nhật.") + '</span></div>'
+    + '<div class="info-detail-row"><b>' + label3 + '</b><span>' + (f.mates ? f.mates : "Đang cập nhật.") + '</span></div>'
+    + '<button class="btn-close-info" onclick="window.closeModal()">Đóng</button>'
+    + '</div>';
   modalOverlay.classList.add('show');
-}
+};
 
 const mainHeader = document.getElementById("mainHeader");
 const btnTop = document.getElementById("btnTop");
 
-window.addEventListener("scroll", () => {
+window.addEventListener("scroll", function() {
   let sc = window.scrollY;
   if (sc > 20) { mainHeader.classList.add("scrolled"); } 
   else { mainHeader.classList.remove("scrolled"); }
@@ -2152,10 +2090,9 @@ window.addEventListener("scroll", () => {
   else { btnTop.style.opacity = "0"; btnTop.style.pointerEvents = "none"; }
 });
 
-// Hiệu ứng 3D Perspective Tilt Card & Spotlight
 const tiltCard = document.getElementById("tiltCard");
 if (tiltCard && window.matchMedia("(pointer: fine)").matches) {
-  tiltCard.addEventListener("mousemove", (e) => {
+  tiltCard.addEventListener("mousemove", function(e) {
     const rect = tiltCard.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -2165,17 +2102,17 @@ if (tiltCard && window.matchMedia("(pointer: fine)").matches) {
     const rotateX = ((y - centerY) / centerY) * -10;
     const rotateY = ((x - centerX) / centerX) * 10;
 
-    tiltCard.style.setProperty("--mouse-x", `${x}px`);
-    tiltCard.style.setProperty("--mouse-y", `${y}px`);
-    tiltCard.style.setProperty("--rotate-x", `${rotateX.toFixed(2)}deg`);
-    tiltCard.style.setProperty("--rotate-y", `${rotateY.toFixed(2)}deg`);
+    tiltCard.style.setProperty("--mouse-x", x + "px");
+    tiltCard.style.setProperty("--mouse-y", y + "px");
+    tiltCard.style.setProperty("--rotate-x", rotateX.toFixed(2) + "deg");
+    tiltCard.style.setProperty("--rotate-y", rotateY.toFixed(2) + "deg");
   });
 
-  tiltCard.addEventListener("mouseleave", () => {
+  tiltCard.addEventListener("mouseleave", function() {
     tiltCard.style.transition = "transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.3s ease, box-shadow 0.3s ease";
     tiltCard.style.setProperty("--rotate-x", "0deg");
     tiltCard.style.setProperty("--rotate-y", "0deg");
-    setTimeout(() => {
+    setTimeout(function() {
       tiltCard.style.transition = "transform 0.12s ease-out, border-color 0.3s ease, box-shadow 0.3s ease";
     }, 500);
   });
@@ -2207,7 +2144,7 @@ initData();
 
   async function sendDiscordNotification(payload) {
     try {
-      const res = await fetch(`${API_BASE}/api/notify`, {
+      const res = await fetch(API_BASE + "/api/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -2218,119 +2155,118 @@ initData();
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
-      }).catch(err => console.log("Discord error:", err));
+      }).catch(function(err) { console.log("Discord error:", err); });
     }
   }
 
-  // LƯU MÃ ĐƠN VÀO TRÌNH DUYỆT CỦA KHÁCH ĐỂ XEM LẠI KHÔNG CẦN ĐĂNG NHẬP
   function saveOrderToLocalHistory(orderSummary) {
     try {
-      let list = JSON.parse(localStorage.getItem("tka_order_history") || "[]");
-      list = list.filter(x => x.ma_don !== orderSummary.ma_don);
+      let raw = localStorage.getItem("tka_order_history");
+      let list = raw ? JSON.parse(raw) : [];
+      list = list.filter(function(x) { return x.ma_don !== orderSummary.ma_don; });
       list.unshift(orderSummary);
       localStorage.setItem("tka_order_history", JSON.stringify(list.slice(0, 20)));
     } catch (e) {}
   }
 
-  // POPUP TRA CỨU ĐƠN HÀNG ĐÃ ĐẶT (KHÔNG CẦN ĐĂNG NHẬP)
   window.openOrderLookup = async function() {
     clearTimeout(modalTimer);
-    const savedPhone = localStorage.getItem("tka_last_phone") || "";
+    const savedPhone = localStorage.getItem("tka_last_phone") ? localStorage.getItem("tka_last_phone") : "";
 
-    modalBox.innerHTML = `
-      <h3>Đơn Hàng Đã Đặt</h3>
-      <p style="margin-bottom: 12px; font-size: 13px;">Nhập <b>Số điện thoại</b> hoặc <b>Mã đơn</b> (VD: TKA-92881161) để xem trạng thái đơn hàng:</p>
-      <div class="order-lookup-bar">
-        <input type="text" id="lookupInput" placeholder="Nhập SĐT hoặc Mã đơn..." value="${savedPhone}">
-        <button id="btnLookupSearch">Tìm kiếm</button>
-      </div>
-      <div id="lookupResults" class="order-history-list">
-        <div style="text-align:center; padding: 20px; color: var(--text-muted);">Đang tải đơn hàng...</div>
-      </div>
-      <button class="btn-close-info" onclick="window.closeModal()">Đóng</button>
-    `;
+    modalBox.innerHTML = '<h3>Đơn Hàng Đã Đặt</h3>'
+      + '<p style="margin-bottom: 12px; font-size: 13px;">Nhập <b>Số điện thoại</b> hoặc <b>Mã đơn</b> (VD: TKA-92881161) để xem trạng thái đơn hàng:</p>'
+      + '<div class="order-lookup-bar">'
+      + '<input type="text" id="lookupInput" placeholder="Nhập SĐT hoặc Mã đơn..." value="' + savedPhone + '">'
+      + '<button id="btnLookupSearch">Tìm kiếm</button>'
+      + '</div>'
+      + '<div id="lookupResults" class="order-history-list">'
+      + '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Đang tải đơn hàng...</div>'
+      + '</div>'
+      + '<button class="btn-close-info" onclick="window.closeModal()">Đóng</button>';
     modalOverlay.classList.add('show');
 
-    const renderOrderCards = (orders) => {
+    const renderOrderCards = function(orders) {
       const container = document.getElementById("lookupResults");
       if (!container) return;
       if (!orders || orders.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding: 24px 10px; color: var(--text-muted);">Chưa tìm thấy đơn hàng nào. Hãy nhập số điện thoại đã dùng khi đặt hàng.</div>`;
+        container.innerHTML = '<div style="text-align:center; padding: 24px 10px; color: var(--text-muted);">Chưa tìm thấy đơn hàng nào. Hãy nhập số điện thoại đã dùng khi đặt hàng.</div>';
         return;
       }
 
-      container.innerHTML = orders.map(o => {
-        const isPaid = o.trang_thai === "Đã thanh toán" || o.paid === true;
+      container.innerHTML = orders.map(function(o) {
+        const isPaid = (o.trang_thai === "Đã thanh toán" || o.paid === true);
         const badgeClass = isPaid ? "paid" : "pending";
         const badgeText = isPaid ? "✅ Đã thanh toán" : "⏳ Chờ thanh toán";
         const spList = Array.isArray(o.san_pham)
-          ? o.san_pham.map(sp => `${sp.ten_ca}${sp.size ? ' ('+sp.size+')' : ''} × ${sp.so_luong}`).join(", ")
+          ? o.san_pham.map(function(sp) { return sp.ten_ca + (sp.size ? " (" + sp.size + ")" : "") + " × " + sp.so_luong; }).join(", ")
           : "";
 
-        return `
-          <div class="order-history-card">
-            <div class="order-history-head">
-              <b>#${o.ma_don || ''}</b>
-              <span class="order-badge ${badgeClass}">${badgeText}</span>
-            </div>
-            <div class="order-history-body">
-              <div><b>Khách hàng:</b> ${o.ten_khach || ''} (${o.so_dien_thoai || ''})</div>
-              <div><b>Sản phẩm:</b> ${spList}</div>
-              <div><b>Vận chuyển:</b> ${o.phuong_thuc_ship || 'Tiêu chuẩn'}</div>
-              <div><b>Địa chỉ:</b> ${o.dia_chi || ''}</div>
-              <div style="margin-top:4px;"><b>Tổng thanh toán:</b> <span style="color:var(--accent); font-weight:800;">${money(o.tong_tien)}đ</span></div>
-            </div>
-          </div>
-        `;
+        return '<div class="order-history-card">'
+          + '<div class="order-history-head">'
+          + '<b>#' + (o.ma_don ? o.ma_don : "") + '</b>'
+          + '<span class="order-badge ' + badgeClass + '">' + badgeText + '</span>'
+          + '</div>'
+          + '<div class="order-history-body">'
+          + '<div><b>Khách hàng:</b> ' + (o.ten_khach ? o.ten_khach : "") + ' (' + (o.so_dien_thoai ? o.so_dien_thoai : "") + ')</div>'
+          + '<div><b>Sản phẩm:</b> ' + spList + '</div>'
+          + '<div><b>Vận chuyển:</b> ' + (o.phuong_thuc_ship ? o.phuong_thuc_ship : "Tiêu chuẩn") + '</div>'
+          + '<div><b>Địa chỉ:</b> ' + (o.dia_chi ? o.dia_chi : "") + '</div>'
+          + '<div style="margin-top:4px;"><b>Tổng thanh toán:</b> <span style="color:var(--accent); font-weight:800;">' + money(o.tong_tien) + 'đ</span></div>'
+          + '</div></div>';
       }).join("");
     };
 
-    const runSearch = async (keyword) => {
+    const runSearch = async function(keyword) {
       const container = document.getElementById("lookupResults");
-      if (container) container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Đang tra cứu dữ liệu...</div>`;
+      if (container) container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Đang tra cứu dữ liệu...</div>';
 
-      let kw = (keyword || "").trim();
+      let kw = keyword ? keyword.trim() : "";
       let results = [];
 
       try {
         if (kw) {
           let cleanPhone = kw.replace(/[\s\.\-]/g, '');
-          if (/^0[0-9]{8,10}$/.test(cleanPhone)) {
+          if (cleanPhone.length >= 9 && cleanPhone.length <= 11 && cleanPhone.charAt(0) === '0') {
             const qPhone = query(collection(db, "don_hang"), where("so_dien_thoai", "==", cleanPhone));
             const snap = await getDocs(qPhone);
-            snap.forEach(d => results.push(d.data()));
+            snap.forEach(function(d) { results.push(d.data()); });
           } else {
             let code = kw.toUpperCase().replace(/^#/, '');
             if (!code.startsWith("TKA-")) code = "TKA-" + code.replace(/^TKA\s*/, '');
             const qCode = query(collection(db, "don_hang"), where("ma_don", "==", code));
             const snap = await getDocs(qCode);
-            snap.forEach(d => results.push(d.data()));
+            snap.forEach(function(d) { results.push(d.data()); });
           }
         } else {
-          const localList = JSON.parse(localStorage.getItem("tka_order_history") || "[]");
+          let rawLocal = localStorage.getItem("tka_order_history");
+          const localList = rawLocal ? JSON.parse(rawLocal) : [];
           if (localList.length > 0 && localList[0].so_dien_thoai) {
             const qPhone = query(collection(db, "don_hang"), where("so_dien_thoai", "==", localList[0].so_dien_thoai));
             const snap = await getDocs(qPhone);
-            snap.forEach(d => results.push(d.data()));
+            snap.forEach(function(d) { results.push(d.data()); });
           } else {
             results = localList;
           }
         }
       } catch (err) {
         console.error("Lookup error:", err);
-        results = JSON.parse(localStorage.getItem("tka_order_history") || "[]");
+        let rawLocal = localStorage.getItem("tka_order_history");
+        results = rawLocal ? JSON.parse(rawLocal) : [];
       }
 
-      // Sắp xếp đơn mới nhất lên đầu
-      results.sort((a, b) => (b.order_code_num || 0) - (a.order_code_num || 0));
+      results.sort(function(a, b) {
+        let na = a.order_code_num ? a.order_code_num : 0;
+        let nb = b.order_code_num ? b.order_code_num : 0;
+        return nb - na;
+      });
       renderOrderCards(results);
     };
 
-    document.getElementById("btnLookupSearch").onclick = () => {
+    document.getElementById("btnLookupSearch").onclick = function() {
       const val = document.getElementById("lookupInput").value;
       runSearch(val);
     };
-    document.getElementById("lookupInput").onkeydown = (e) => {
+    document.getElementById("lookupInput").onkeydown = function(e) {
       if (e.key === "Enter") runSearch(e.target.value);
     };
 
@@ -2368,29 +2304,29 @@ initData();
       danhSachSP.push({
         loai: item.type === 'acc' ? "Phụ kiện" : "Cá cảnh",
         ten_ca: f.n,
-        size: f.s || "",
+        size: f.s ? f.s : "",
         so_luong: item.qty,
         don_gia: f.p,
         thanh_tien: thanhTien
       });
 
       let stt = String(idx + 1).padStart(2, '0');
-      let sizeInfo = f.s ? ` (${f.s})` : "";
-      chiTietHoaDonText += `${stt}. ${f.n}${sizeInfo}\n    SL: ${item.qty} ${donVi}  ×  ${f.p.toLocaleString('vi-VN')}đ  =  ${thanhTien.toLocaleString('vi-VN')}đ\n`;
+      let sizeInfo = f.s ? " (" + f.s + ")" : "";
+      chiTietHoaDonText += stt + ". " + f.n + sizeInfo + "\n    SL: " + item.qty + " " + donVi + "  ×  " + f.p.toLocaleString('vi-VN') + "đ  =  " + thanhTien.toLocaleString('vi-VN') + "đ\n";
     });
 
-    const phiShip = customer.shipFee || 0;
-    const phuongThucShip = customer.shipMethod || "Tiêu chuẩn";
+    const phiShip = customer.shipFee ? customer.shipFee : 0;
+    const phuongThucShip = customer.shipMethod ? customer.shipMethod : "Tiêu chuẩn";
     const tongTien = tienHang + phiShip;
 
     try {
       let maSo = Number(String(Date.now()).slice(-6) + String(Math.floor(10 + Math.random() * 90)));
-      let maDonHang = `TKA-${maSo} - ${customer.phone} - ${customer.name}`;
+      let maDonHang = "TKA-" + maSo + " - " + customer.phone + " - " + customer.name;
       let thoiGianDat = new Date().toLocaleString('vi-VN');
       const orderDocRef = doc(db, "don_hang", maDonHang);
 
       const orderRecord = {
-        ma_don: `TKA-${maSo}`,
+        ma_don: "TKA-" + maSo,
         order_code_num: maSo,
         trang_thai: "Chờ thanh toán",
         ten_khach: customer.name,       
@@ -2399,33 +2335,31 @@ initData();
         phuong_thuc_ship: phuongThucShip,
         phi_ship: phiShip,
         tien_hang: tienHang,
-        ghi_chu: customer.note || "Không có",
+        ghi_chu: customer.note ? customer.note : "Không có",
         san_pham: danhSachSP,
         tong_so_luong: tongSoLuong,
         tong_tien: tongTien,
         ngay_dat: serverTimestamp()
       };
 
-      // 1. Lưu vào Firebase Firestore + Lưu vào bộ nhớ trình duyệt của khách
       await setDoc(orderDocRef, orderRecord);
-      saveOrderToLocalHistory({ ...orderRecord, ngay_dat_text: thoiGianDat });
+      saveOrderToLocalHistory(Object.assign({}, orderRecord, { ngay_dat_text: thoiGianDat }));
 
-      // 2. Gửi thông báo đơn mới về Discord
       const discordPayload = {
-        content: `🔔 **ĐƠN HÀNG MỚI #TKA-${maSo} (CHỜ THANH TOÁN)**`,
+        content: "🔔 **ĐƠN HÀNG MỚI #TKA-" + maSo + " (CHỜ THANH TOÁN)**",
         embeds: [
           {
-            title: `HÓA ĐƠN #TKA-${maSo}`,
+            title: "HÓA ĐƠN #TKA-" + maSo,
             color: 10138470,
             fields: [
-              { name: "Khách hàng", value: `**${customer.name}**`, inline: true },
-              { name: "Điện thoại", value: `**${customer.phone}**`, inline: true },
+              { name: "Khách hàng", value: "**" + customer.name + "**", inline: true },
+              { name: "Điện thoại", value: "**" + customer.phone + "**", inline: true },
               { name: "Thời gian", value: thoiGianDat, inline: true },
               { name: "Địa chỉ", value: customer.address, inline: false },
-              { name: "Vận chuyển", value: `${phuongThucShip} (+${phiShip.toLocaleString('vi-VN')}đ)`, inline: false },
-              { name: `Danh mục (${tongSoLuong} món)`, value: "```yaml\n" + chiTietHoaDonText + "```", inline: false },
+              { name: "Vận chuyển", value: phuongThucShip + " (+" + phiShip.toLocaleString('vi-VN') + "đ)", inline: false },
+              { name: "Danh mục (" + tongSoLuong + " món)", value: "```yaml\n" + chiTietHoaDonText + "```", inline: false },
               { name: "Ghi chú", value: customer.note ? customer.note : "Không", inline: true },
-              { name: "TỔNG THANH TOÁN", value: `**${tongTien.toLocaleString('vi-VN')} VNĐ** _(Đã gồm ship & hộp)_`, inline: true }
+              { name: "TỔNG THANH TOÁN", value: "**" + tongTien.toLocaleString('vi-VN') + " VNĐ** _(Đã gồm ship & hộp)_", inline: true }
             ],
             footer: { text: "TK aqua · Hệ thống Tự Động" }
           }
@@ -2433,17 +2367,16 @@ initData();
       };
       sendDiscordNotification(discordPayload);
 
-      // 3. Tự động ghi đơn hàng vào Google Sheet nội bộ qua Apps Script Web App
       const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwIvuLes3qi8AH3AINWDDzLPVigzNvp5kDLhYl0azjWWfqf3C2j9ynNSD4Wr7lzfpVvIg/exec";
 
-      let chuoiChiTietSP = danhSachSP.map(sp => {
+      let chuoiChiTietSP = danhSachSP.map(function(sp) {
         let dv = sp.loai === "Phụ kiện" ? "sp" : "con";
-        let sz = sp.size ? ` (${sp.size})` : "";
-        return `${sp.ten_ca}${sz} x${sp.so_luong} ${dv}`;
-      }).join(", ") + ` | Ship: ${phuongThucShip} (+${phiShip.toLocaleString('vi-VN')}đ)`;
+        let sz = sp.size ? " (" + sp.size + ")" : "";
+        return sp.ten_ca + sz + " x" + sp.so_luong + " " + dv;
+      }).join(", ") + " | Ship: " + phuongThucShip + " (+" + phiShip.toLocaleString('vi-VN') + "đ)";
 
       const sheetPayload = {
-        ma_don: `TKA-${maSo}`,
+        ma_don: "TKA-" + maSo,
         thoi_gian: thoiGianDat,
         ten_khach: customer.name,
         so_dien_thoai: customer.phone,
@@ -2460,18 +2393,17 @@ initData();
         mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(sheetPayload)
-      }).catch(err => console.log("Google Sheet error:", err));
+      }).catch(function(err) { console.log("Google Sheet error:", err); });
 
-      // 4. Gọi API Cloudflare Worker tạo mã thanh toán payOS
       let payosPaymentData = null;
       try {
-        const payRes = await fetch(`${API_BASE}/api/create-payment`, {
+        const payRes = await fetch(API_BASE + "/api/create-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             orderCode: maSo,
             amount: tongTien,
-            description: `TKA ${maSo}`,
+            description: "TKA " + maSo,
             buyerName: customer.name,
             buyerPhone: customer.phone,
             buyerAddress: customer.address
@@ -2489,20 +2421,19 @@ initData();
 
       cart = []; upd(); toggle();
 
-      // 5. Hiển thị popup quét mã QR payOS & tự động nhảy sang xác nhận ngay khi tiền về
       if (payosPaymentData) {
-        const onPaymentSuccess = async () => {
+        const onPaymentSuccess = async function() {
           await setDoc(orderDocRef, {
             trang_thai: "Đã thanh toán",
             paid: true,
             ngay_thanh_toan: serverTimestamp()
           }, { merge: true });
 
-          saveOrderToLocalHistory({ ...orderRecord, trang_thai: "Đã thanh toán", paid: true });
+          saveOrderToLocalHistory(Object.assign({}, orderRecord, { trang_thai: "Đã thanh toán", paid: true }));
         };
 
-        const listenFirestorePaid = (cb) => {
-          return onSnapshot(orderDocRef, (snap) => {
+        const listenFirestorePaid = function(cb) {
+          return onSnapshot(orderDocRef, function(snap) {
             const data = snap.data();
             if (data && (data.trang_thai === "Đã thanh toán" || data.paid === true)) {
               cb();
@@ -2513,7 +2444,7 @@ initData();
         await window.showPayOSModal(
           payosPaymentData,
           {
-            maDon: `TKA-${maSo}`,
+            maDon: "TKA-" + maSo,
             orderCodeNum: maSo,
             tenKhach: customer.name,
             sdt: customer.phone,
@@ -2527,7 +2458,7 @@ initData();
       } else {
         await window.showModalAlert(
           "Đặt hàng thành công",
-          `Cảm ơn <b>${customer.name.toUpperCase()}</b>.<br>Đơn hàng <b>#TKA-${maSo}</b> (${tongSoLuong} sản phẩm — Tổng cộng <b>${tongTien.toLocaleString('vi-VN')}đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>${customer.phone}</b> để xác nhận lịch giao.`
+          "Cảm ơn <b>" + customer.name.toUpperCase() + "</b>.<br>Đơn hàng <b>#TKA-" + maSo + "</b> (" + tongSoLuong + " sản phẩm — Tổng cộng <b>" + tongTien.toLocaleString('vi-VN') + "đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>" + customer.phone + "</b> để xác nhận lịch giao."
         );
       }
     } catch (error) {
@@ -2536,7 +2467,7 @@ initData();
     } finally {
       btn.textContent = oldText; btn.disabled = false;
     }
-  }
+  };
 </script>
 </body>
 </html>

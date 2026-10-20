@@ -8,22 +8,45 @@ async function createSignature(dataStr, key) {
   return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+const DEFAULT_DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1561567434861838446/eMtq9IqnPh_RUMCleTkvvMBKnrv5Z9K6JQn_PfBsI_DwUkWdVhW6j0uWBSPjFEQtwjQb";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type"
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const discordUrl = env.DISCORD_WEBHOOK_URL || DEFAULT_DISCORD_WEBHOOK;
 
-    // Xử lý CORS cho trình duyệt
+    // Xử lý CORS Preflight cho trình duyệt
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type"
-        }
-      });
+      return new Response(null, { headers: corsHeaders });
     }
 
-    // 1. API TẠO YÊU CẦU THANH TOÁN
+    // 1. API GỬI THÔNG BÁO DISCORD (/api/notify)
+    if (url.pathname === "/api/notify" && request.method === "POST") {
+      try {
+        const payload = await request.json();
+        await fetch(discordUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        return new Response(JSON.stringify({ ok: true }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+    }
+
+    // 2. API TẠO YÊU CẦU THANH TOÁN PAYOS (/api/create-payment)
     if (url.pathname === "/api/create-payment" && request.method === "POST") {
       try {
         const body = await request.json();
@@ -55,17 +78,17 @@ export default {
 
         const resData = await response.json();
         return new Response(JSON.stringify(resData), {
-          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+          headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), { 
+        return new Response(JSON.stringify({ error: err.message }), {
           status: 500,
-          headers: { "Access-Control-Allow-Origin": "*" }
+          headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       }
     }
 
-    // 2. API KIỂM TRA TRẠNG THÁI THANH TOÁN (Web tự động gọi kiểm tra)
+    // 3. API KIỂM TRA TRẠNG THÁI THANH TOÁN (/api/check-payment)
     if (url.pathname === "/api/check-payment" && request.method === "GET") {
       try {
         const orderCode = url.searchParams.get("orderCode");
@@ -78,40 +101,54 @@ export default {
         });
         const resData = await response.json();
         return new Response(JSON.stringify(resData), {
-          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+          headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), { 
+        return new Response(JSON.stringify({ error: err.message }), {
           status: 500,
-          headers: { "Access-Control-Allow-Origin": "*" }
+          headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       }
     }
 
-    // 3. API WEBHOOK DỰ PHÒNG TỪ PAYOS
+    // 4. API NHẬN WEBHOOK TỪ PAYOS (/api/payos-webhook)
     if (url.pathname === "/api/payos-webhook" && request.method === "POST") {
       try {
         const webhookData = await request.json();
         if (webhookData.code === "00" && webhookData.data) {
-          const { orderCode, amount } = webhookData.data;
-          if (env.DISCORD_WEBHOOK_URL) {
-            await fetch(env.DISCORD_WEBHOOK_URL, {
+          const { orderCode, amount, description } = webhookData.data;
+          // Tránh báo Discord khi payOS gửi lệnh test webhook mặc định (orderCode = 123)
+          if (orderCode !== 123) {
+            await fetch(discordUrl, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                content: `🔔 **ĐƠN HÀNG #TKA-${orderCode} ĐÃ THANH TOÁN THÀNH CÔNG!**\nSố tiền: **${amount.toLocaleString('vi-VN')}đ**`
+                content: `✅ **[WEBHOOK PAYOS] ĐƠN HÀNG #TKA-${orderCode} ĐÃ THANH TOÁN THÀNH CÔNG!**`,
+                embeds: [{
+                  title: `XÁC NHẬN THANH TOÁN #TKA-${orderCode}`,
+                  color: 5763719,
+                  fields: [
+                    { name: "Số tiền thực nhận", value: `**${Number(amount).toLocaleString('vi-VN')} VNĐ**`, inline: true },
+                    { name: "Nội dung CK", value: `\`${description || ''}\``, inline: true }
+                  ],
+                  footer: { text: "TK aqua · payOS Auto Webhook" }
+                }]
               })
             });
           }
         }
         return new Response(JSON.stringify({ success: true }), {
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), { status: 400 });
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
       }
     }
 
+    // Trả về giao diện trang web cho các đường dẫn thông thường
     return env.ASSETS ? env.ASSETS.fetch(request) : new Response("Not Found", { status: 404 });
   }
 };

@@ -12,7 +12,18 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // BƯỚC 3: API TẠO YÊU CẦU THANH TOÁN (Frontend gọi lên)
+    // Xử lý CORS cho trình duyệt
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        }
+      });
+    }
+
+    // 1. API TẠO YÊU CẦU THANH TOÁN
     if (url.pathname === "/api/create-payment" && request.method === "POST") {
       try {
         const body = await request.json();
@@ -22,11 +33,9 @@ export default {
         const cancelUrl = "https://tkaqua.khanghuynh213671.workers.dev";
         const returnUrl = "https://tkaqua.khanghuynh213671.workers.dev";
 
-        // Chuỗi dữ liệu sắp xếp theo alphabet để tạo chữ ký
         const signData = `amount=${amount}&cancelUrl=${cancelUrl}&description=${description}&orderCode=${orderCode}&returnUrl=${returnUrl}`;
         const signature = await createSignature(signData, env.PAYOS_CHECKSUM_KEY);
 
-        // Gọi sang hệ thống payOS
         const response = await fetch("https://api-merchant.payos.vn/v2/payment-requests", {
           method: "POST",
           headers: {
@@ -46,37 +55,55 @@ export default {
 
         const resData = await response.json();
         return new Response(JSON.stringify(resData), {
-          headers: { 
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
-          }
+          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
         });
       } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+        return new Response(JSON.stringify({ error: err.message }), { 
+          status: 500,
+          headers: { "Access-Control-Allow-Origin": "*" }
+        });
       }
     }
 
-    // BƯỚC 4: API WEBHOOK NHẬN KẾT QUẢ TIỀN VỀ TỪ PAYOS
+    // 2. API KIỂM TRA TRẠNG THÁI THANH TOÁN (Web tự động gọi kiểm tra)
+    if (url.pathname === "/api/check-payment" && request.method === "GET") {
+      try {
+        const orderCode = url.searchParams.get("orderCode");
+        const response = await fetch(`https://api-merchant.payos.vn/v2/payment-requests/${orderCode}`, {
+          method: "GET",
+          headers: {
+            "x-client-id": env.PAYOS_CLIENT_ID,
+            "x-api-key": env.PAYOS_API_KEY
+          }
+        });
+        const resData = await response.json();
+        return new Response(JSON.stringify(resData), {
+          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), { 
+          status: 500,
+          headers: { "Access-Control-Allow-Origin": "*" }
+        });
+      }
+    }
+
+    // 3. API WEBHOOK DỰ PHÒNG TỪ PAYOS
     if (url.pathname === "/api/payos-webhook" && request.method === "POST") {
       try {
         const webhookData = await request.json();
-        
-        // Kiểm tra giao dịch thành công (mã 00)
         if (webhookData.code === "00" && webhookData.data) {
           const { orderCode, amount } = webhookData.data;
-
-          // Bắn thông báo về Discord (nếu có cấu hình DISCORD_WEBHOOK_URL trong Cloudflare Secrets)
           if (env.DISCORD_WEBHOOK_URL) {
             await fetch(env.DISCORD_WEBHOOK_URL, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                content: `✅ **ĐƠN HÀNG #TKA-${orderCode} ĐÃ THANH TOÁN THÀNH CÔNG!**\nSố tiền nhận: **${amount.toLocaleString('vi-VN')}đ**`
+                content: `🔔 **ĐƠN HÀNG #TKA-${orderCode} ĐÃ THANH TOÁN THÀNH CÔNG!**\nSố tiền: **${amount.toLocaleString('vi-VN')}đ**`
               })
             });
           }
         }
-
         return new Response(JSON.stringify({ success: true }), {
           headers: { "Content-Type": "application/json" }
         });
@@ -85,7 +112,6 @@ export default {
       }
     }
 
-    // Trả về file tĩnh của web cho các route khác
     return env.ASSETS ? env.ASSETS.fetch(request) : new Response("Not Found", { status: 404 });
   }
 };

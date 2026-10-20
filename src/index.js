@@ -14,6 +14,7 @@ async function createSignature(dataStr, key) {
 }
 
 const FIREBASE_PROJECT_ID = "tk-aqua";
+const DEFAULT_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbwIvuLes3qi8AH3AINWDDzLPVigzNvp5kDLhYl0azjWWfqf3C2j9ynNSD4Wr7lzfpVvIg/exec";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,51 +23,6 @@ const corsHeaders = {
   "Cache-Control": "no-store, no-cache, must-revalidate"
 };
 
-async function markOrderPaidInFirestore(orderCode) {
-  try {
-    const queryUrl = "https://firestore.googleapis.com/v1/projects/" + FIREBASE_PROJECT_ID + "/databases/(default)/documents:runQuery";
-    const queryBody = {
-      structuredQuery: {
-        from: [{ collectionId: "don_hang" }],
-        where: {
-          fieldFilter: {
-            field: { fieldPath: "ma_don" },
-            op: "EQUAL",
-            value: { stringValue: "TKA-" + orderCode }
-          }
-        },
-        limit: 1
-      }
-    };
-
-    const qRes = await fetch(queryUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(queryBody)
-    });
-    const qData = await qRes.json();
-
-    if (Array.isArray(qData) && qData[0] && qData[0].document) {
-      const docName = qData[0].document.name;
-      const patchUrl = "https://firestore.googleapis.com/v1/" + docName + "?updateMask.fieldPaths=trang_thai&updateMask.fieldPaths=paid";
-      await fetch(patchUrl, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fields: {
-            trang_thai: { stringValue: "Đã thanh toán" },
-            paid: { booleanValue: true }
-          }
-        })
-      });
-      return true;
-    }
-  } catch (e) {
-    console.error("Firestore update error:", e);
-  }
-  return false;
-}
-
 function jsonResponse(data, status) {
   return new Response(JSON.stringify(data), {
     status: status || 200,
@@ -74,30 +30,147 @@ function jsonResponse(data, status) {
   });
 }
 
+/* ---- Firestore REST helpers ---- */
+function fsValue(v) {
+  if (!v) return null;
+  if ("stringValue" in v) return v.stringValue;
+  if ("integerValue" in v) return Number(v.integerValue);
+  if ("doubleValue" in v) return v.doubleValue;
+  if ("booleanValue" in v) return v.booleanValue;
+  if ("timestampValue" in v) return v.timestampValue;
+  if ("arrayValue" in v) return (v.arrayValue.values || []).map(fsValue);
+  if ("mapValue" in v) return fsFields(v.mapValue.fields || {});
+  return null;
+}
+
+function fsFields(fields) {
+  const out = {};
+  Object.keys(fields).forEach(function (k) { out[k] = fsValue(fields[k]); });
+  return out;
+}
+
+/* ---- Thông báo Discord (chỉ khi đã thanh toán) ---- */
+async function notifyDiscordPaid(discordUrl, order, orderCode) {
+  if (!discordUrl) return;
+
+  const items = Array.isArray(order.san_pham) ? order.san_pham : [];
+  let detail = "";
+  items.forEach(function (sp, i) {
+    const stt = String(i + 1).padStart(2, "0");
+    const dv = sp.loai === "Phụ kiện" ? "sp" : "con";
+    const sz = sp.size ? " (" + sp.size + ")" : "";
+    detail += stt + ". " + sp.ten_ca + sz + "\n    SL: " + sp.so_luong + " " + dv + "  ×  " +
+      Number(sp.don_gia || 0).toLocaleString("vi-VN") + "đ  =  " +
+      Number(sp.thanh_tien || 0).toLocaleString("vi-VN") + "đ\n";
+  });
+  if (detail.length > 950) detail = detail.slice(0, 950) + "...\n";
+
+  const phiShip = Number(order.phi_ship || 0);
+  const tongTien = Number(order.tong_tien || 0);
+
+  await fetch(discordUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: "✅ **ĐƠN HÀNG #TKA-" + orderCode + " ĐÃ THANH TOÁN THÀNH CÔNG**",
+      embeds: [{
+        title: "HÓA ĐƠN #TKA-" + orderCode,
+        color: 5763719,
+        fields: [
+          { name: "Khách hàng", value: "**" + (order.ten_khach || "") + "**", inline: true },
+          { name: "Điện thoại", value: "**" + (order.so_dien_thoai || "") + "**", inline: true },
+          { name: "Thời gian thanh toán", value: new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }), inline: true },
+          { name: "Địa chỉ", value: order.dia_chi || "—", inline: false },
+          { name: "Vận chuyển", value: (order.phuong_thuc_ship || "Tiêu chuẩn") + " (+" + phiShip.toLocaleString("vi-VN") + "đ)", inline: false },
+          { name: "Danh mục (" + (order.tong_so_luong || items.length) + " món)", value: "```yaml\n" + detail + "```", inline: false },
+          { name: "Ghi chú", value: order.ghi_chu || "Không", inline: true },
+          { name: "ĐÃ THANH TOÁN", value: "**" + tongTien.toLocaleString("vi-VN") + " VNĐ**", inline: true }
+        ],
+        footer: { text: "TK aqua · Hệ thống Tự Động" }
+      }]
+    })
+  });
+}
+
+/* ---- Cập nhật cột "Tình Trạng" trên Google Sheet ---- */
+async function updateSheetPaid(env, maDon) {
+  const sheetUrl = env.GOOGLE_SHEET_WEBHOOK_URL || DEFAULT_SHEET_WEBHOOK;
+  await fetch(sheetUrl, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action: "paid", ma_don: maDon, tinh_trang: "Đã thanh toán" }),
+    redirect: "follow"
+  });
+}
+
+/* ---- Đánh dấu đã thanh toán (chỉ chạy 1 lần cho mỗi đơn) ---- */
+async function markOrderPaid(orderCode, env) {
+  try {
+    const queryUrl = "https://firestore.googleapis.com/v1/projects/" + FIREBASE_PROJECT_ID + "/databases/(default)/documents:runQuery";
+    const qRes = await fetch(queryUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{ collectionId: "don_hang" }],
+          where: {
+            fieldFilter: {
+              field: { fieldPath: "ma_don" },
+              op: "EQUAL",
+              value: { stringValue: "TKA-" + orderCode }
+            }
+          },
+          limit: 1
+        }
+      })
+    });
+    const qData = await qRes.json();
+    if (!(Array.isArray(qData) && qData[0] && qData[0].document)) return false;
+
+    const document = qData[0].document;
+    const fields = document.fields || {};
+
+    // Đã thanh toán từ trước -> không làm lại, không thông báo lại
+    const alreadyPaid =
+      (fields.paid && fields.paid.booleanValue === true) ||
+      (fields.trang_thai && fields.trang_thai.stringValue === "Đã thanh toán");
+    if (alreadyPaid) return false;
+
+    const patchUrl = "https://firestore.googleapis.com/v1/" + document.name +
+      "?updateMask.fieldPaths=trang_thai&updateMask.fieldPaths=paid" +
+      "&currentDocument.updateTime=" + encodeURIComponent(document.updateTime);
+
+    const patchRes = await fetch(patchUrl, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fields: {
+          trang_thai: { stringValue: "Đã thanh toán" },
+          paid: { booleanValue: true }
+        }
+      })
+    });
+    // Bị request khác ghi trước (precondition fail) -> bỏ qua để tránh gửi trùng
+    if (!patchRes.ok) return false;
+
+    const order = fsFields(fields);
+    await Promise.all([
+      notifyDiscordPaid(env.DISCORD_WEBHOOK_URL, order, orderCode).catch(function (e) { console.error("Discord error:", e); }),
+      updateSheetPaid(env, "TKA-" + orderCode).catch(function (e) { console.error("Sheet error:", e); })
+    ]);
+    return true;
+  } catch (e) {
+    console.error("markOrderPaid error:", e);
+  }
+  return false;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const discordUrl = env.DISCORD_WEBHOOK_URL;
 
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
-    }
-
-    if (url.pathname === "/api/notify" && request.method === "POST") {
-      try {
-        if (!discordUrl) {
-          return jsonResponse({ error: "DISCORD_WEBHOOK_URL is not configured" }, 500);
-        }
-        const payload = await request.json();
-        await fetch(discordUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        return jsonResponse({ ok: true });
-      } catch (err) {
-        return jsonResponse({ error: err.message }, 500);
-      }
     }
 
     if (url.pathname === "/api/create-payment" && request.method === "POST") {
@@ -154,10 +227,9 @@ export default {
         const resData = await response.json();
 
         if (resData && resData.data) {
-          if (resData.data.status === "PAID") {
-            await markOrderPaidInFirestore(orderCode);
-          } else if (resData.data.amountPaid > 0 && resData.data.amountPaid >= resData.data.amount) {
-            await markOrderPaidInFirestore(orderCode);
+          const d = resData.data;
+          if (d.status === "PAID" || (d.amountPaid > 0 && d.amountPaid >= d.amount)) {
+            await markOrderPaid(orderCode, env);
           }
         }
 
@@ -172,33 +244,8 @@ export default {
         const webhookData = await request.json();
         if (webhookData.code === "00" && webhookData.data) {
           const orderCode = webhookData.data.orderCode;
-          const amount = webhookData.data.amount;
-          const description = webhookData.data.description;
-
           if (orderCode !== 123) {
-            await markOrderPaidInFirestore(orderCode);
-
-            let descText = "";
-            if (description) {
-              descText = description;
-            }
-
-            if (discordUrl) await fetch(discordUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                content: "✅ **[WEBHOOK PAYOS] ĐƠN HÀNG #TKA-" + orderCode + " ĐÃ THANH TOÁN THÀNH CÔNG!**",
-                embeds: [{
-                  title: "XÁC NHẬN THANH TOÁN #TKA-" + orderCode,
-                  color: 5763719,
-                  fields: [
-                    { name: "Số tiền thực nhận", value: "**" + Number(amount).toLocaleString("vi-VN") + " VNĐ**", inline: true },
-                    { name: "Nội dung CK", value: "`" + descText + "`", inline: true }
-                  ],
-                  footer: { text: "TK aqua · payOS Auto Webhook" }
-                }]
-              })
-            });
+            await markOrderPaid(orderCode, env);
           }
         }
         return jsonResponse({ success: true });

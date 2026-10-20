@@ -2140,7 +2140,6 @@ initData();
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
 
-  
   async function sendDiscordNotification(payload) {
     try {
       await fetch(API_BASE + "/api/notify", {
@@ -2149,10 +2148,10 @@ initData();
         body: JSON.stringify(payload)
       });
     } catch (e) {
-      console.error("Notify error:", e);
+      console.log("Discord notify error:", e);
     }
   }
-  
+
   function saveOrderToLocalHistory(orderSummary) {
     try {
       let raw = localStorage.getItem("tka_order_history");

@@ -2140,18 +2140,6 @@ initData();
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
 
-  async function sendDiscordNotification(payload) {
-    try {
-      await fetch(API_BASE + "/api/notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-    } catch (e) {
-      console.log("Discord notify error:", e);
-    }
-  }
-
   function saveOrderToLocalHistory(orderSummary) {
     try {
       let raw = localStorage.getItem("tka_order_history");
@@ -2284,13 +2272,11 @@ initData();
     let danhSachSP = [];
     let tienHang = 0;
     let tongSoLuong = 0;
-    let chiTietHoaDonText = "";
 
-    cart.forEach(function(item, idx) {
+    cart.forEach(function(item) {
       let source = item.type === 'acc' ? ACC : FISH;
       let f = source[item.index];
       let thanhTien = f.p * item.qty;
-      let donVi = item.type === 'acc' ? "sp" : "con";
       tienHang += thanhTien;
       tongSoLuong += item.qty;
 
@@ -2303,9 +2289,6 @@ initData();
         thanh_tien: thanhTien
       });
 
-      let stt = String(idx + 1).padStart(2, '0');
-      let sizeInfo = f.s ? " (" + f.s + ")" : "";
-      chiTietHoaDonText += stt + ". " + f.n + sizeInfo + "\n    SL: " + item.qty + " " + donVi + "  ×  " + f.p.toLocaleString('vi-VN') + "đ  =  " + thanhTien.toLocaleString('vi-VN') + "đ\n";
     });
 
     const phiShip = customer.shipFee ? customer.shipFee : 0;
@@ -2338,28 +2321,6 @@ initData();
       await setDoc(orderDocRef, orderRecord);
       saveOrderToLocalHistory(Object.assign({}, orderRecord, { ngay_dat_text: thoiGianDat }));
 
-      const discordPayload = {
-        content: "🔔 **ĐƠN HÀNG MỚI #TKA-" + maSo + " (CHỜ THANH TOÁN)**",
-        embeds: [
-          {
-            title: "HÓA ĐƠN #TKA-" + maSo,
-            color: 10138470,
-            fields: [
-              { name: "Khách hàng", value: "**" + customer.name + "**", inline: true },
-              { name: "Điện thoại", value: "**" + customer.phone + "**", inline: true },
-              { name: "Thời gian", value: thoiGianDat, inline: true },
-              { name: "Địa chỉ", value: customer.address, inline: false },
-              { name: "Vận chuyển", value: phuongThucShip + " (+" + phiShip.toLocaleString('vi-VN') + "đ)", inline: false },
-              { name: "Danh mục (" + tongSoLuong + " món)", value: "```yaml\n" + chiTietHoaDonText + "```", inline: false },
-              { name: "Ghi chú", value: customer.note ? customer.note : "Không", inline: true },
-              { name: "TỔNG THANH TOÁN", value: "**" + tongTien.toLocaleString('vi-VN') + " VNĐ** _(Đã gồm ship & hộp)_", inline: true }
-            ],
-            footer: { text: "TK aqua · Hệ thống Tự Động" }
-          }
-        ]
-      };
-      sendDiscordNotification(discordPayload);
-
       const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwIvuLes3qi8AH3AINWDDzLPVigzNvp5kDLhYl0azjWWfqf3C2j9ynNSD4Wr7lzfpVvIg/exec";
 
       let chuoiChiTietSP = danhSachSP.map(function(sp) {
@@ -2369,6 +2330,8 @@ initData();
       }).join(", ") + " | Ship: " + phuongThucShip + " (+" + phiShip.toLocaleString('vi-VN') + "đ)";
 
       const sheetPayload = {
+        action: "create",
+        tinh_trang: "Chưa thanh toán",
         ma_don: "TKA-" + maSo,
         thoi_gian: thoiGianDat,
         ten_khach: customer.name,

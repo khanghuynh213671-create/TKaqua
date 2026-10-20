@@ -78,7 +78,6 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const discordUrl = env.DISCORD_WEBHOOK_URL;
-    }
 
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
@@ -86,6 +85,9 @@ export default {
 
     if (url.pathname === "/api/notify" && request.method === "POST") {
       try {
+        if (!discordUrl) {
+          return jsonResponse({ error: "DISCORD_WEBHOOK_URL is not configured" }, 500);
+        }
         const payload = await request.json();
         await fetch(discordUrl, {
           method: "POST",
@@ -181,7 +183,7 @@ export default {
               descText = description;
             }
 
-            await fetch(discordUrl, {
+            if (discordUrl) await fetch(discordUrl, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

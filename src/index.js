@@ -71,7 +71,11 @@ async function markOrderPaidInFirestore(orderCode) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const discordUrl = env.DISCORD_WEBHOOK_URL ? env.DISCORD_WEBHOOK_URL : DEFAULT_DISCORD_WEBHOOK;
+    
+    let discordUrl = DEFAULT_DISCORD_WEBHOOK;
+    if (env.DISCORD_WEBHOOK_URL) {
+      discordUrl = env.DISCORD_WEBHOOK_URL;
+    }
 
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
@@ -103,7 +107,11 @@ export default {
         const body = await request.json();
         const orderCode = Number(body.orderCode);
         const amount = Number(body.amount);
-        const rawDesc = body.description ? body.description : `TKA ${orderCode}`;
+        
+        let rawDesc = `TKA ${orderCode}`;
+        if (body.description) {
+          rawDesc = body.description;
+        }
         const description = String(rawDesc).slice(0, 25);
         const cancelUrl = "https://tkaqua.khanghuynh213671.workers.dev";
         const returnUrl = "https://tkaqua.khanghuynh213671.workers.dev";
@@ -156,9 +164,7 @@ export default {
         if (resData && resData.data) {
           const isStatusPaid = resData.data.status === "PAID";
           const isAmountFull = resData.data.amountPaid > 0 && resData.data.amountPaid >= resData.data.amount;
-          if (isStatusPaid) {
-            await markOrderPaidInFirestore(orderCode);
-          } else if (isAmountFull) {
+          if (isStatusPaid || isAmountFull) {
             await markOrderPaidInFirestore(orderCode);
           }
         }
@@ -183,7 +189,11 @@ export default {
           if (orderCode !== 123) {
             await markOrderPaidInFirestore(orderCode);
 
-            const descText = description ? description : "";
+            let descText = "";
+            if (description) {
+              descText = description;
+            }
+
             await fetch(discordUrl, {
               method: "POST",
               headers: { "Content-Type": "application/json" },

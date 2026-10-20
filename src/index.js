@@ -9,7 +9,7 @@ async function createSignature(dataStr, key) {
   );
   const signature = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(dataStr));
   return Array.from(new Uint8Array(signature))
-    .map(function(b) { return b.toString(16).padStart(2, "0"); })
+    .map(function (b) { return b.toString(16).padStart(2, "0"); })
     .join("");
 }
 
@@ -68,6 +68,13 @@ async function markOrderPaidInFirestore(orderCode) {
   return false;
 }
 
+function jsonResponse(data, status) {
+  return new Response(JSON.stringify(data), {
+    status: status || 200,
+    headers: { "Content-Type": "application/json", ...corsHeaders }
+  });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -88,14 +95,9 @@ export default {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-        return new Response(JSON.stringify({ ok: true }), {
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
+        return jsonResponse({ ok: true });
       } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
+        return jsonResponse({ error: err.message }, 500);
       }
     }
 
@@ -134,14 +136,9 @@ export default {
         });
 
         const resData = await response.json();
-        return new Response(JSON.stringify(resData), {
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
+        return jsonResponse(resData);
       } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
+        return jsonResponse({ error: err.message }, 500);
       }
     }
 
@@ -165,14 +162,9 @@ export default {
           }
         }
 
-        return new Response(JSON.stringify(resData), {
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
+        return jsonResponse(resData);
       } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
+        return jsonResponse({ error: err.message }, 500);
       }
     }
 
@@ -210,14 +202,9 @@ export default {
             });
           }
         }
-        return new Response(JSON.stringify({ success: true }), {
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
+        return jsonResponse({ success: true });
       } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
+        return jsonResponse({ error: err.message }, 400);
       }
     }
 

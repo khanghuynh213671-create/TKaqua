@@ -54,7 +54,7 @@ body {
 header {
   position: sticky;
   top: 14px;
-  z-index: 100;
+  z-index: 1000;
   padding: 0 20px;
   margin-bottom: 10px;
 }
@@ -115,7 +115,13 @@ header.scrolled .bar {
   padding: 4px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
+.header-nav::-webkit-scrollbar { display: none; }
 .header-nav a {
   font-family: 'Montserrat', sans-serif;
   font-size: 11px;
@@ -129,6 +135,7 @@ header.scrolled .bar {
   white-space: nowrap;
   transition: all 0.2s ease;
   cursor: pointer;
+  flex-shrink: 0;
 }
 .header-nav a:hover, .header-nav a.active {
   color: var(--text);
@@ -222,6 +229,7 @@ header.scrolled .bar {
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 .mobile-nav-strip::-webkit-scrollbar { display: none; }
 .mobile-nav-strip a {
@@ -235,6 +243,7 @@ header.scrolled .bar {
   border-radius: 999px;
   transition: 0.2s;
   cursor: pointer;
+  flex-shrink: 0;
 }
 .mobile-nav-strip a:hover {
   color: var(--text);
@@ -242,6 +251,8 @@ header.scrolled .bar {
 }
 
 .hero {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 18px auto 38px auto;
   padding: 0 20px;
@@ -409,6 +420,8 @@ header.scrolled .bar {
   z-index: 2;
   display: flex;
   perspective: 1100px;
+  isolation: isolate;
+  overflow: visible;
 }
 
 .showcase-card {
@@ -549,7 +562,7 @@ header.scrolled .bar {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 
-.features { max-width: 1200px; margin: 0 auto 45px auto; padding: 0 20px; }
+.features { max-width: 1200px; margin: 0 auto 36px auto; padding: 0 20px; }
 .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .feature-item {
   border: 1px solid var(--border-subtle);
@@ -586,51 +599,151 @@ header.scrolled .bar {
 }
 .feature-link:hover { text-decoration: underline; }
 
-main { max-width: 1200px; margin: auto; padding: 20px; }
-.tools { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; align-items: center; }
-.tools input {
-  flex: 1; min-width: 240px; padding: 12px 18px;
-  border-radius: 999px; border: 1px solid var(--border-subtle);
-  background: var(--bg-card); color: var(--text);
-  font-family: 'Roboto', sans-serif; font-size: 14px; outline: none;
-  transition: 0.2s;
+/* ---- BỐ CỤC DANH MỤC MỚI (THEO BẢN VẼ) ---- */
+main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.tools {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  margin-bottom: 22px;
 }
-.tools input::placeholder { color: var(--text-muted); }
-.tools input:focus { border-color: var(--accent); }
-.chip {
-  color: var(--text-muted); padding: 10px 18px; border-radius: 999px;
-  cursor: pointer; font-size: 11.5px; font-weight: 700;
+.tools > * { min-width: 0; }
+
+.cat-top-bar {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: stretch;
+  width: 100%;
+}
+.cat-title-pill {
+  margin: 0;
+  padding: 13px 26px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(154, 179, 102, 0.18), rgba(21, 24, 19, 0.96));
+  border: 1.5px solid var(--border);
   font-family: 'Montserrat', sans-serif;
-  text-transform: uppercase; letter-spacing: 0.5px;
-  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  font-size: 17px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.cat-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+.cat-search-wrap .search-icon {
+  position: absolute;
+  left: 16px;
+  width: 17px;
+  height: 17px;
+  stroke: var(--text-muted);
+  pointer-events: none;
+  transition: stroke 0.2s ease;
+}
+.cat-search-wrap input {
+  width: 100%;
+  height: 100%;
+  min-height: 48px;
+  padding: 12px 18px 12px 44px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: 'Roboto', sans-serif;
+  font-size: 14.5px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+.cat-search-wrap input::placeholder { color: var(--text-muted); }
+.cat-search-wrap input:focus {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.cat-search-wrap input:focus + .search-icon,
+.cat-search-wrap:focus-within .search-icon {
+  stroke: var(--accent);
+}
+
+.chip {
+  color: var(--text-muted);
+  padding: 9px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   transition: 0.2s;
 }
 .chip:hover { border-color: var(--border); color: var(--text); }
 .chip.on {
-  background: var(--accent); color: #111310;
+  background: var(--accent);
+  color: #111310;
   border-color: var(--accent);
 }
 
-h2 {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 22px; font-weight: 900;
-  text-transform: uppercase; letter-spacing: 1.5px;
-  color: var(--text); margin: 0 0 24px 0;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 14px;
+.chip-wrap { position: relative; width: 100%; max-width: 100%; min-width: 0; }
+.chip-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) rgba(255,255,255,0.06);
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 8px 2px;
+  cursor: grab;
+  user-select: none;
 }
+.chip-row.dragging { cursor: grabbing; }
+.chip-row::-webkit-scrollbar { height: 5px; }
+.chip-row::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 999px; }
+.chip-row::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
+.chip-row .chip { flex-shrink: 0; white-space: nowrap; }
 
+.chip-nav {
+  position: absolute; top: 0; width: 34px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border); background: rgba(21,24,19,0.95); color: var(--accent);
+  font-size: 15px; font-weight: 800; cursor: pointer; z-index: 2;
+  display: none; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+}
+.chip-nav:hover { background: var(--accent); color: #111310; }
+.chip-nav.prev { left: -4px; }
+.chip-nav.next { right: -4px; }
+@media (pointer: fine) { .chip-wrap.can-scroll .chip-nav.show { display: flex; } }
+
+/* ---- LƯỚI SẢN PHẨM 4 CỘT CHUẨN DESKTOP ---- */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
 }
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
   transition: all 0.25s ease;
 }
 .card:hover {
@@ -703,7 +816,7 @@ h2 {
   background: var(--accent);
   color: #111310;
   border: 1.5px solid var(--accent);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px;
   font-family: 'Montserrat', sans-serif;
   font-weight: 800; font-size: 11px;
@@ -723,16 +836,55 @@ h2 {
   border-style: dashed;
 }
 
-.pagination { display: flex; justify-content: center; gap: 8px; margin: 40px 0 20px; flex-wrap: wrap; }
-.pagination button {
-  padding: 9px 16px; border-radius: 8px; cursor: pointer;
-  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px;
-  color: var(--text); border: 1px solid var(--border-subtle); background: var(--bg-card);
-  transition: 0.2s;
+/* ---- PHÂN TRANG NÚT TRÒN ĐỒNG BỘ BẢN VẼ ---- */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin: 34px 0 16px;
+  max-width: 100%;
 }
-.pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-.pagination button.active { background: var(--accent); color: #111310; border-color: var(--accent); }
-.pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
+.pagination button,
+.pagination .dots {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  border-radius: 50%;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 12.5px;
+  color: var(--text);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.pagination button { cursor: pointer; }
+.pagination button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+.pagination button.active {
+  background: var(--accent);
+  color: #111310;
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px rgba(154, 179, 102, 0.35);
+}
+.pagination button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.pagination .dots {
+  color: var(--text-muted);
+  pointer-events: none;
+}
 
 #panel {
   position: fixed; right: 0; top: 0; bottom: 0;
@@ -1050,32 +1202,6 @@ h2 {
 .btn-map:hover { background: transparent; color: var(--accent); }
 .map-iframe { flex: 1.2; min-width: 300px; min-height: 340px; border-left: 1px solid var(--border-subtle); }
 .map-iframe iframe { width: 100%; height: 100%; border: none; display: block; }
-.price.price-ask {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--accent);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  text-decoration-color: var(--border);
-}
-.price.price-ask:hover { text-decoration-color: var(--accent); }
-.info .btn-ask {
-  margin-top: auto;
-  display: block;
-  text-align: center;
-  text-decoration: none;
-  background: transparent;
-  color: var(--accent);
-  border: 1.5px solid var(--accent);
-  border-radius: 8px;
-  padding: 10px;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 800; font-size: 11px;
-  text-transform: uppercase; letter-spacing: 0.8px;
-  transition: 0.2s;
-}
-.info .btn-ask:hover { background: var(--accent); color: #111310; }
 
 .footer-links {
   display: flex; flex-wrap: wrap; justify-content: center;
@@ -1114,6 +1240,11 @@ footer {
   .header-nav { display: none; }
   .mobile-nav-strip { display: flex; }
   .feature-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-right { perspective: none; }
+  .showcase-card { transform: none !important; transform-style: flat; will-change: auto; }
+  .showcase-media, .showcase-footer, .showcase-caption-text, .showcase-badge { transform: none; }
+  .showcase-spotlight { display: none; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
@@ -1132,7 +1263,7 @@ footer {
   .showcase-card { max-width: 420px; margin: 0 auto; }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   header { top: 10px; padding: 0 12px; }
   .bar { height: 54px; padding: 0 8px 0 12px; }
   .brand-wrap img { height: 32px; width: 32px; }
@@ -1182,7 +1313,7 @@ footer {
   .showcase-media { min-height: 210px; }
   .showcase-footer { padding: 12px 14px; }
 
-  .features { padding: 0 14px; margin-bottom: 32px; }
+  .features { padding: 0 14px; margin-bottom: 26px; }
   .feature-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .feature-item { padding: 16px 12px; }
   .feature-icon { width: 40px; height: 40px; margin-bottom: 10px; }
@@ -1190,77 +1321,48 @@ footer {
   .feature-link { font-size: 10px; }
 
   main { padding: 14px; }
-  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .tools { gap: 10px; margin-bottom: 16px; }
+  .cat-top-bar {
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+  }
+  .cat-title-pill {
+    padding: 10px 14px;
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    border-radius: 12px;
+  }
+  .cat-search-wrap .search-icon {
+    left: 12px;
+    width: 15px;
+    height: 15px;
+  }
+  .cat-search-wrap input {
+    min-height: 40px;
+    padding: 9px 12px 9px 34px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+  .chip-row .chip { padding: 8px 14px; font-size: 11px; }
+
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .card { border-radius: 14px; }
   .info { padding: 12px 10px; }
   .info b { font-size: 14px; }
   .price { font-size: 16.5px; }
+
+  .pagination { gap: 6px; margin: 26px 0 12px; }
+  .pagination button,
+  .pagination .dots {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    font-size: 11.5px;
+  }
+
   .map-section { padding: 0 14px; }
   .map-info { padding: 24px 18px; }
   .map-iframe { border-left: none; border-top: 1px solid var(--border-subtle); }
-}
-
-/* ---- Header nav: thanh trượt ---- */
-.bar > .brand-wrap, .header-actions { flex-shrink: 0; }
-.header-nav {
-  flex: 0 1 auto; min-width: 0;
-  overflow-x: auto; scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-.header-nav::-webkit-scrollbar { display: none; }
-.header-nav a { flex-shrink: 0; }
-.mobile-nav-strip { -webkit-overflow-scrolling: touch; }
-.mobile-nav-strip a { flex-shrink: 0; }
-
-/* ---- Bộ lọc: ô tìm kiếm + 1 hàng chip trượt ngang ---- */
-.tools { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 22px; }
-.tools input { flex: none; width: 100%; max-width: 420px; min-width: 0; }
-.tools > * { min-width: 0; }
-.chip-wrap { position: relative; width: 100%; max-width: 100%; min-width: 0; }
-.chip-row {
-  display: flex; gap: 8px; flex-wrap: nowrap;
-  width: 100%; max-width: 100%;
-  overflow-x: auto; overflow-y: hidden;
-  scrollbar-width: thin; scrollbar-color: var(--accent) rgba(255,255,255,0.06);
-  -webkit-overflow-scrolling: touch;
-  padding: 2px 2px 10px 2px;
-  cursor: grab; user-select: none;
-}
-.chip-row.dragging { cursor: grabbing; }
-.chip-row::-webkit-scrollbar { height: 6px; }
-.chip-row::-webkit-scrollbar-track { background: rgba(255,255,255,0.06); border-radius: 999px; }
-.chip-row::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
-.chip-nav {
-  position: absolute; top: 0; width: 34px; height: 36px; border-radius: 50%;
-  border: 1px solid var(--border); background: rgba(21,24,19,0.95); color: var(--accent);
-  font-size: 15px; font-weight: 800; cursor: pointer; z-index: 2;
-  display: none; align-items: center; justify-content: center;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
-}
-.chip-nav:hover { background: var(--accent); color: #111310; }
-.chip-nav.prev { left: -4px; }
-.chip-nav.next { right: -4px; }
-@media (pointer: fine) { .chip-wrap.can-scroll .chip-nav.show { display: flex; } }
-.chip-row .chip { flex-shrink: 0; white-space: nowrap; padding: 9px 16px; }
-
-/* ---- Phân trang 1 dòng ---- */
-.pagination { flex-wrap: nowrap; gap: 6px; max-width: 100%; overflow: hidden; }
-.pagination button { min-width: 36px; padding: 9px 12px; flex-shrink: 0; }
-.pagination .dots { color: var(--text-muted); font-weight: 700; padding: 0 2px; align-self: center; flex-shrink: 0; }
-
-/* ---- Banner 3D: không đè lên header ---- */
-.hero { position: relative; z-index: 1; }
-.hero-right { isolation: isolate; overflow: visible; }
-header { z-index: 1000; }
-@media (max-width: 1024px) {
-  .hero-right { perspective: none; }
-  .showcase-card { transform: none !important; transform-style: flat; will-change: auto; }
-  .showcase-media, .showcase-footer, .showcase-caption-text, .showcase-badge { transform: none; }
-  .showcase-spotlight { display: none; }
-}
-@media (max-width: 600px) {
-  .pagination { gap: 4px; }
-  .pagination button { min-width: 32px; padding: 8px 9px; font-size: 11.5px; }
-  .chip-row .chip { padding: 8px 13px; font-size: 11px; }
 }
 </style>
 </head>
@@ -1274,9 +1376,9 @@ header { z-index: 1000; }
     </a>
 
     <nav class="header-nav" id="headerNav">
-      <a href="#pl">Cá “độc” cá lạ</a>
       <a href="#sp" class="active">Cá cảnh</a>
-      <a href="#pk">Phụ kiện</a>
+      <a href="#pl">Cá “độc” cá lạ</a>
+      <a href="#pk" style="display: none;">Phụ kiện</a>
       <a href="giao-hang.html">Giao hàng</a>
       <a href="bao-hanh.html">Bảo hành</a>
       <a href="ho-tro.html">Hỗ trợ</a>
@@ -1301,9 +1403,9 @@ header { z-index: 1000; }
   </div>
 
   <nav class="mobile-nav-strip">
-    <a href="#pl">Cá “độc” cá lạ</a>
     <a href="#sp">Cá cảnh</a>
-    <a href="#pk">Phụ kiện</a>
+    <a href="#pl">Cá “độc” cá lạ</a>
+    <a href="#pk" style="display: none;">Phụ kiện</a>
     <a href="giao-hang.html">Giao hàng</a>
     <a href="bao-hanh.html">Bảo hành</a>
     <a href="ho-tro.html">Hỗ trợ</a>
@@ -1406,32 +1508,44 @@ header { z-index: 1000; }
   </div>
 </section>
 
-<!-- DANH MỤC PLECO -->
-<main id="pl">
-  <div class="tools" id="plToolsBox">
-    <input id="qPl" placeholder="Đang tải dữ liệu..." readonly>
-  </div>
-  <h2>CÁ “ĐỘC” CÁ LẠ</h2>
-  <div class="grid" id="plGrid"></div>
-  <div id="plPagination" class="pagination"></div>
-</main>
-
-<!-- DANH MỤC CÁ CẢNH -->
-<main id="sp" style="margin-top: 20px;">
+<!-- 1. DANH MỤC CÁ CẢNH -->
+<main id="sp">
   <div class="tools" id="toolsBox">
-    <input id="q" placeholder="Đang tải dữ liệu..." readonly>
+    <div class="cat-top-bar">
+      <h2 class="cat-title-pill">Cá cảnh</h2>
+      <div class="cat-search-wrap">
+        <input id="q" placeholder="Đang tải dữ liệu..." readonly>
+      </div>
+    </div>
   </div>
-  <h2>DANH MỤC CÁ CẢNH</h2>
   <div class="grid" id="grid"></div>
   <div id="pagination" class="pagination"></div>
 </main>
 
-<!-- DANH MỤC PHỤ KIỆN -->
-<main id="pk" style="margin-top: 20px;">
-  <div class="tools" id="accToolsBox">
-    <input id="qAcc" placeholder="Đang tải dữ liệu..." readonly>
+<!-- 2. DANH MỤC CÁ "ĐỘC" CÁ LẠ (ĐÃ ĐẨY XUỐNG DƯỚI CÁ CẢNH) -->
+<main id="pl" style="margin-top: 24px;">
+  <div class="tools" id="plToolsBox">
+    <div class="cat-top-bar">
+      <h2 class="cat-title-pill">Cá “độc” cá lạ</h2>
+      <div class="cat-search-wrap">
+        <input id="qPl" placeholder="Đang tải dữ liệu..." readonly>
+      </div>
+    </div>
   </div>
-  <h2>DANH MỤC PHỤ KIỆN</h2>
+  <div class="grid" id="plGrid"></div>
+  <div id="plPagination" class="pagination"></div>
+</main>
+
+<!-- 3. DANH MỤC PHỤ KIỆN (TẠM ẨN) -->
+<main id="pk" style="margin-top: 24px; display: none;">
+  <div class="tools" id="accToolsBox">
+    <div class="cat-top-bar">
+      <h2 class="cat-title-pill">Phụ kiện</h2>
+      <div class="cat-search-wrap">
+        <input id="qAcc" placeholder="Đang tải dữ liệu..." readonly>
+      </div>
+    </div>
+  </div>
   <div class="grid" id="accGrid"></div>
   <div id="accPagination" class="pagination"></div>
 </main>
@@ -1697,12 +1811,20 @@ var filteredPleco = [];
 
 function money(n){ return Number(n ? n : 0).toLocaleString("vi-VN"); }
 
-/* --- TIM KIEM KHONG DAU --- */
 function normVN(s) {
   return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().trim();
 }
 
-/* --- TIEN ICH: chip truot ngang + phan trang gon --- */
+function buildTopBarHtml(titleText, inputId, placeholderText, onInputFn) {
+  return '<div class="cat-top-bar">'
+    + '<h2 class="cat-title-pill">' + titleText + '</h2>'
+    + '<div class="cat-search-wrap">'
+    + '<svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'
+    + '<input id="' + inputId + '" placeholder="' + placeholderText + '" oninput="' + onInputFn + '(1, true)">'
+    + '</div>'
+    + '</div>';
+}
+
 function enableChipScroll(boxId) {
   var row = document.querySelector("#" + boxId + " .chip-row");
   if (!row || row.parentNode.classList.contains("chip-wrap")) return;
@@ -1756,22 +1878,22 @@ function buildPager(current, total, fn) {
     if (i === 1 || i === total || Math.abs(i - current) <= around) pages.push(i);
   }
   var out = "";
-  out += '<button aria-label="Trang trước" onclick="' + fn + '(' + (current - 1) + ', true)" ' + (current === 1 ? 'disabled' : '') + '>←</button>';
+  out += '<button aria-label="Trang trước" onclick="' + fn + '(' + (current - 1) + ', true)" ' + (current === 1 ? 'disabled' : '') + '>&lt;</button>';
   var last = 0;
   pages.forEach(function(n) {
-    if (n - last > 1) out += '<span class="dots">…</span>';
+    if (n - last > 1) out += '<span class="dots">...</span>';
     out += '<button onclick="' + fn + '(' + n + ', true)" class="' + (n === current ? 'active' : '') + '">' + n + '</button>';
     last = n;
   });
-  out += '<button aria-label="Trang sau" onclick="' + fn + '(' + (current + 1) + ', true)" ' + (current === total ? 'disabled' : '') + '>→</button>';
+  out += '<button aria-label="Trang sau" onclick="' + fn + '(' + (current + 1) + ', true)" ' + (current === total ? 'disabled' : '') + '>&gt;</button>';
   return out;
 }
 
-/* --- DANH MUC CA CANH --- */
+/* --- 1. DANH MUC CA CANH --- */
 function renderFilters() {
   const rawCats = FISH.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
   const cats = ["all"].concat(Array.from(new Set(rawCats)));
-  let html = '<input id="q" placeholder="Tìm tên cá, dòng cá..." oninput="applyFilters(1, true)">';
+  let html = buildTopBarHtml("Danh mục cá cảnh", "q", "Tìm kiếm tên cá, dòng cá...", "applyFilters");
   html += '<div class="chip-row">';
   cats.forEach(function(c) {
     let label = c === "all" ? "Tất cả" : c;
@@ -1866,96 +1988,11 @@ function renderPagination() {
   paginationContainer.innerHTML = buildPager(currentPage, totalPages, "applyFilters");
 }
 
-/* --- DANH MUC PHU KIEN --- */
-function renderAccFilters() {
-  const rawCats = ACC.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
-  const cats = ["all"].concat(Array.from(new Set(rawCats)));
-  let html = '<input id="qAcc" placeholder="Tìm tên phụ kiện, thiết bị..." oninput="applyAccFilters(1, true)">';
-  html += '<div class="chip-row">';
-  cats.forEach(function(c) {
-    let label = c === "all" ? "Tất cả" : c;
-    let activeClass = accFilter === c ? "on" : "";
-    html += '<button class="chip ' + activeClass + '" data-af="' + c + '">' + label + '</button>';
-  });
-  html += '</div>';
-  document.getElementById("accToolsBox").innerHTML = html;
-  enableChipScroll("accToolsBox");
-
-  document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(btn){
-    btn.onclick = function(){
-      document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(x) { x.classList.remove("on"); });
-      btn.classList.add("on");
-      accFilter = btn.dataset.af;
-      applyAccFilters(1, true);
-    };
-  });
-}
-
-function applyAccFilters(page, isClick) {
-  if (page === undefined) page = 1;
-  var qInput = document.getElementById("qAcc");
-  var q = qInput ? qInput.value.toLowerCase() : "";
-  filteredAcc = ACC.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
-                   .filter(function(f) { return (accFilter === "all" || f.cat === accFilter) && normVN(f.n).indexOf(normVN(q)) > -1; })
-                     .sort(function(a, b) { return (b.sl > 0 ? 1 : 0) - (a.sl > 0 ? 1 : 0) || a.originalIndex - b.originalIndex; });
-  accCurrentPage = page;
-  renderAccGrid();
-  if (isClick) {
-    const accSection = document.getElementById("pk");
-    if (accSection) {
-      const offset = accSection.offsetTop - 85;
-      window.scrollTo({ top: offset, behavior: "smooth" });
-    }
-  }
-}
-
-function renderAccGrid(){
-  var h = "";
-  var start = (accCurrentPage - 1) * itemsPerPage;
-  var end = start + itemsPerPage;
-  var paginatedItems = filteredAcc.slice(start, end);
-
-  paginatedItems.forEach(function(f){
-    var stockHtml = f.sl > 0 
-      ? '<div class="mono-stock in-stock">Sẵn có: ' + f.sl + '</div>' 
-      : '<div class="mono-stock out-stock">Hết hàng</div>';
-    
-    var btnHtml = f.sl > 0 
-      ? '<button onclick="add(' + f.originalIndex + ', \'acc\')">Thêm vào giỏ</button>'
-      : '<button disabled>Hết hàng</button>';
-
-    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svgAcc(f);
-    var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
-
-    h += '<div class="card">'
-      + '<div class="pic" onclick="window.showFishDetail(' + f.originalIndex + ', \'acc\')" ontouchstart="window.startPress(event)" ontouchmove="window.movePress(event)">'
-      + cardMediaHtml + videoBadgeHtml
-      + '</div>'
-      + '<div class="info">'
-      + '<b>' + f.n + '</b>'
-      + '<small>' + f.cat + ' · ' + f.s + '</small>'
-      + stockHtml
-      + '<div class="price">' + money(f.p) + 'đ</div>'
-      + btnHtml
-      + '</div></div>';
-  });
-  
-  document.getElementById("accGrid").innerHTML = h ? h : '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy phụ kiện phù hợp.</div>';
-  renderAccPagination();
-}
-
-function renderAccPagination() {
-  var totalPages = Math.ceil(filteredAcc.length / itemsPerPage);
-  var paginationContainer = document.getElementById("accPagination");
-  if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
-  paginationContainer.innerHTML = buildPager(accCurrentPage, totalPages, "applyAccFilters");
-}
-
-/* --- DANH MUC PLECO --- */
+/* --- 2. DANH MUC PLECO (CA DOC CA LA) --- */
 function renderPlecoFilters() {
   const rawCats = PLECO.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
   const cats = ["all"].concat(Array.from(new Set(rawCats)));
-  let html = '<input id="qPl" placeholder="Tìm tên Pleco..." oninput="applyPlecoFilters(1, true)">';
+  let html = buildTopBarHtml("Cá “độc” cá lạ", "qPl", "Tìm kiếm dòng cá độc lạ...", "applyPlecoFilters");
   html += '<div class="chip-row">';
   cats.forEach(function(c) {
     let label = c === "all" ? "Tất cả" : c;
@@ -2024,6 +2061,91 @@ function renderPlecoPagination() {
   var paginationContainer = document.getElementById("plPagination");
   if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
   paginationContainer.innerHTML = buildPager(plecoCurrentPage, totalPages, "applyPlecoFilters");
+}
+
+/* --- 3. DANH MUC PHU KIEN (TAM AN) --- */
+function renderAccFilters() {
+  const rawCats = ACC.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
+  const cats = ["all"].concat(Array.from(new Set(rawCats)));
+  let html = buildTopBarHtml("Danh mục phụ kiện", "qAcc", "Tìm kiếm phụ kiện, thiết bị...", "applyAccFilters");
+  html += '<div class="chip-row">';
+  cats.forEach(function(c) {
+    let label = c === "all" ? "Tất cả" : c;
+    let activeClass = accFilter === c ? "on" : "";
+    html += '<button class="chip ' + activeClass + '" data-af="' + c + '">' + label + '</button>';
+  });
+  html += '</div>';
+  document.getElementById("accToolsBox").innerHTML = html;
+  enableChipScroll("accToolsBox");
+
+  document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(btn){
+    btn.onclick = function(){
+      document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(x) { x.classList.remove("on"); });
+      btn.classList.add("on");
+      accFilter = btn.dataset.af;
+      applyAccFilters(1, true);
+    };
+  });
+}
+
+function applyAccFilters(page, isClick) {
+  if (page === undefined) page = 1;
+  var qInput = document.getElementById("qAcc");
+  var q = qInput ? qInput.value.toLowerCase() : "";
+  filteredAcc = ACC.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
+                   .filter(function(f) { return (accFilter === "all" || f.cat === accFilter) && normVN(f.n).indexOf(normVN(q)) > -1; })
+                   .sort(function(a, b) { return (b.sl > 0 ? 1 : 0) - (a.sl > 0 ? 1 : 0) || a.originalIndex - b.originalIndex; });
+  accCurrentPage = page;
+  renderAccGrid();
+  if (isClick) {
+    const accSection = document.getElementById("pk");
+    if (accSection) {
+      const offset = accSection.offsetTop - 85;
+      window.scrollTo({ top: offset, behavior: "smooth" });
+    }
+  }
+}
+
+function renderAccGrid(){
+  var h = "";
+  var start = (accCurrentPage - 1) * itemsPerPage;
+  var end = start + itemsPerPage;
+  var paginatedItems = filteredAcc.slice(start, end);
+
+  paginatedItems.forEach(function(f){
+    var stockHtml = f.sl > 0 
+      ? '<div class="mono-stock in-stock">Sẵn có: ' + f.sl + '</div>' 
+      : '<div class="mono-stock out-stock">Hết hàng</div>';
+    
+    var btnHtml = f.sl > 0 
+      ? '<button onclick="add(' + f.originalIndex + ', \'acc\')">Thêm vào giỏ</button>'
+      : '<button disabled>Hết hàng</button>';
+
+    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svgAcc(f);
+    var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
+
+    h += '<div class="card">'
+      + '<div class="pic" onclick="window.showFishDetail(' + f.originalIndex + ', \'acc\')" ontouchstart="window.startPress(event)" ontouchmove="window.movePress(event)">'
+      + cardMediaHtml + videoBadgeHtml
+      + '</div>'
+      + '<div class="info">'
+      + '<b>' + f.n + '</b>'
+      + '<small>' + f.cat + ' · ' + f.s + '</small>'
+      + stockHtml
+      + '<div class="price">' + money(f.p) + 'đ</div>'
+      + btnHtml
+      + '</div></div>';
+  });
+  
+  document.getElementById("accGrid").innerHTML = h ? h : '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy phụ kiện phù hợp.</div>';
+  renderAccPagination();
+}
+
+function renderAccPagination() {
+  var totalPages = Math.ceil(filteredAcc.length / itemsPerPage);
+  var paginationContainer = document.getElementById("accPagination");
+  if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
+  paginationContainer.innerHTML = buildPager(accCurrentPage, totalPages, "applyAccFilters");
 }
 
 window.addEventListener("resize", function() {

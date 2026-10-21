@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chính Sách Thanh Toán — TK aqua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f0c;
+  --bg-card: #151813;
+  --bg-elevated: #1b1f18;
+  --text: #eaece6;
+  --text-muted: #939d87;
+  --accent: #9ab366;
+  --accent-light: rgba(154, 179, 102, 0.12);
+  --border: rgba(154, 179, 102, 0.24);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+}
+
+html { scroll-behavior: smooth; background-color: var(--bg); }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--text);
+  background-color: var(--bg);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  line-height: 1.65;
+}
+
+header {
+  position: sticky;
+  top: 14px;
+  z-index: 100;
+  padding: 0 20px;
+  margin-bottom: 10px;
+}
+.bar {
+  max-width: 1160px;
+  margin: 0 auto;
+  height: 60px;
+  padding: 0 8px 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(21, 24, 19, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transition: all 0.25s ease;
+}
+header.scrolled .bar {
+  background: rgba(16, 19, 15, 0.94);
+  border-color: var(--border);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75);
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.brand-wrap img {
+  height: 36px;
+  width: 36px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #121212;
+}
+.brand-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.brand-name span { color: var(--accent); }
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.header-nav a {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.header-nav a:hover, .header-nav a.active {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.hotline-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.hotline-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  flex-shrink: 0;
+}
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #111310;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.btn-home:hover {
+  background: transparent;
+  color: var(--accent);
+}
+
+.mobile-nav-strip {
+  display: none;
+  max-width: 1160px;
+  margin: 8px auto 0 auto;
+  overflow-x: auto;
+  white-space: nowrap;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(21, 24, 19, 0.85);
+  backdrop-filter: blur(16px);
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  scrollbar-width: none;
+}
+.mobile-nav-strip::-webkit-scrollbar { display: none; }
+.mobile-nav-strip a {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  transition: 0.2s;
+}
+.mobile-nav-strip a:hover, .mobile-nav-strip a.active {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+main { max-width: 860px; margin: 28px auto 60px auto; padding: 0 20px; }
+.content-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 44px 40px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+}
+
+.page-header {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 22px;
+  margin-bottom: 30px;
+}
+.page-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid var(--border);
+  padding: 5px 13px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(22px, 3.2vw, 30px);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0 0 10px 0;
+  color: var(--text);
+}
+.lead {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.alert-box {
+  background: rgba(154, 179, 102, 0.06);
+  border: 1.5px solid var(--border);
+  padding: 26px 28px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+}
+.alert-title {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.alert-box ol {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14.5px;
+  color: var(--text);
+}
+.alert-box li { margin-bottom: 10px; }
+.alert-box li:last-child { margin-bottom: 0; }
+.highlight-text {
+  background: var(--accent);
+  color: #111310;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.policy-card {
+  background: #11140f;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 35px;
+}
+.policy-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text);
+  margin: 0 0 12px 0;
+}
+.policy-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-muted);
+  font-size: 14.5px;
+}
+.policy-list li { margin-bottom: 8px; }
+.policy-list li:last-child { margin-bottom: 0; }
+
+.contact-section {
+  padding-top: 30px;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+  margin-bottom: 35px;
+}
+.contact-section h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+.contact-section p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 22px 0;
+}
+.big-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.big-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--text);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  gap: 10px;
+  background: #11140f;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+}
+.big-btn:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.big-btn svg {
+  width: 26px;
+  height: 26px;
+  fill: var(--accent);
+}
+
+.btn-back-center {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #111310;
+  text-decoration: none;
+  padding: 12px 28px;
+  border-radius: 999px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  border: 1.5px solid var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  transition: 0.2s;
+}
+.btn-back-center:hover {
+  background: transparent;
+  color: var(--accent);
+}
+
+footer {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 1024px) {
+  .header-nav { display: none; }
+  .mobile-nav-strip { display: flex; }
+}
+
+@media (max-width: 600px) {
+  header { top: 10px; padding: 0 12px; }
+  .bar { height: 54px; padding: 0 8px 0 12px; }
+  .brand-wrap img { height: 32px; width: 32px; }
+  .brand-name { font-size: 15px; }
+  .hotline-link { display: none; }
+  .btn-home { padding: 7px 14px; font-size: 10.5px; }
+  main { margin: 16px auto 40px auto; padding: 0 14px; }
+  .content-box { padding: 28px 20px; border-radius: 18px; }
+  .alert-box, .policy-card { padding: 20px 18px; }
+  .big-contact-grid { grid-template-columns: 1fr; }
+}
+
+.alert-box p { margin: 0 0 12px 0; font-size: 14.5px; color: var(--text); }
+.alert-box p:last-child { margin-bottom: 0; }
+.footer-links {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 10px 22px; margin-bottom: 18px;
+}
+.footer-links a {
+  font-family: 'Montserrat', sans-serif; font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-muted); text-decoration: none; transition: 0.2s;
+}
+.footer-links a:hover, .footer-links a.current { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header id="mainHeader">
+  <div class="bar">
+    <a href="index.html" class="brand-wrap">
+      <img src="logo.jpg" alt="TK aqua">
+      <span class="brand-name">TK <span>aqua</span></span>
+    </a>
+
+    <nav class="header-nav">
+      <a href="index.html#sp">Danh mục</a>
+      <a href="giao-hang.html">Giao hàng</a>
+      <a href="bao-hanh.html">Bảo hành</a>
+      <a href="ho-tro.html">Hỗ trợ</a>
+      <a href="order-ca.html">Order cá hiếm</a>
+    </nav>
+
+    <div class="header-actions">
+      <a href="tel:0703008005" class="hotline-link">
+        <span class="status-dot"></span>
+        0703.008.005
+      </a>
+      <a href="index.html" class="btn-home">← Trang chủ</a>
+    </div>
+  </div>
+
+  <nav class="mobile-nav-strip">
+    <a href="index.html#sp">Danh mục</a>
+    <a href="giao-hang.html">Giao hàng</a>
+    <a href="bao-hanh.html">Bảo hành</a>
+    <a href="ho-tro.html">Hỗ trợ</a>
+    <a href="order-ca.html">Order cá hiếm</a>
+  </nav>
+</header>
+
+<main>
+  <div class="content-box">
+    <div class="page-header">
+      <div class="page-tag">
+        <span class="status-dot"></span>
+        Payment Policy
+      </div>
+      <h1>Chính Sách Thanh Toán</h1>
+      <p class="lead">Quy định thanh toán áp dụng cho mọi đơn hàng đặt tại TK aqua.</p>
+    </div>
+
+    <div class="alert-box">
+      <div class="alert-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        Quy định thanh toán
+      </div>
+      <ol>
+        <li>Do đơn hàng được giao đi xa, quý khách vui lòng <span class="highlight-text">CHUYỂN KHOẢN TOÀN BỘ</span> giá trị đơn hàng trước khi TK aqua đóng gói và giao.</li>
+        <li>Giá trị đơn hàng <b>bao gồm phí vận chuyển và phí đóng gói</b>.</li>
+        <li>Chấp nhận chuyển khoản qua <b>mọi ngân hàng</b> và <b>mọi ví điện tử</b>.</li>
+        <li>Chấp nhận thanh toán bằng <b>PayPal</b> và thẻ <b>Visa</b>.</li>
+      </ol>
+    </div>
+
+    <div class="policy-card">
+      <h3>Lưu ý khi thanh toán</h3>
+      <ul class="policy-list">
+        <li>Khi quét mã QR, số tiền và nội dung chuyển khoản đã được điền sẵn. Vui lòng không chỉnh sửa để hệ thống tự động xác nhận.</li>
+        <li>Thanh toán bằng PayPal hoặc Visa, vui lòng liên hệ Zalo/Hotline để được hướng dẫn.</li>
+        <li>Đơn chưa thanh toán có thể xem lại trạng thái và mã QR tại mục <b>Đơn đã đặt</b> trên trang chủ.</li>
+      </ul>
+    </div>
+
+    <div class="contact-section">
+      <h2>Cần hỗ trợ?</h2>
+      <p>Liên hệ TK aqua qua các kênh dưới đây để được giải đáp nhanh nhất:</p>
+      
+      <div class="big-contact-grid">
+        <a href="tel:0703008005" class="big-btn">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          Hotline 0703.008.005
+        </a>
+        <a href="https://zalo.me/0703008005" target="_blank" class="big-btn">
+          <svg viewBox="0 0 24 24"><path d="M20.89 12.55C20.89 7.42 16.32 3.5 11.2 3.5C6.07 3.5 1.5 7.42 1.5 12.55C1.5 17.68 6.07 21.6 11.2 21.6C12.43 21.6 13.59 21.36 14.65 20.93L19.46 22L18.42 17.65C19.98 16.3 20.89 14.54 20.89 12.55Z"></path></svg>
+          Nhắn tin Zalo
+        </a>
+        <a href="https://www.facebook.com/share/19gZAZgohs/?mibextid=wwXIfr" target="_blank" class="big-btn">
+          <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+          Nhắn tin Fanpage
+        </a>
+      </div>
+    </div>
+
+
+    <div style="text-align: center;">
+      <a href="index.html" class="btn-back-center">← Về danh mục cá</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="bao-hanh.html">Chính sách bảo hành</a>
+    <a href="giao-hang.html">Chính sách giao hàng</a>
+    <a href="chinh-sach-thanh-toan.html" class="current">Chính sách thanh toán</a>
+    <a href="chinh-sach-bao-mat.html">Chính sách bảo mật thông tin</a>
+    <a href="ho-tro.html">Thông tin liên hệ</a>
+  </div>
+  <div>TK aqua · Hotline/Zalo: 0703.008.005 · TP. Hồ Chí Minh</div>
+</footer>
+
+<script>
+const mainHeader = document.getElementById("mainHeader");
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 20) mainHeader.classList.add("scrolled");
+  else mainHeader.classList.remove("scrolled");
+});
+</script>
+</body>
+</html>

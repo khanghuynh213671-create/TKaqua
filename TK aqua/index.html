@@ -1198,6 +1198,70 @@ footer {
   .map-info { padding: 24px 18px; }
   .map-iframe { border-left: none; border-top: 1px solid var(--border-subtle); }
 }
+
+/* ---- Header nav: thanh trượt ---- */
+.bar > .brand-wrap, .header-actions { flex-shrink: 0; }
+.header-nav {
+  flex: 0 1 auto; min-width: 0;
+  overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.header-nav::-webkit-scrollbar { display: none; }
+.header-nav a { flex-shrink: 0; }
+.mobile-nav-strip { -webkit-overflow-scrolling: touch; }
+.mobile-nav-strip a { flex-shrink: 0; }
+
+/* ---- Bộ lọc: ô tìm kiếm + 1 hàng chip trượt ngang ---- */
+.tools { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 22px; }
+.tools input { flex: none; width: 100%; max-width: 420px; min-width: 0; }
+.tools > * { min-width: 0; }
+.chip-wrap { position: relative; width: 100%; max-width: 100%; min-width: 0; }
+.chip-row {
+  display: flex; gap: 8px; flex-wrap: nowrap;
+  width: 100%; max-width: 100%;
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: thin; scrollbar-color: var(--accent) rgba(255,255,255,0.06);
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 10px 2px;
+  cursor: grab; user-select: none;
+}
+.chip-row.dragging { cursor: grabbing; }
+.chip-row::-webkit-scrollbar { height: 6px; }
+.chip-row::-webkit-scrollbar-track { background: rgba(255,255,255,0.06); border-radius: 999px; }
+.chip-row::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
+.chip-nav {
+  position: absolute; top: 0; width: 34px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border); background: rgba(21,24,19,0.95); color: var(--accent);
+  font-size: 15px; font-weight: 800; cursor: pointer; z-index: 2;
+  display: none; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+}
+.chip-nav:hover { background: var(--accent); color: #111310; }
+.chip-nav.prev { left: -4px; }
+.chip-nav.next { right: -4px; }
+@media (pointer: fine) { .chip-wrap.can-scroll .chip-nav.show { display: flex; } }
+.chip-row .chip { flex-shrink: 0; white-space: nowrap; padding: 9px 16px; }
+
+/* ---- Phân trang 1 dòng ---- */
+.pagination { flex-wrap: nowrap; gap: 6px; max-width: 100%; overflow: hidden; }
+.pagination button { min-width: 36px; padding: 9px 12px; flex-shrink: 0; }
+.pagination .dots { color: var(--text-muted); font-weight: 700; padding: 0 2px; align-self: center; flex-shrink: 0; }
+
+/* ---- Banner 3D: không đè lên header ---- */
+.hero { position: relative; z-index: 1; }
+.hero-right { isolation: isolate; overflow: visible; }
+header { z-index: 1000; }
+@media (max-width: 1024px) {
+  .hero-right { perspective: none; }
+  .showcase-card { transform: none !important; transform-style: flat; will-change: auto; }
+  .showcase-media, .showcase-footer, .showcase-caption-text, .showcase-badge { transform: none; }
+  .showcase-spotlight { display: none; }
+}
+@media (max-width: 600px) {
+  .pagination { gap: 4px; }
+  .pagination button { min-width: 32px; padding: 8px 9px; font-size: 11.5px; }
+  .chip-row .chip { padding: 8px 13px; font-size: 11px; }
+}
 </style>
 </head>
 <body>
@@ -1209,11 +1273,10 @@ footer {
       <span class="brand-name">TK <span>aqua</span></span>
     </a>
 
-    <nav class="header-nav">
+    <nav class="header-nav" id="headerNav">
+      <a href="#pl">Cá “độc” cá lạ</a>
       <a href="#sp" class="active">Cá cảnh</a>
-      <a href="#pl">Pleco</a>
       <a href="#pk">Phụ kiện</a>
-      <a onclick="window.openOrderLookup()">Đơn đã đặt</a>
       <a href="giao-hang.html">Giao hàng</a>
       <a href="bao-hanh.html">Bảo hành</a>
       <a href="ho-tro.html">Hỗ trợ</a>
@@ -1238,10 +1301,9 @@ footer {
   </div>
 
   <nav class="mobile-nav-strip">
+    <a href="#pl">Cá “độc” cá lạ</a>
     <a href="#sp">Cá cảnh</a>
-    <a href="#pl">Pleco</a>
-      <a href="#pk">Phụ kiện</a>
-    <a onclick="window.openOrderLookup()">📦 Đơn đã đặt</a>
+    <a href="#pk">Phụ kiện</a>
     <a href="giao-hang.html">Giao hàng</a>
     <a href="bao-hanh.html">Bảo hành</a>
     <a href="ho-tro.html">Hỗ trợ</a>
@@ -1344,24 +1406,24 @@ footer {
   </div>
 </section>
 
+<!-- DANH MỤC PLECO -->
+<main id="pl">
+  <div class="tools" id="plToolsBox">
+    <input id="qPl" placeholder="Đang tải dữ liệu..." readonly>
+  </div>
+  <h2>CÁ “ĐỘC” CÁ LẠ</h2>
+  <div class="grid" id="plGrid"></div>
+  <div id="plPagination" class="pagination"></div>
+</main>
+
 <!-- DANH MỤC CÁ CẢNH -->
-<main id="sp">
+<main id="sp" style="margin-top: 20px;">
   <div class="tools" id="toolsBox">
     <input id="q" placeholder="Đang tải dữ liệu..." readonly>
   </div>
   <h2>DANH MỤC CÁ CẢNH</h2>
   <div class="grid" id="grid"></div>
   <div id="pagination" class="pagination"></div>
-</main>
-
-<!-- DANH MỤC PLECO -->
-<main id="pl" style="margin-top: 20px;">
-  <div class="tools" id="plToolsBox">
-    <input id="qPl" placeholder="Đang tải dữ liệu..." readonly>
-  </div>
-  <h2>DANH MỤC PLECO</h2>
-  <div class="grid" id="plGrid"></div>
-  <div id="plPagination" class="pagination"></div>
 </main>
 
 <!-- DANH MỤC PHỤ KIỆN -->
@@ -1380,7 +1442,7 @@ footer {
       <h3>TK AQUA STUDIO</h3>
       <p><b>Hotline / Zalo:</b> 0703.008.005<br><br>
       Mời bạn ghé thăm studio để trực tiếp trải nghiệm hệ thống bể dưỡng và chọn lựa những cá thể ưng ý nhất. Vui lòng liên hệ trước khi đến để được tiếp đón chu đáo.</p>
-      <a href="https://www.google.com/maps?cid=3282746273923431588" target="_blank" class="btn-map">
+      <a href="https://www.google.com/maps?cid=3282746348525042852" target="_blank" class="btn-map">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
         Chỉ đường Google Maps
       </a>
@@ -1396,7 +1458,7 @@ footer {
   <div id="items"></div>
   <p style="margin: 25px 0 15px 0;"><b>Tổng cộng: <span id="total" style="font-family:'Montserrat', sans-serif; font-size: 20px; color: var(--accent);">0</span>đ</b></p>
   <button id="btnDatHang" class="cart" style="width:100%; justify-content:center; padding: 12px;" onclick="window.datHangFirebase()">Đặt hàng ngay</button>
-  <button class="chip" style="width:100%; margin-top:10px;" onclick="window.openOrderLookup()">📦 Xem đơn đã đặt</button>
+  <button class="chip" style="width:100%; margin-top:10px;" onclick="window.openOrderLookup()">Tra cứu đơn hàng</button>
   <button class="chip" style="width:100%; margin-top:8px;" onclick="toggle()">Đóng</button>
 </aside>
 
@@ -1635,17 +1697,85 @@ var filteredPleco = [];
 
 function money(n){ return Number(n ? n : 0).toLocaleString("vi-VN"); }
 
+/* --- TIEN ICH: chip truot ngang + phan trang gon --- */
+function enableChipScroll(boxId) {
+  var row = document.querySelector("#" + boxId + " .chip-row");
+  if (!row || row.parentNode.classList.contains("chip-wrap")) return;
+  var wrap = document.createElement("div");
+  wrap.className = "chip-wrap";
+  row.parentNode.insertBefore(wrap, row);
+  wrap.appendChild(row);
+  var prev = document.createElement("button");
+  prev.className = "chip-nav prev"; prev.type = "button"; prev.textContent = "‹"; prev.setAttribute("aria-label", "Cuộn trái");
+  var next = document.createElement("button");
+  next.className = "chip-nav next"; next.type = "button"; next.textContent = "›"; next.setAttribute("aria-label", "Cuộn phải");
+  wrap.appendChild(prev); wrap.appendChild(next);
+
+  function sync() {
+    var can = row.scrollWidth > row.clientWidth + 2;
+    wrap.classList.toggle("can-scroll", can);
+    prev.classList.toggle("show", row.scrollLeft > 4);
+    next.classList.toggle("show", row.scrollLeft + row.clientWidth < row.scrollWidth - 4);
+  }
+  prev.onclick = function() { row.scrollBy({ left: -Math.max(200, row.clientWidth * 0.6), behavior: "smooth" }); };
+  next.onclick = function() { row.scrollBy({ left: Math.max(200, row.clientWidth * 0.6), behavior: "smooth" }); };
+  row.addEventListener("scroll", sync);
+  window.addEventListener("resize", sync);
+  setTimeout(sync, 0); setTimeout(sync, 400);
+
+  row.addEventListener("wheel", function(e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && row.scrollWidth > row.clientWidth) {
+      var atStart = row.scrollLeft <= 0 && e.deltaY < 0;
+      var atEnd = row.scrollLeft + row.clientWidth >= row.scrollWidth - 1 && e.deltaY > 0;
+      if (!atStart && !atEnd) { row.scrollLeft += e.deltaY; e.preventDefault(); }
+    }
+  }, { passive: false });
+
+  var down = false, moved = false, startX = 0, startLeft = 0;
+  row.addEventListener("mousedown", function(e) { down = true; moved = false; startX = e.pageX; startLeft = row.scrollLeft; });
+  window.addEventListener("mousemove", function(e) {
+    if (!down) return;
+    var dx = e.pageX - startX;
+    if (Math.abs(dx) > 5) { moved = true; row.classList.add("dragging"); }
+    if (moved) row.scrollLeft = startLeft - dx;
+  });
+  window.addEventListener("mouseup", function() { down = false; row.classList.remove("dragging"); });
+  row.addEventListener("click", function(e) { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+}
+
+function buildPager(current, total, fn) {
+  var pages = [];
+  var narrow = window.innerWidth <= 600;
+  var around = narrow ? 1 : 2;
+  for (var i = 1; i <= total; i++) {
+    if (i === 1 || i === total || Math.abs(i - current) <= around) pages.push(i);
+  }
+  var out = "";
+  out += '<button aria-label="Trang trước" onclick="' + fn + '(' + (current - 1) + ', true)" ' + (current === 1 ? 'disabled' : '') + '>←</button>';
+  var last = 0;
+  pages.forEach(function(n) {
+    if (n - last > 1) out += '<span class="dots">…</span>';
+    out += '<button onclick="' + fn + '(' + n + ', true)" class="' + (n === current ? 'active' : '') + '">' + n + '</button>';
+    last = n;
+  });
+  out += '<button aria-label="Trang sau" onclick="' + fn + '(' + (current + 1) + ', true)" ' + (current === total ? 'disabled' : '') + '>→</button>';
+  return out;
+}
+
 /* --- DANH MUC CA CANH --- */
 function renderFilters() {
   const rawCats = FISH.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
   const cats = ["all"].concat(Array.from(new Set(rawCats)));
   let html = '<input id="q" placeholder="Tìm tên cá, dòng cá..." oninput="applyFilters(1, true)">';
+  html += '<div class="chip-row">';
   cats.forEach(function(c) {
     let label = c === "all" ? "Tất cả" : c;
     let activeClass = filter === c ? "on" : "";
     html += '<button class="chip ' + activeClass + '" data-f="' + c + '">' + label + '</button>';
   });
+  html += '</div>';
   document.getElementById("toolsBox").innerHTML = html;
+  enableChipScroll("toolsBox");
 
   document.querySelectorAll("#toolsBox .chip[data-f]").forEach(function(btn){
     btn.onclick = function(){
@@ -1727,13 +1857,7 @@ function renderPagination() {
   var totalPages = Math.ceil(filteredFish.length / itemsPerPage);
   var paginationContainer = document.getElementById("pagination");
   if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
-  var ph = "";
-  ph += '<button onclick="applyFilters('+(currentPage - 1)+', true)" '+(currentPage === 1 ? 'disabled' : '')+'>← Trước</button>';
-  for(var i = 1; i <= totalPages; i++) {
-    ph += '<button onclick="applyFilters('+i+', true)" class="'+(currentPage === i ? 'active' : '')+'">'+i+'</button>';
-  }
-  ph += '<button onclick="applyFilters('+(currentPage + 1)+', true)" '+(currentPage === totalPages ? 'disabled' : '')+'>Sau →</button>';
-  paginationContainer.innerHTML = ph;
+  paginationContainer.innerHTML = buildPager(currentPage, totalPages, "applyFilters");
 }
 
 /* --- DANH MUC PHU KIEN --- */
@@ -1741,12 +1865,15 @@ function renderAccFilters() {
   const rawCats = ACC.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
   const cats = ["all"].concat(Array.from(new Set(rawCats)));
   let html = '<input id="qAcc" placeholder="Tìm tên phụ kiện, thiết bị..." oninput="applyAccFilters(1, true)">';
+  html += '<div class="chip-row">';
   cats.forEach(function(c) {
     let label = c === "all" ? "Tất cả" : c;
     let activeClass = accFilter === c ? "on" : "";
     html += '<button class="chip ' + activeClass + '" data-af="' + c + '">' + label + '</button>';
   });
+  html += '</div>';
   document.getElementById("accToolsBox").innerHTML = html;
+  enableChipScroll("accToolsBox");
 
   document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(btn){
     btn.onclick = function(){
@@ -1814,13 +1941,7 @@ function renderAccPagination() {
   var totalPages = Math.ceil(filteredAcc.length / itemsPerPage);
   var paginationContainer = document.getElementById("accPagination");
   if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
-  var ph = "";
-  ph += '<button onclick="applyAccFilters('+(accCurrentPage - 1)+', true)" '+(accCurrentPage === 1 ? 'disabled' : '')+'>← Trước</button>';
-  for(var i = 1; i <= totalPages; i++) {
-    ph += '<button onclick="applyAccFilters('+i+', true)" class="'+(accCurrentPage === i ? 'active' : '')+'">'+i+'</button>';
-  }
-  ph += '<button onclick="applyAccFilters('+(accCurrentPage + 1)+', true)" '+(accCurrentPage === totalPages ? 'disabled' : '')+'>Sau →</button>';
-  paginationContainer.innerHTML = ph;
+  paginationContainer.innerHTML = buildPager(accCurrentPage, totalPages, "applyAccFilters");
 }
 
 /* --- DANH MUC PLECO --- */
@@ -1828,12 +1949,15 @@ function renderPlecoFilters() {
   const rawCats = PLECO.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
   const cats = ["all"].concat(Array.from(new Set(rawCats)));
   let html = '<input id="qPl" placeholder="Tìm tên Pleco..." oninput="applyPlecoFilters(1, true)">';
+  html += '<div class="chip-row">';
   cats.forEach(function(c) {
     let label = c === "all" ? "Tất cả" : c;
     let activeClass = plecoFilter === c ? "on" : "";
     html += '<button class="chip ' + activeClass + '" data-pf="' + c + '">' + label + '</button>';
   });
+  html += '</div>';
   document.getElementById("plToolsBox").innerHTML = html;
+  enableChipScroll("plToolsBox");
 
   document.querySelectorAll("#plToolsBox .chip[data-pf]").forEach(function(btn){
     btn.onclick = function(){
@@ -1869,23 +1993,7 @@ function renderPlecoGrid(){
   var paginatedItems = filteredPleco.slice(start, end);
 
   paginatedItems.forEach(function(f){
-    var noPrice = !(f.p > 0);
     var detailCall = 'window.showFishDetail(' + f.originalIndex + ', \'pleco\')';
-
-    var stockHtml = noPrice ? ''
-      : (f.sl > 0
-        ? '<div class="mono-stock in-stock">Sẵn có: ' + f.sl + '</div>'
-        : '<div class="mono-stock out-stock">Hết hàng</div>');
-
-    var priceHtml = noPrice
-      ? '<div class="price price-ask" onclick="' + detailCall + '">Tìm hiểu thêm</div>'
-      : '<div class="price">' + money(f.p) + 'đ</div>';
-
-    var btnHtml = noPrice
-      ? '<a class="btn-ask" href="https://zalo.me/0703008005" target="_blank">Tư vấn Zalo</a>'
-      : (f.sl > 0
-        ? '<button onclick="add(' + f.originalIndex + ', \'pleco\')">Thêm vào giỏ</button>'
-        : '<button disabled>Hết hàng</button>');
 
     var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svg(f);
     var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
@@ -1894,12 +2002,9 @@ function renderPlecoGrid(){
       + '<div class="pic" onclick="' + detailCall + '" ontouchstart="window.startPress(event)" ontouchmove="window.movePress(event)">'
       + cardMediaHtml + videoBadgeHtml
       + '</div>'
-      + '<div class="info">'
+      + '<div class="info" style="cursor:pointer;" onclick="' + detailCall + '">'
       + '<b>' + f.n + '</b>'
       + '<small>' + f.cat + ' · ' + f.s + '</small>'
-      + stockHtml
-      + priceHtml
-      + btnHtml
       + '</div></div>';
   });
 
@@ -1911,14 +2016,12 @@ function renderPlecoPagination() {
   var totalPages = Math.ceil(filteredPleco.length / itemsPerPage);
   var paginationContainer = document.getElementById("plPagination");
   if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
-  var ph = "";
-  ph += '<button onclick="applyPlecoFilters('+(plecoCurrentPage - 1)+', true)" '+(plecoCurrentPage === 1 ? 'disabled' : '')+'>← Trước</button>';
-  for(var i = 1; i <= totalPages; i++) {
-    ph += '<button onclick="applyPlecoFilters('+i+', true)" class="'+(plecoCurrentPage === i ? 'active' : '')+'">'+i+'</button>';
-  }
-  ph += '<button onclick="applyPlecoFilters('+(plecoCurrentPage + 1)+', true)" '+(plecoCurrentPage === totalPages ? 'disabled' : '')+'>Sau →</button>';
-  paginationContainer.innerHTML = ph;
+  paginationContainer.innerHTML = buildPager(plecoCurrentPage, totalPages, "applyPlecoFilters");
 }
+
+window.addEventListener("resize", function() {
+  if (typeof renderPagination === "function") { renderPagination(); renderAccPagination(); renderPlecoPagination(); }
+});
 
 /* --- GIO HANG CHUNG --- */
 function getItemSource(type) {
@@ -2269,7 +2372,6 @@ window.showFishDetail = function(index, type) {
     + '<div class="info-detail-row"><b>' + label1 + '</b><span>' + (f.desc ? f.desc : "Đang cập nhật.") + '</span></div>'
     + '<div class="info-detail-row"><b>' + label2 + '</b><span>' + (f.env ? f.env : "Đang cập nhật.") + '</span></div>'
     + '<div class="info-detail-row"><b>' + label3 + '</b><span>' + (f.mates ? f.mates : "Đang cập nhật.") + '</span></div>'
-    + ((type === 'pleco' && !(f.p > 0)) ? '<a class="btn-close-info" href="https://zalo.me/0703008005" target="_blank" style="display:block;text-align:center;text-decoration:none;background:var(--accent);color:#111310;">Hỏi giá qua Zalo</a>' : '')
     + '<button class="btn-close-info" onclick="window.closeModal()">Đóng</button>'
     + '</div>';
   modalOverlay.classList.add('show');
@@ -2288,7 +2390,7 @@ window.addEventListener("scroll", function() {
 });
 
 const tiltCard = document.getElementById("tiltCard");
-if (tiltCard && window.matchMedia("(pointer: fine)").matches) {
+if (tiltCard && window.matchMedia("(pointer: fine) and (min-width: 1025px)").matches) {
   tiltCard.addEventListener("mousemove", function(e) {
     const rect = tiltCard.getBoundingClientRect();
     const x = e.clientX - rect.left;

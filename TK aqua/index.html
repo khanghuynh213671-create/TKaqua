@@ -1697,6 +1697,11 @@ var filteredPleco = [];
 
 function money(n){ return Number(n ? n : 0).toLocaleString("vi-VN"); }
 
+/* --- TIM KIEM KHONG DAU --- */
+function normVN(s) {
+  return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().trim();
+}
+
 /* --- TIEN ICH: chip truot ngang + phan trang gon --- */
 function enableChipScroll(boxId) {
   var row = document.querySelector("#" + boxId + " .chip-row");
@@ -1792,7 +1797,7 @@ function applyFilters(page, isClick) {
   var qInput = document.getElementById("q");
   var q = qInput ? qInput.value.toLowerCase() : "";
   filteredFish = FISH.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
-                     .filter(function(f) { return (filter === "all" || f.cat === filter) && f.n.toLowerCase().indexOf(q) > -1; })
+                     .filter(function(f) { return (filter === "all" || f.cat === filter) && normVN(f.n).indexOf(normVN(q)) > -1; })
                      .sort(function(a, b) { return (b.sl > 0 ? 1 : 0) - (a.sl > 0 ? 1 : 0) || a.originalIndex - b.originalIndex; });
   currentPage = page;
   renderGrid();
@@ -1891,7 +1896,7 @@ function applyAccFilters(page, isClick) {
   var qInput = document.getElementById("qAcc");
   var q = qInput ? qInput.value.toLowerCase() : "";
   filteredAcc = ACC.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
-                   .filter(function(f) { return (accFilter === "all" || f.cat === accFilter) && f.n.toLowerCase().indexOf(q) > -1; })
+                   .filter(function(f) { return (accFilter === "all" || f.cat === accFilter) && normVN(f.n).indexOf(normVN(q)) > -1; })
                      .sort(function(a, b) { return (b.sl > 0 ? 1 : 0) - (a.sl > 0 ? 1 : 0) || a.originalIndex - b.originalIndex; });
   accCurrentPage = page;
   renderAccGrid();
@@ -1976,7 +1981,7 @@ function applyPlecoFilters(page, isClick) {
   var qInput = document.getElementById("qPl");
   var q = qInput ? qInput.value.toLowerCase() : "";
   filteredPleco = PLECO.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
-                       .filter(function(f) { return (plecoFilter === "all" || f.cat === plecoFilter) && f.n.toLowerCase().indexOf(q) > -1; });
+                       .filter(function(f) { return (plecoFilter === "all" || f.cat === plecoFilter) && normVN(f.n).indexOf(normVN(q)) > -1; });
   plecoCurrentPage = page;
   renderPlecoGrid();
   if (isClick) {

@@ -2644,11 +2644,6 @@ initData();
         }
       }
 
-      results.sort(function(a, b) {
-        let na = a.order_code_num ? a.order_code_num : 0;
-        let nb = b.order_code_num ? b.order_code_num : 0;
-        return nb - na;
-      });
       renderOrderCards(results);
       if (lookupErrorText) {
         const box = document.getElementById("lookupResults");

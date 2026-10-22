@@ -1304,7 +1304,7 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
 
     <nav class="header-nav" id="headerNav">
       <a href="#sp" class="active">Cá cảnh</a>
-      <a href="#pl">Cá “độc” cá lạ</a>
+      <a href="#pl" hidden>Cá “độc” cá lạ</a>
       <a href="giao-hang.html">Giao hàng</a>
       <a href="bao-hanh.html">Bảo hành</a>
       <a href="ho-tro.html">Hỗ trợ</a>
@@ -1330,7 +1330,7 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
 
   <nav class="mobile-nav-strip">
     <a href="#sp">Cá cảnh</a>
-    <a href="#pl">Cá “độc” cá lạ</a>
+    <a href="#pl" hidden>Cá “độc” cá lạ</a>
     <a href="giao-hang.html">Giao hàng</a>
     <a href="bao-hanh.html">Bảo hành</a>
     <a href="ho-tro.html">Hỗ trợ</a>
@@ -1452,8 +1452,8 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
   <div id="accPagination" class="pagination"></div>
 </main>
 
-<!-- DANH MỤC PLECO -->
-<main id="pl">
+<!-- DANH MỤC PLECO (tạm ẩn: xoá thuộc tính hidden ở thẻ main bên dưới và 2 thẻ a[href="#pl"] trên header để hiện lại) -->
+<main id="pl" hidden>
   <h2 class="rv">CÁ “ĐỘC” CÁ LẠ</h2>
   <div class="tools" id="plToolsBox">
     <input id="qPl" placeholder="Đang tải dữ liệu..." readonly>
@@ -2055,709 +2055,1084 @@ function renderPlecoGrid(){
       + '</div></div>';
   });
 
-  document.getElementById("plGrid").innerHTML = h ? h : '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy dòng Pleco phù hợp.</div>';
-  renderPlecoPagination();
+  document.getElementById("plGrid").innerHTML = h ? h : '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy dòng PleĐã thêm thuộc tính `hidden` cho mục **Cá “độc” cá lạ** trên thanh điều hướng (cả bản máy tính lẫn điện thoại) và thẻ `<main id="pl">` (tương tự như cách bạn đang tạm ẩn danh mục Phụ kiện `[cite: 23]`). Khi nào cần bật lại chỉ cần xóa chữ `hidden` ở 3 vị trí đó.
+
+Dưới đây là toàn bộ file `index.html` hoàn chỉnh:
+
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TK aqua — Cá Cảnh & Thủy Sinh Tuyển Chọn</title>
+<link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+<link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+<link href="[https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Roboto:wght@400;500;700&display=swap](https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Roboto:wght@400;500;700&display=swap)" rel="stylesheet">
+
+<script>document.documentElement.className += " js";</script>
+<style>
+:root {
+  --bg: #0d0f0c;
+  --bg-card: #151813;
+  --bg-elevated: #1b1f18;
+  --text: #eaece6;
+  --text-muted: #939d87;
+  --accent: #9ab366;
+  --accent-light: rgba(154, 179, 102, 0.12);
+  --border: rgba(154, 179, 102, 0.24);
+  --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
-function renderPlecoPagination() {
-  var totalPages = Math.ceil(filteredPleco.length / itemsPerPage);
-  var paginationContainer = document.getElementById("plPagination");
-  if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
-  paginationContainer.innerHTML = buildPager(plecoCurrentPage, totalPages, "applyPlecoFilters");
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: 340ms cubic-bezier(0.32, 0.72, 0, 1) both slide-out-left;
+}
+::view-transition-new(root) {
+  animation: 340ms cubic-bezier(0.32, 0.72, 0, 1) both slide-in-right;
+}
+@keyframes slide-out-left {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-20%); opacity: 0.6; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
-window.addEventListener("resize", function() {
-  if (typeof renderPagination === "function") { renderPagination(); renderAccPagination(); renderPlecoPagination(); }
-});
-
-/* --- GIO HANG CHUNG --- */
-function getItemSource(type) {
-  if (type === 'acc') return ACC;
-  if (type === 'pleco') return PLECO;
-  return FISH;
+html { scroll-behavior: smooth; background-color: var(--bg); overflow-x: clip; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--text);
+  background-color: var(--bg);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: clip;
+  line-height: 1.5;
 }
 
-function getCartItemsSubtotal() {
-  return cart.reduce(function(sum, item) {
-    var source = getItemSource(item.type);
-    var product = source[item.index];
-    return sum + (product ? product.p * item.qty : 0);
-  }, 0);
+header {
+  position: sticky;
+  top: 14px;
+  z-index: 100;
+  padding: 0 20px;
+  margin-bottom: 10px;
+}
+.bar {
+  max-width: 1160px;
+  margin: 0 auto;
+  height: 60px;
+  padding: 0 8px 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(21, 24, 19, 0.78);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transition: all 0.25s ease;
+}
+header.scrolled .bar {
+  background: rgba(16, 19, 15, 0.94);
+  border-color: var(--border);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75);
 }
 
-function add(i, type) {
-  if (!type) type = 'fish';
-  const source = getItemSource(type);
-  const product = source[i];
-  if (!product || product.sl <= 0 || !(product.p > 0)) return;
-  let unitLabel = type === 'acc' ? 'sản phẩm' : 'cá thể';
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.brand-wrap img {
+  height: 36px;
+  width: 36px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #121212;
+}
+.brand-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.brand-name span { color: var(--accent); }
 
-  let existing = cart.find(function(item) { return item.index === i && item.type === type; });
-  if (existing) {
-    if (existing.qty < product.sl) {
-      existing.qty++;
-    } else {
-      window.showModalAlert("Giới hạn tồn kho", "<b>" + product.n + "</b> hiện chỉ còn tối đa <b>" + product.sl + "</b> " + unitLabel + ".");
-      return;
-    }
-  } else {
-    cart.push({ index: i, type: type, qty: 1 });
-  }
-  upd();
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.header-nav a {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 7px 13px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.header-nav a:hover, .header-nav a.active {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
 }
 
-function changeQty(k, delta) {
-  let item = cart[k];
-  if (!item) return;
-  const source = getItemSource(item.type);
-  const product = source[item.index];
-  let maxStock = product.sl;
-  let unitLabel = item.type === 'acc' ? 'sản phẩm' : 'cá thể';
-  let newQty = item.qty + delta;
-
-  if (newQty <= 0) {
-    cart.splice(k, 1);
-  } else if (newQty > maxStock) {
-    window.showModalAlert("Giới hạn tồn kho", "<b>" + product.n + "</b> hiện chỉ còn <b>" + maxStock + "</b> " + unitLabel + ".");
-  } else {
-    item.qty = newQty;
-  }
-  upd();
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.hotline-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.hotline-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  flex-shrink: 0;
 }
 
-function del(k) {
-  cart.splice(k, 1);
-  upd();
+.cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  color: #111310;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.cart:hover {
+  background: #8aa356;
+  border-color: #8aa356;
+}
+.cart svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+}
+.cart-badge {
+  background: #111310;
+  color: var(--accent);
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
 }
 
-function upd() {
-  var totalCount = cart.reduce(function(sum, item) { return sum + item.qty; }, 0);
-  document.getElementById("cnt").textContent = totalCount;
-  var t = 0;
-  var htmlItems = cart.map(function(item, k) {
-    var source = getItemSource(item.type);
-    var product = source[item.index];
-    var subTotal = product.p * item.qty;
-    t += subTotal;
-    return '<div class="row">'
-      + '<div class="cart-item-info">'
-      + '<span class="cart-item-title">' + product.n + '</span>'
-      + '<span class="cart-item-sub">' + money(product.p) + 'đ × ' + item.qty + ' = <b style="color:var(--accent)">' + money(subTotal) + 'đ</b></span>'
-      + '</div>'
-      + '<div class="qty-box">'
-      + '<button class="qty-btn" onclick="changeQty(' + k + ', -1)">-</button>'
-      + '<span class="qty-num">' + item.qty + '</span>'
-      + '<button class="qty-btn" onclick="changeQty(' + k + ', 1)">+</button>'
-      + '<a href="#" class="del-btn" onclick="del(' + k + ');return false" title="Xóa">✕</a>'
-      + '</div></div>';
-  }).join("");
-  document.getElementById("items").innerHTML = htmlItems ? htmlItems : '<p style="color:var(--text-muted); padding:30px 0; text-align:center;">Giỏ hàng trống.</p>';
-  document.getElementById("total").textContent = money(t);
+.mobile-nav-strip {
+  display: none;
+  max-width: 1160px;
+  margin: 8px auto 0 auto;
+  overflow-x: auto;
+  white-space: nowrap;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(21, 24, 19, 0.85);
+  backdrop-filter: blur(16px);
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  scrollbar-width: none;
+}
+.mobile-nav-strip::-webkit-scrollbar { display: none; }
+.mobile-nav-strip a {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.mobile-nav-strip a:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
 }
 
-function toggle(){ document.getElementById("panel").classList.toggle("open"); }
+/* ===== REDESIGN: HERO ===== */
+.hero { position: relative; max-width: 1200px; margin: 6px auto 18px auto; padding: 0 20px; overflow: visible; }
+.hero::before {
+  content: ""; position: absolute; width: 560px; height: 560px; right: -160px; top: -200px;
+  background: radial-gradient(closest-side, rgba(154,179,102,0.16), transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: ""; position: absolute; width: 420px; height: 420px; left: -180px; bottom: -220px;
+  background: radial-gradient(closest-side, rgba(79,97,50,0.30), transparent 70%);
+  pointer-events: none;
+}
+.hero-wrap {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 48px; align-items: center;
+  padding: 44px 0 34px;
+}
+.hero-left { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.hero-left > * { animation: heroIn .7s cubic-bezier(.2,.7,.2,1) backwards; }
+.hero-left > *:nth-child(1) { animation-delay: .05s; }
+.hero-left > *:nth-child(2) { animation-delay: .14s; }
+.hero-left > *:nth-child(3) { animation-delay: .24s; }
+.hero-left > *:nth-child(4) { animation-delay: .34s; }
+.hero-left > *:nth-child(5) { animation-delay: .44s; }
+@keyframes heroIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 
-const modalOverlay = document.getElementById('customModal');
-const modalBox = document.getElementById('modalBox');
-let modalTimer;
-let activePaymentUnsub = null;
-let activePaymentInterval = null;
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1.6px; color: var(--accent);
+  padding: 7px 14px 7px 12px; border-radius: 999px; margin-bottom: 26px;
+  border: 1px dashed var(--border);
+}
+.hero-left h1 {
+  font-family: 'Montserrat', sans-serif; font-weight: 900; margin: 0 0 22px 0;
+  font-size: clamp(34px, 5.4vw, 66px); line-height: 1.02; letter-spacing: -0.8px; color: var(--text);
+}
+.hero-left h1 .line-main { display: block; }
+.hero-left h1 .line-highlight {
+  display: block; color: var(--accent); font-weight: 800;
+  font-size: 0.5em; line-height: 1.25; letter-spacing: 0; margin-top: 14px;
+}
+.wave-underline {
+  display: block; width: min(300px, 70%); height: 10px; margin-top: 12px;
+  fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; opacity: .75;
+  stroke-dasharray: 340; stroke-dashoffset: 340; animation: drawWave 1.6s .5s ease forwards;
+}
+@keyframes drawWave { to { stroke-dashoffset: 0; } }
 
-window.closeModalOutside = function(e) {
-  if (e.target === modalOverlay) { window.closeModal(); }
-};
-window.closeModal = function() {
-  if (activePaymentUnsub) {
-    activePaymentUnsub();
-    activePaymentUnsub = null;
-  }
-  if (activePaymentInterval) {
-    clearInterval(activePaymentInterval);
-    activePaymentInterval = null;
-  }
-  modalOverlay.classList.remove('show');
-  modalTimer = setTimeout(function() { modalBox.innerHTML = ''; }, 300);
-};
+.hero-desc { font-size: 16px; color: var(--text-muted); margin: 0 0 30px 0; max-width: 500px; line-height: 1.7; }
+.hero-btns { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 38px; }
+.btn-primary, .btn-outline {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  font-family: 'Montserrat', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
+  border-radius: 999px; transition: transform .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
+}
+.btn-primary { background: var(--accent); color: #111310; font-weight: 800; padding: 14px 26px; border: 1.5px solid var(--accent); }
+.btn-primary:hover { background: transparent; color: var(--accent); transform: translateY(-2px); }
+.btn-outline { color: var(--text); font-weight: 700; padding: 14px 24px; border: 1.5px solid var(--border-subtle); background: transparent; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
 
-function isValidVNPhone(p) {
-  if (!p || p.length !== 10 || p.charAt(0) !== '0') return false;
-  for (var i = 0; i < p.length; i++) {
-    var c = p.charCodeAt(i);
-    if (c < 48 || c > 57) return false;
-  }
-  return true;
+.hero-metrics { display: flex; flex-wrap: wrap; gap: 14px 34px; }
+.metric-item { display: flex; align-items: center; gap: 11px; }
+.metric-icon {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  border: 1px solid var(--border); background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center;
+}
+.metric-icon svg { width: 15px; height: 15px; stroke: var(--accent); fill: none; stroke-width: 2.2; }
+.metric-text b { display: block; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; color: var(--text); }
+.metric-text span { display: block; font-size: 11.5px; color: var(--text-muted); }
+
+/* Khung 3D showcase */
+.hero-right {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  perspective: 1100px;
 }
 
-window.showCheckoutModal = function(tienHang) {
-  if (!tienHang) tienHang = 0;
-  clearTimeout(modalTimer);
-  return new Promise(function(resolve) {
-    const defaultShip = 110000;
-    const initGrandTotal = tienHang + defaultShip;
-    const savedPhone = localStorage.getItem("tka_last_phone") ? localStorage.getItem("tka_last_phone") : "";
-    const savedName = localStorage.getItem("tka_last_name") ? localStorage.getItem("tka_last_name") : "";
-    const savedAddress = localStorage.getItem("tka_last_address") ? localStorage.getItem("tka_last_address") : "";
-
-    modalBox.innerHTML = '<h3>Thông Tin Nhận Hàng</h3>'
-      + '<p style="margin-bottom: 16px;">Điền thông tin để TK aqua xác nhận và khởi tạo mã thanh toán:</p>'
-      + '<div class="checkout-form">'
-      + '<div class="form-group"><label>Người nhận *</label><input type="text" id="chkName" placeholder="Nguyễn Văn A" autocomplete="name" value="' + savedName + '"></div>'
-      + '<div class="form-group"><label>Số điện thoại *</label><input type="tel" id="chkPhone" placeholder="0703008005" autocomplete="tel" value="' + savedPhone + '"></div>'
-      + '<div class="form-group"><label>Địa chỉ nhận hàng *</label><textarea id="chkAddress" placeholder="Số nhà, đường, Phường/Xã, Quận/Huyện, Tỉnh/TP...">' + savedAddress + '</textarea></div>'
-      + '<div class="form-group"><label>Khu vực & Phương thức giao hàng *</label>'
-      + '<select id="chkShipping">'
-      + '<option value="110000" data-label="Nội thành TP.HCM (Hộp đóng hàng + Ship Grab/Ahamove)">Nội thành TP.HCM (Hộp + Ship app): +110.000đ</option>'
-      + '<option value="210000" data-label="Tỉnh / Ngoại thành (Hộp đóng hàng + Xe khách)">Tỉnh / Ngoại thành (Hộp + Xe khách): +210.000đ</option>'
-      + '<option value="500000" data-label="Quốc tế / Đi máy bay (Đóng gói chuyên dụng + Cước bay)">Quốc tế / Đi máy bay (Đóng gói + Cước bay): +500.000đ</option>'
-      + '</select></div>'
-      + '<div class="form-group"><label>Ghi chú</label><input type="text" id="chkNote" placeholder="Giao giờ hành chính, gửi nhà xe..."></div>'
-      + '<div class="checkout-summary-box">'
-      + '<div class="summary-line"><span>Tiền sản phẩm:</span><b>' + money(tienHang) + 'đ</b></div>'
-      + '<div class="summary-line"><span>Phí đóng gói & vận chuyển:</span><b id="lblShipFee">' + money(defaultShip) + 'đ</b></div>'
-      + '<div class="summary-line total"><span>TỔNG THANH TOÁN:</span><b id="lblGrandTotal">' + money(initGrandTotal) + 'đ</b></div>'
-      + '</div>'
-      + '<div id="chkError" class="form-error"></div>'
-      + '</div>'
-      + '<div class="modal-actions">'
-      + '<button id="modalCancel" class="btn-cancel">Hủy</button>'
-      + '<button id="modalConfirm" class="btn-confirm">Tiếp tục thanh toán</button>'
-      + '</div>';
-
-    modalOverlay.classList.add('show');
-    setTimeout(function() { document.getElementById('chkName').focus(); }, 100);
-
-    const shipSelect = document.getElementById('chkShipping');
-    const lblShipFee = document.getElementById('lblShipFee');
-    const lblGrandTotal = document.getElementById('lblGrandTotal');
-
-    shipSelect.onchange = function() {
-      const fee = parseInt(shipSelect.value) ? parseInt(shipSelect.value) : 0;
-      lblShipFee.textContent = money(fee) + 'đ';
-      lblGrandTotal.textContent = money(tienHang + fee) + 'đ';
-    };
-
-    const errBox = document.getElementById('chkError');
-    const showError = function(msg) {
-      errBox.textContent = msg;
-      errBox.style.display = 'block';
-    };
-
-    document.getElementById('modalConfirm').onclick = function() {
-      const name = document.getElementById('chkName').value.trim();
-      const rawPhone = document.getElementById('chkPhone').value.replace(/[\s\.\-\+]/g, '');
-      const address = document.getElementById('chkAddress').value.trim();
-      const note = document.getElementById('chkNote').value.trim();
-      const shipFee = parseInt(shipSelect.value) ? parseInt(shipSelect.value) : 110000;
-      const shipMethod = shipSelect.options[shipSelect.selectedIndex].getAttribute('data-label');
-
-      if (!name) {
-        showError("Vui lòng nhập họ tên người nhận.");
-        document.getElementById('chkName').focus();
-        return;
-      }
-      if (!isValidVNPhone(rawPhone)) {
-        showError("Số điện thoại gồm 10 chữ số, bắt đầu bằng số 0.");
-        document.getElementById('chkPhone').focus();
-        return;
-      }
-      if (!address || address.length < 5) {
-        showError("Vui lòng nhập địa chỉ giao hàng chi tiết.");
-        document.getElementById('chkAddress').focus();
-        return;
-      }
-
-      localStorage.setItem("tka_last_phone", rawPhone);
-      localStorage.setItem("tka_last_name", name);
-      localStorage.setItem("tka_last_address", address);
-
-      window.closeModal();
-      resolve({ name: name, phone: rawPhone, address: address, note: note, shipFee: shipFee, shipMethod: shipMethod });
-    };
-
-    document.getElementById('modalCancel').onclick = function() {
-      window.closeModal();
-      resolve(null);
-    };
-  });
-};
-
-window.showModalAlert = function(title, message) {
-  clearTimeout(modalTimer);
-  return new Promise(function(resolve) {
-    modalBox.innerHTML = '<h3>' + title + '</h3><p>' + message + '</p>'
-      + '<div class="modal-actions"><button id="modalConfirm" class="btn-confirm">Đóng</button></div>';
-    modalOverlay.classList.add('show');
-    document.getElementById('modalConfirm').onclick = function() { window.closeModal(); resolve(true); };
-  });
-};
-
-window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, listenFirestorePaid) {
-  clearTimeout(modalTimer);
-  return new Promise(function(resolve) {
-    const qrRaw = paymentInfo.qrCode ? paymentInfo.qrCode : "";
-    const checkoutUrl = paymentInfo.checkoutUrl ? paymentInfo.checkoutUrl : "#";
-    const qrImgSrc = qrRaw
-      ? "https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=6&data=" + encodeURIComponent(qrRaw)
-      : "";
-
-    let accRow = paymentInfo.accountNumber
-      ? '<div class="payos-info-row"><span>Số tài khoản nhận:</span><b>' + paymentInfo.accountNumber + '</b></div>'
-      : '';
-    let descRow = paymentInfo.description
-      ? '<div class="payos-info-row"><span>Nội dung CK:</span><b>' + paymentInfo.description + '</b></div>'
-      : '';
-
-    modalBox.innerHTML = '<h3>Thanh Toán Đơn #' + orderInfo.maDon + '</h3>'
-      + '<p style="margin-bottom: 10px; font-size: 13px;">Mở App Ngân hàng bất kỳ để quét mã VietQR payOS bên dưới (số tiền & nội dung đã được khóa tự động):</p>'
-      + '<div class="payos-qr-box">'
-      + (qrImgSrc ? '<div class="payos-qr-img-wrap"><img src="' + qrImgSrc + '" alt="Mã QR payOS"></div>' : '')
-      + '<div class="payos-info-row"><span>Mã đơn hàng:</span><b>#' + orderInfo.maDon + '</b></div>'
-      + '<div class="payos-info-row"><span>Tiền sản phẩm:</span><b>' + money(orderInfo.tienHang) + 'đ</b></div>'
-      + '<div class="payos-info-row"><span>Phí đóng gói & ship:</span><b>' + money(orderInfo.phiShip) + 'đ</b></div>'
-      + '<div class="payos-info-row"><span>Tổng thanh toán:</span><b style="font-size: 15px; color: #ffcc00;">' + money(orderInfo.tongCong) + 'đ</b></div>'
-      + accRow + descRow
-      + '<div class="payos-status-badge" id="payosStatusBadge">'
-      + '<span class="pulse-dot"></span><span>Đang chờ xác nhận thanh toán tự động...</span>'
-      + '</div></div>'
-      + '<div class="modal-actions">'
-      + '<a href="' + checkoutUrl + '" target="_blank" class="btn-cancel">Mở cổng payOS ↗</a>'
-      + '<button id="modalConfirm" class="btn-confirm">Kiểm tra / Đóng</button>'
-      + '</div>';
-
-    modalOverlay.classList.add('show');
-
-    let isConfirmed = false;
-    const handleSuccess = async function() {
-      if (isConfirmed) return;
-      isConfirmed = true;
-      if (activePaymentInterval) {
-        clearInterval(activePaymentInterval);
-        activePaymentInterval = null;
-      }
-
-      const badge = document.getElementById('payosStatusBadge');
-      if (badge) {
-        badge.innerHTML = '✅ ĐÃ NHẬN ĐỦ TIỀN! ĐƠN HÀNG HOÀN TẤT';
-        badge.style.background = "rgba(154, 179, 102, 0.35)";
-        badge.style.color = "#ffffff";
-      }
-
-      if (typeof onPaymentSuccess === 'function') {
-        await onPaymentSuccess();
-      }
-
-      setTimeout(async function() {
-        window.closeModal();
-        await window.showModalAlert(
-          "Xác Nhận Thanh Toán Thành Công",
-          "Cảm ơn <b>" + orderInfo.tenKhach.toUpperCase() + "</b>!<br>Hệ thống đã nhận đủ <b>" + money(orderInfo.tongCong) + "đ</b> cho đơn hàng <b>#" + orderInfo.maDon + "</b>.<br>Bạn có thể xem lại trạng thái đơn bất cứ lúc nào tại mục <b>Tra cứu đơn</b>."
-        );
-        resolve(true);
-      }, 900);
-    };
-
-    const checkPayOSNow = async function() {
-      if (isConfirmed) return false;
-      try {
-        const res = await fetch(API_BASE + "/api/check-payment?orderCode=" + orderInfo.orderCodeNum + "&t=" + Date.now(), {
-          cache: "no-store"
-        });
-        const resJson = await res.json();
-        const st = (resJson && resJson.data) ? resJson.data.status : null;
-        const paidAmt = (resJson && resJson.data && resJson.data.amountPaid) ? Number(resJson.data.amountPaid) : 0;
-        const reqAmt = (resJson && resJson.data && resJson.data.amount) ? Number(resJson.data.amount) : 0;
-        if (st === "PAID" || (reqAmt > 0 && paidAmt >= reqAmt)) {
-          await handleSuccess();
-          return true;
-        }
-      } catch (e) {
-        console.log("Đang kiểm tra trạng thái thanh toán...", e);
-      }
-      return false;
-    };
-
-    activePaymentInterval = setInterval(checkPayOSNow, 2500);
-
-    if (typeof listenFirestorePaid === 'function') {
-      activePaymentUnsub = listenFirestorePaid(function() {
-        handleSuccess();
-      });
-    }
-
-    document.getElementById('modalConfirm').onclick = async function() {
-      const btn = document.getElementById('modalConfirm');
-      if (btn) btn.textContent = "ĐANG KIỂM TRA...";
-      const ok = await checkPayOSNow();
-      if (!ok) {
-        window.closeModal();
-        resolve(false);
-      }
-    };
-  });
-};
-
-window.showFishDetail = function(index, type) {
-  if (!type) type = 'fish';
-  if (isScrolling) return;
-  clearTimeout(modalTimer);
-  
-  let source = getItemSource(type);
-  let f = source[index];
-  let defaultSvg = type === 'acc' ? svgAcc(f) : svg(f);
-  let detailMediaHtml = f.vid 
-      ? buildDetailVideoHtml(f.vid, f.img) 
-      : buildCardPicContent(f, defaultSvg);
-
-  let label1 = type === 'acc' ? "Công Dụng & Đặc Điểm" : "Đặc Điểm & Tập Tính";
-  let label2 = type === 'acc' ? "Hướng Dẫn Sử Dụng" : "Thông Số Nước & Bể";
-  let label3 = type === 'acc' ? "Thông Tin Bổ Sung" : "Cá Nuôi Chung (Tank Mates)";
-  
-  modalBox.innerHTML = '<div class="fish-info-wrap">'
-    + '<div class="fish-info-pic">' + detailMediaHtml + '</div>'
-    + '<h3 style="margin-bottom: 4px;">' + f.n + '</h3>'
-    + '<div style="font-size: 12px; font-family:\'Montserrat\',sans-serif; text-transform:uppercase; letter-spacing:1px; margin-bottom: 20px; color: var(--text-muted);">Phân loại: ' + f.cat + ' · ' + f.s + '</div>'
-    + '<div class="info-detail-row"><b>' + label1 + '</b><span>' + (f.desc ? f.desc : "Đang cập nhật.") + '</span></div>'
-    + '<div class="info-detail-row"><b>' + label2 + '</b><span>' + (f.env ? f.env : "Đang cập nhật.") + '</span></div>'
-    + '<div class="info-detail-row"><b>' + label3 + '</b><span>' + (f.mates ? f.mates : "Đang cập nhật.") + '</span></div>'
-    + '<button class="btn-close-info" onclick="window.closeModal()">Đóng</button>'
-    + '</div>';
-  modalOverlay.classList.add('show');
-};
-
-const mainHeader = document.getElementById("mainHeader");
-const btnTop = document.getElementById("btnTop");
-
-window.addEventListener("scroll", function() {
-  let sc = window.scrollY;
-  if (sc > 20) { mainHeader.classList.add("scrolled"); } 
-  else { mainHeader.classList.remove("scrolled"); }
-
-  if (sc > 300) { btnTop.style.opacity = "1"; btnTop.style.pointerEvents = "auto"; } 
-  else { btnTop.style.opacity = "0"; btnTop.style.pointerEvents = "none"; }
-});
-
-const tiltCard = document.getElementById("tiltCard");
-if (tiltCard && window.matchMedia("(pointer: fine) and (min-width: 1025px)").matches) {
-  tiltCard.addEventListener("mousemove", function(e) {
-    const rect = tiltCard.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * -10;
-    const rotateY = ((x - centerX) / centerX) * 10;
-
-    tiltCard.style.setProperty("--mouse-x", x + "px");
-    tiltCard.style.setProperty("--mouse-y", y + "px");
-    tiltCard.style.setProperty("--rotate-x", rotateX.toFixed(2) + "deg");
-    tiltCard.style.setProperty("--rotate-y", rotateY.toFixed(2) + "deg");
-  });
-
-  tiltCard.addEventListener("mouseleave", function() {
-    tiltCard.style.transition = "transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.3s ease, box-shadow 0.3s ease";
-    tiltCard.style.setProperty("--rotate-x", "0deg");
-    tiltCard.style.setProperty("--rotate-y", "0deg");
-    setTimeout(function() {
-      tiltCard.style.transition = "transform 0.12s ease-out, border-color 0.3s ease, box-shadow 0.3s ease";
-    }, 500);
-  });
+.showcase-card {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --rotate-x: 0deg;
+  --rotate-y: 0deg;
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  border-radius: 18px;
+  border: 1px solid rgba(154, 179, 102, 0.32);
+  background: rgba(18, 21, 16, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 24px 50px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rotate-x)) rotateY(var(--rotate-y));
+  transition: transform 0.12s ease-out, border-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
 }
 
-initData();
-</script>
+.showcase-card:hover {
+  border-color: rgba(154, 179, 102, 0.65);
+  box-shadow: 
+    0 32px 64px rgba(0, 0, 0, 0.9),
+    0 0 30px rgba(154, 179, 102, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
 
-<script type="module">
-  function markLocalOrderPaid(maDon) {
-    try {
-      let raw = localStorage.getItem("tka_order_history");
-      let list = raw ? JSON.parse(raw) : [];
-      list = list.map(function(x) { return x.ma_don === maDon ? Object.assign({}, x, { trang_thai: "Đã thanh toán", paid: true, payos: null }) : x; });
-      localStorage.setItem("tka_order_history", JSON.stringify(list));
-    } catch (e) {}
-  }
+.showcase-spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(
+    380px circle at var(--mouse-x) var(--mouse-y),
+    rgba(154, 179, 102, 0.22),
+    rgba(255, 255, 255, 0.04) 40%,
+    transparent 75%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
 
-  function saveOrderToLocalHistory(orderSummary) {
-    try {
-      let raw = localStorage.getItem("tka_order_history");
-      let list = raw ? JSON.parse(raw) : [];
-      list = list.filter(function(x) { return x.ma_don !== orderSummary.ma_don; });
-      list.unshift(orderSummary);
-      localStorage.setItem("tka_order_history", JSON.stringify(list.slice(0, 20)));
-    } catch (e) {}
-  }
+.showcase-card:hover .showcase-spotlight {
+  opacity: 1;
+}
 
-  window.resumePayment = async function(o) {
-    if (!o || !o.order_code_num) {
-      await window.showModalAlert("Không thể mở thanh toán", "Đơn này thiếu mã thanh toán. Vui lòng liên hệ Zalo 0703.008.005.");
-      return;
-    }
+.showcase-media {
+  position: relative;
+  width: calc(100% - 20px);
+  margin: 10px 10px 0 10px;
+  aspect-ratio: 1 / 1;
+  min-height: 240px;
+  border-radius: 12px;
+  transform: translateZ(28px);
+  background: #0a0a0a;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+}
 
-    let info = null;
-    try {
-      const res = await fetch(API_BASE + "/api/check-payment?orderCode=" + o.order_code_num + "&t=" + Date.now(), { cache: "no-store" });
-      const json = await res.json();
-      info = json && json.data ? json.data : null;
-    } catch (e) {
-      console.log("Không kiểm tra được trạng thái:", e);
-    }
+.showcase-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-    if (info && (info.status === "PAID" || (Number(info.amount) > 0 && Number(info.amountPaid) >= Number(info.amount)))) {
-      markLocalOrderPaid(o.ma_don);
-      await window.showModalAlert("Đơn đã thanh toán", "Đơn hàng <b>#" + o.ma_don + "</b> đã được thanh toán đầy đủ. Cảm ơn bạn!");
-      return;
-    }
-    if (info && (info.status === "CANCELLED" || info.status === "EXPIRED")) {
-      await window.showModalAlert("Link thanh toán đã hết hạn", "Đơn <b>#" + o.ma_don + "</b> không còn mã thanh toán hợp lệ. Vui lòng liên hệ Zalo <b>0703.008.005</b> để được hỗ trợ.");
-      return;
-    }
+.showcase-card:hover .showcase-media img {
+  transform: scale(1.06);
+}
 
-    const saved = o.payos ? o.payos : {};
-    const checkoutUrl = saved.checkoutUrl ? saved.checkoutUrl : (info && info.id ? "https://pay.payos.vn/web/" + info.id : "");
-    const payData = {
-      qrCode: saved.qrCode ? saved.qrCode : checkoutUrl,
-      checkoutUrl: checkoutUrl ? checkoutUrl : "#",
-      accountNumber: saved.accountNumber ? saved.accountNumber : "",
-      description: saved.description ? saved.description : ""
-    };
-    if (!payData.qrCode) {
-      await window.showModalAlert("Không tìm thấy mã thanh toán", "Vui lòng liên hệ Zalo <b>0703.008.005</b> để được hỗ trợ.");
-      return;
-    }
+.showcase-footer {
+  transform-style: preserve-3d;
+  transform: translateZ(42px);
+  position: relative;
+  z-index: 4;
+  background: rgba(22, 26, 20, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 0 18px 18px;
+  padding: 14px 18px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
 
-    const onPaymentSuccess = async function() {
-      markLocalOrderPaid(o.ma_don);
-    };
+.showcase-caption-text b {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 2px;
+}
 
-    await window.showPayOSModal(
-      payData,
-      {
-        maDon: o.ma_don,
-        orderCodeNum: o.order_code_num,
-        tenKhach: o.ten_khach ? o.ten_khach : "",
-        sdt: o.so_dien_thoai,
-        tienHang: o.tien_hang ? o.tien_hang : 0,
-        phiShip: o.phi_ship ? o.phi_ship : 0,
-        tongCong: o.tong_tien ? o.tong_tien : 0
-      },
-      onPaymentSuccess,
-      null
-    );
-  };
+.showcase-caption-text span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
 
-  window.openOrderLookup = async function() {
-    clearTimeout(modalTimer);
-    const savedPhone = localStorage.getItem("tka_last_phone") ? localStorage.getItem("tka_last_phone") : "";
+.showcase-badge {
+  transform: translateZ(22px);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 6px 11px;
+  border-radius: 6px;
+  background: rgba(154, 179, 102, 0.16);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
-    modalBox.innerHTML = '<h3>Đơn Hàng Đã Đặt</h3>'
-      + '<p style="margin-bottom: 12px; font-size: 13px;">Nhập <b>Số điện thoại</b> hoặc <b>Mã đơn</b> (VD: TKA-92881161) để xem trạng thái đơn hàng:</p>'
-      + '<div class="order-lookup-bar">'
-      + '<input type="text" id="lookupInput" placeholder="Nhập SĐT hoặc Mã đơn..." value="' + savedPhone + '">'
-      + '<button id="btnLookupSearch">Tìm kiếm</button>'
-      + '</div>'
-      + '<div id="lookupResults" class="order-history-list">'
-      + '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Đang tải đơn hàng...</div>'
-      + '</div>'
-      + '<button class="btn-close-info" onclick="window.closeModal()">Đóng</button>';
-    modalOverlay.classList.add('show');
+.swimmer {
+  position: absolute; left: 0; bottom: 70px; width: 96px; height: 38px; z-index: 0; opacity: .16;
+  fill: var(--accent); pointer-events: none; animation: swim 46s linear infinite; will-change: transform;
+}
+@keyframes swim {
+  0%   { transform: translate3d(-140px, 0, 0); }
+  50%  { transform: translate3d(50vw, -16px, 0); }
+  100% { transform: translate3d(110vw, 4px, 0); }
+}
+.hero.paused *, .hero.paused::before { animation-play-state: paused !important; }
 
-    const renderOrderCards = function(orders) {
-      const container = document.getElementById("lookupResults");
-      if (!container) return;
-      if (!orders || orders.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding: 24px 10px; color: var(--text-muted);">Chưa tìm thấy đơn hàng nào. Hãy nhập số điện thoại đã dùng khi đặt hàng.</div>';
-        return;
-      }
+/* ===== REDESIGN: FEATURES ===== */
+.features { max-width: 1200px; margin: 0 auto 56px auto; padding: 0 20px; }
+.feature-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); counter-reset: feat;
+  border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);
+}
+.feature-item {
+  counter-increment: feat; position: relative; text-align: left;
+  display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-content: center; align-items: center;
+  padding: 26px 22px; border-right: 1px solid var(--border-subtle);
+  transition: background .25s ease;
+}
+.feature-item:last-child { border-right: none; }
+.feature-item::after {
+  content: "0" counter(feat); position: absolute; top: 12px; right: 18px;
+  font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 1px;
+  color: rgba(154,179,102,0.4);
+}
+.feature-item:hover { background: rgba(154,179,102,0.05); }
+.feature-icon {
+  grid-row: 1 / span 2; width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center; transition: transform .3s ease;
+}
+.feature-item:hover .feature-icon { transform: translateY(-3px) rotate(-6deg); }
+.feature-icon svg { width: 21px; height: 21px; stroke: var(--accent); }
+.feature-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--text); margin: 0 0 3px 0; align-self: end; }
+.feature-link {
+  font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 700; color: var(--accent);
+  text-decoration: none; letter-spacing: 0.5px; text-transform: uppercase; align-self: start;
+}
+.feature-link:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-      container.innerHTML = orders.map(function(o, idx) {
-        const isPaid = (o.trang_thai === "Đã thanh toán" || o.paid === true);
-        const badgeClass = isPaid ? "paid" : "pending";
-        const badgeText = isPaid ? "✅ Đã thanh toán" : "⏳ Chờ thanh toán";
-        const spList = Array.isArray(o.san_pham)
-          ? o.san_pham.map(function(sp) { return sp.ten_ca + (sp.size ? " (" + sp.size + ")" : "") + " × " + sp.so_luong; }).join(", ")
-          : "";
+main { max-width: 1200px; margin: auto; padding: 20px; }
+.tools { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; align-items: center; }
+.tools input {
+  flex: 1; min-width: 240px; padding: 12px 18px;
+  border-radius: 999px; border: 1px solid var(--border-subtle);
+  background: var(--bg-card); color: var(--text);
+  font-family: 'Roboto', sans-serif; font-size: 14px; outline: none;
+  transition: 0.2s;
+}
+.tools input::placeholder { color: var(--text-muted); }
+.tools input:focus { border-color: var(--accent); }
+.chip {
+  color: var(--text-muted); padding: 10px 18px; border-radius: 999px;
+  cursor: pointer; font-size: 11.5px; font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  transition: 0.2s;
+}
+.chip:hover { border-color: var(--border); color: var(--text); }
+.chip.on {
+  background: var(--accent); color: #111310;
+  border-color: var(--accent);
+}
 
-        return '<div class="order-history-card">'
-          + '<div class="order-history-head">'
-          + '<b>#' + (o.ma_don ? o.ma_don : "") + '</b>'
-          + '<span class="order-badge ' + badgeClass + '">' + badgeText + '</span>'
-          + '</div>'
-          + '<div class="order-history-body">'
-          + '<div><b>Khách hàng:</b> ' + (o.ten_khach ? o.ten_khach : "") + ' (' + (o.so_dien_thoai ? o.so_dien_thoai : "") + ')</div>'
-          + '<div><b>Sản phẩm:</b> ' + spList + '</div>'
-          + '<div><b>Vận chuyển:</b> ' + (o.phuong_thuc_ship ? o.phuong_thuc_ship : "Tiêu chuẩn") + '</div>'
-          + '<div><b>Địa chỉ:</b> ' + (o.dia_chi ? o.dia_chi : "") + '</div>'
-          + '<div style="margin-top:4px;"><b>Tổng thanh toán:</b> <span style="color:var(--accent); font-weight:800;">' + money(o.tong_tien) + 'đ</span></div>'
-          + (!isPaid ? '<button class="btn-resume-pay" data-idx="' + idx + '">Xem lại mã QR thanh toán</button>' : '')
-          + '</div></div>';
-      }).join("");
+h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 22px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text); margin: 0 0 24px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 14px;
+}
 
-      container.querySelectorAll(".btn-resume-pay").forEach(function(btn) {
-        btn.onclick = async function() {
-          const order = orders[Number(btn.dataset.idx)];
-          btn.disabled = true;
-          btn.textContent = "Đang tải...";
-          await window.resumePayment(order);
-          btn.disabled = false;
-          btn.textContent = "Xem lại mã QR thanh toán";
-        };
-      });
-    };
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: all 0.25s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+}
 
-    const runSearch = async function(keyword) {
-      const container = document.getElementById("lookupResults");
-      if (container) container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Đang tra cứu dữ liệu...</div>';
+/* KHUNG HÌNH SẢN PHẨM: HIỂN THỊ TRỌN VẸN CÁ + NỀN MỜ TỰ ĐỘNG */
+.pic {
+  background: radial-gradient(circle at center, #151a12 0%, #090b08 100%);
+  aspect-ratio: 4 / 3;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pic-bg {
+  position: absolute;
+  inset: -10px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px) brightness(0.42) saturate(1.15);
+  transform: scale(1.12);
+  pointer-events: none;
+  z-index: 0;
+}
+.pic::after {
+  content: "CHI TIẾT";
+  font-family: 'Montserrat', sans-serif;
+  position: absolute; bottom: 8px; right: 8px;
+  font-size: 9px; font-weight: 800; letter-spacing: 1px;
+  color: #111310; opacity: 0; transition: opacity 0.2s ease;
+  background: var(--accent); padding: 5px 12px; border-radius: 999px;
+  pointer-events: none;
+  z-index: 3;
+}
+.pic:hover::after { opacity: 1; }
+.video-badge {
+  position: absolute; top: 8px; left: 8px;
+  background: rgba(14, 16, 13, 0.85); color: var(--accent);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 3px 9px; font-family: 'Montserrat', sans-serif;
+  font-size: 9.5px; font-weight: 700; pointer-events: none;
+  display: inline-flex; align-items: center; gap: 4px;
+  z-index: 3;
+}
+.pic svg, .pic img, .pic video {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  transition: transform 0.35s ease;
+}
+.pic:hover svg, .pic:hover img, .pic:hover video { transform: scale(1.04); }
 
-      let kw = keyword ? keyword.trim() : "";
-      let results = [];
-      let lookupErrorText = "";
+.info { padding: 18px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.info b {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px; font-weight: 800;
+  letter-spacing: 0.3px; color: var(--text);
+}
+.info small { font-size: 12px; font-family: 'Roboto', sans-serif; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
 
-      const fetchOrders = async function(q) {
-        const res = await fetch(API_BASE + "/api/lookup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ q: q })
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json && json.error ? json.error : "Lỗi tra cứu");
-        return Array.isArray(json.orders) ? json.orders : [];
-      };
+.mono-stock {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; font-family: 'Montserrat', sans-serif; text-transform: uppercase;
+  margin-top: 4px;
+}
+.mono-stock.in-stock { color: var(--accent); }
+.mono-stock.in-stock::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+}
+.mono-stock.out-stock { color: #6e7566; }
+.mono-stock.out-stock::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  border: 1px solid #6e7566;
+}
 
-      try {
-        if (kw) {
-          results = await fetchOrders(kw);
-        } else {
-          let rawLocal = localStorage.getItem("tka_order_history");
-          const localList = rawLocal ? JSON.parse(rawLocal) : [];
-          if (localList.length > 0 && localList[0].so_dien_thoai) {
-            results = await fetchOrders(localList[0].so_dien_thoai);
-          } else {
-            results = localList;
-          }
-        }
-      } catch (err) {
-        console.error("Lookup error:", err);
-        let rawLocal = localStorage.getItem("tka_order_history");
-        results = rawLocal ? JSON.parse(rawLocal) : [];
-        if (container && err && err.message) {
-          lookupErrorText = err.message;
-        }
-      }
+.price {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--accent); font-weight: 900; font-size: 20px;
+  margin: 6px 0 10px 0;
+}
 
-      renderOrderCards(results);
-      if (lookupErrorText) {
-        const box = document.getElementById("lookupResults");
-        if (box) box.insertAdjacentHTML("afterbegin", '<div style="padding:10px 12px;margin-bottom:10px;border:1px solid rgba(255,138,128,.4);border-radius:8px;color:#ff8a80;font-size:12.5px;line-height:1.5;word-break:break-word;">' + lookupErrorText.replace(/</g, "&lt;") + '</div>');
-      }
-    };
+.info button {
+  margin-top: auto;
+  background: var(--accent);
+  color: #111310;
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  cursor: pointer; transition: 0.2s;
+}
+.info button:hover:not(:disabled) {
+  background: transparent;
+  color: var(--accent);
+}
+.info button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border-subtle);
+  border-style: dashed;
+}
 
-    document.getElementById("btnLookupSearch").onclick = function() {
-      const val = document.getElementById("lookupInput").value;
-      runSearch(val);
-    };
-    document.getElementById("lookupInput").onkeydown = function(e) {
-      if (e.key === "Enter") runSearch(e.target.value);
-    };
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 40px 0 20px; flex-wrap: wrap; }
+.pagination button {
+  padding: 9px 16px; border-radius: 8px; cursor: pointer;
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px;
+  color: var(--text); border: 1px solid var(--border-subtle); background: var(--bg-card);
+  transition: 0.2s;
+}
+.pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pagination button.active { background: var(--accent); color: #111310; border-color: var(--accent); }
+.pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    await runSearch(savedPhone);
-  };
+#panel {
+  position: fixed; right: 0; top: 0; bottom: 0;
+  width: min(390px, 100%); padding: 28px 24px;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000; overflow-y: auto;
+}
+#panel.open { transform: none; box-shadow: -12px 0 40px rgba(0, 0, 0, 0.85); }
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13.5px;
+}
+.cart-item-info { flex: 1; }
+.cart-item-title { font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--text); display: block; margin-bottom: 3px; }
+.cart-item-sub { font-size: 12px; color: var(--text-muted); }
+.qty-box { display: flex; align-items: center; gap: 6px; }
+.qty-btn {
+  width: 25px; height: 25px; border-radius: 6px;
+  border: 1px solid var(--border); background: #111310;
+  color: var(--accent); font-weight: 800; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0; font-size: 13px;
+}
+.qty-btn:hover { background: var(--accent); color: #111310; }
+.qty-num { font-family: 'Montserrat', sans-serif; font-weight: 700; min-width: 20px; text-align: center; font-size: 13px; }
+.del-btn {
+  color: #e57373; font-weight: bold; margin-left: 6px;
+  text-decoration: none; font-size: 14px; padding: 2px 4px;
+}
 
-  window.datHangFirebase = async function() {
-    if (cart.length === 0) { 
-      await window.showModalAlert("Giỏ hàng trống", "Vui lòng chọn sản phẩm trước khi đặt hàng."); 
-      return; 
-    }
-    
-    const tamTinhHang = getCartItemsSubtotal();
-    const customer = await window.showCheckoutModal(tamTinhHang);
-    if (!customer) return;
-    
-    let btn = document.getElementById("btnDatHang");
-    let oldText = btn.textContent;
-    btn.textContent = "ĐANG XỬ LÝ...";
-    btn.disabled = true; 
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(8, 10, 7, 0.82);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2000; opacity: 0; pointer-events: none; transition: 0.25s ease;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-content {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 30px 26px; width: 92%; max-width: 480px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+  transform: scale(0.95); transition: 0.25s ease;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-overlay.show .modal-content { transform: scale(1); }
+.modal-content h3 {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0 0 10px; color: var(--accent); font-size: 20px; font-weight: 900;
+  text-transform: uppercase;
+}
+.modal-content p { color: var(--text); margin: 0 0 20px; font-size: 14px; line-height: 1.6; }
 
-    try {
-      const itemsPayload = cart.map(function(item) {
-        const source = getItemSource(item.type);
-        const f = source[item.index];
-        return { type: item.type === 'acc' ? 'acc' : 'fish', name: f.n, size: f.s ? f.s : "", qty: item.qty };
-      });
+.checkout-form { text-align: left; margin-bottom: 20px; }
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block; font-family: 'Montserrat', sans-serif;
+  font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 6px; letter-spacing: 0.5px;
+}
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 11px 14px; border-radius: 8px;
+  border: 1px solid var(--border-subtle); background: #0e100d;
+  color: var(--text); font-family: 'Roboto', sans-serif; font-size: 14px;
+  outline: none; transition: border-color 0.2s;
+}
+.form-group textarea { resize: vertical; min-height: 68px; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+.form-error {
+  color: #ff8a80; font-size: 12.5px; margin-top: 8px;
+  display: none; text-align: center; font-weight: 500;
+}
 
-      const res = await fetch(API_BASE + "/api/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customer: {
-            name: customer.name,
-            phone: customer.phone,
-            address: customer.address,
-            note: customer.note ? customer.note : "",
-            shipMethod: customer.shipMethod
-          },
-          items: itemsPayload
-        })
-      });
-      const result = await res.json();
-      if (!res.ok || !result || !result.order) {
-        await window.showModalAlert("Không thể tạo đơn", (result && result.error) ? result.error : "Vui lòng thử lại hoặc gọi trực tiếp 0703.008.005.");
-        return;
-      }
+.checkout-summary-box {
+  background: #0e100d;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 12px;
+}
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+  color: var(--text-muted);
+}
+.summary-line.total {
+  border-top: 1px dashed var(--border-subtle);
+  margin-top: 6px;
+  padding-top: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text);
+}
+.summary-line.total b {
+  color: var(--accent);
+  font-size: 16px;
+}
 
-      const o = result.order;
-      const maSo = o.order_code_num;
-      const payosPaymentData = result.payos;
-      saveOrderToLocalHistory(Object.assign({}, o, { ngay_dat_text: new Date().toLocaleString('vi-VN') }));
+.payos-qr-box {
+  background: #0e100d;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 14px 0;
+  text-align: center;
+}
+.payos-qr-img-wrap {
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+.payos-qr-img-wrap img {
+  width: 210px;
+  height: 210px;
+  display: block;
+}
+.payos-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+.payos-info-row:last-child { border-bottom: none; }
+.payos-info-row span { color: var(--text-muted); }
+.payos-info-row b { color: var(--accent); font-family: 'Montserrat', sans-serif; }
+.payos-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--accent-light);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+}
+.pulse-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulseAnim 1.4s infinite ease-in-out;
+}
+@keyframes pulseAnim {
+  0%, 100% { transform: scale(0.85); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
 
-      cart = []; upd(); toggle();
+.order-lookup-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.order-lookup-bar input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: #0e100d;
+  color: var(--text);
+  font-size: 13.5px;
+  outline: none;
+}
+.order-lookup-bar input:focus { border-color: var(--accent); }
+.order-lookup-bar button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #111310;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.order-history-list {
+  text-align: left;
+  max-height: 360px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.order-history-card {
+  background: #0e100d;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 14px;
+}
+.order-history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+.order-history-head b {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13.5px;
+  color: var(--accent);
+}
+.order-badge {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+.order-badge.paid {
+  background: rgba(154, 179, 102, 0.2);
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+.order-badge.pending {
+  background: rgba(255, 204, 0, 0.12);
+  color: #ffcc00;
+  border: 1px solid rgba(255, 204, 0, 0.3);
+}
+.order-history-body {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.order-history-body b { color: var(--text); }
 
-      if (payosPaymentData) {
-        const onPaymentSuccess = async function() {
-          markLocalOrderPaid(o.ma_don);
-        };
+.btn-resume-pay {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--accent);
+  background: var(--accent);
+  color: #111310;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-resume-pay:hover { background: transparent; color: var(--accent); }
+.btn-resume-pay:disabled { opacity: 0.5; cursor: wait; }
 
-        await window.showPayOSModal(
-          payosPaymentData,
-          {
-            maDon: o.ma_don,
-            orderCodeNum: maSo,
-            tenKhach: customer.name,
-            sdt: customer.phone,
-            tienHang: o.tien_hang,
-            phiShip: o.phi_ship,
-            tongCong: o.tong_tien
-          },
-          onPaymentSuccess,
-          null
-        );
-      } else {
-        await window.showModalAlert(
-          "Đặt hàng thành công",
-          "Cảm ơn <b>" + customer.name.toUpperCase() + "</b>.<br>Đơn hàng <b>#" + o.ma_don + "</b> (" + o.tong_so_luong + " sản phẩm — Tổng cộng <b>" + Number(o.tong_tien).toLocaleString('vi-VN') + "đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>" + customer.phone + "</b> để xác nhận lịch giao."
-        );
-      }
-    } catch (error) {
-      console.error("Lỗi:", error);
-      await window.showModalAlert("Lỗi hệ thống", "Không thể tạo đơn lúc này. Vui lòng gọi trực tiếp 0703.008.005.");
-    } finally {
-      btn.textContent = oldText; btn.disabled = false;
-    }
-  };
-</script>
-<script>
-(function () {
-  var els = document.querySelectorAll(".rv");
-  if (!("IntersectionObserver" in window)) { els.forEach(function (e) { e.classList.add("in"); }); return; }
-  var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-  }, { rootMargin: "0px 0px -8% 0px" });
-  els.forEach(function (e) { io.observe(e); });
-  var hero = document.querySelector(".hero");
-  if (hero) {
-    new IntersectionObserver(function (es) { hero.classList.toggle("paused", !es[0].isIntersecting); }).observe(hero);
-    document.addEventListener("visibilitychange", function () { hero.classList.toggle("paused", document.hidden); });
-  }
-})();
-</script>
-</body>
-</html>
+.modal-actions { display: flex; gap: 12px; margin-top: 10px; }
+.modal-actions button, .modal-actions a {
+  flex: 1; padding: 12px; border-radius: 8px;
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px;
+  text-transform: uppercase; cursor: pointer; transition: 0.2s;
+  text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+}
+.btn-cancel { background: transparent; color: var(--text); border: 1px solid var(--border-subtle); }
+.btn-cancel:hover { border-color: var(--accent); color: var(--accent); }
+.btn-confirm { background: var(--accent); color: #111310; border: 1px solid var(--accent); font-weight: 800; }
+.btn-confirm:hover { background: #869f52; }
+
+.fish-info-wrap { text-align: left; }
+.fish-info-pic {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  max-height: 270px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: radial-gradient(circle at center, #151a12 0%, #090b08 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fish-info-pic img, .fish-info-pic svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border: none;
+  display: block;
+}
+.fish-info-pic video, .fish-info-pic iframe {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  border: none;
+  display: block;
+}
+.info-detail-row { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+.info-detail-row:last-child { border-bottom: none; }
+.info-detail-row b { display: block; font-family: 'Montserrat', sans-serif; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; color: var(--accent); }
+.info-detail-row span { display: block; font-size: 14px; line-height: 1.6; color: var(--text); }
+.btn-close-info {
+  width: 100%; margin-top: 15px; background: transparent;
+  color: var(--accent); border: 1.5px solid var(--accent); border-radius: 8px;
+  padding: 12px; font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 12px; text-transform: uppercase; cursor: pointer; transition: 0.2s;
+}
+.btn-close-info:hover { background: var(--accent); color: #111310; }
+
+.card:has(.mono-stock.out-stock) .pic-bg { filter: blur(8px) grayscale(1) brightness(0.3); }
+.pic { contain: paint; }
+
+.map-section { max-width: 1200px; margin: 50px auto; padding: 0 20px; }
+.map-container {
+  display: flex; flex-wrap: wrap; border-radius: 16px;
+  border: 1px solid var(--border-subtle); background: var(--bg-card);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5); overflow: hidden;
+}
+.map-info { flex: 1; min-width: 300px; padding: 40px; }
+.map-info h3 { font-family: 'Montserrat', sans-serif; margin: 0 0 15px; font-size: 20px; font-weight: 900; color: var(--accent); text-transform: uppercase; }
+.map-info p { line-height: 1.7; margin: 0 0 25px; font-size: 14.5px; color: var(--text-muted); }
+.map-info p b { color: var(--text); }
+.btn-map {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--accent); color: #111310; text-decoration: none;
+  padding: 12px 24px; border-radius: 999px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px;
+  border: 1.5px solid var(--accent); transition: 0.2s; text-transform: uppercase;
+}
+.btn-map:hover { background: transparent; color: var(--accent); }
+.map-iframe { flex: 1.2; min-width: 300px; min-height: 340px; border-left: 1px solid var(--border-subtle); }
+.map-iframe iframe { width: 100%; height: 100%; border: none; display: block; }
+.price.price-ask {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--border);
+}
+.price.price-ask:hover { text-decoration-color: var(--accent); }
+.info .btn-ask {
+  margin-top: auto;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  transition: 0.2s;
+}
+.info .btn-ask:hover { background: var(--accent); color: #111310; }
+
+.footer-links {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 10px 22px; margin-bottom: 18px;
+}
+.footer-links a {
+  font-family: 'Montserrat', sans-serif; font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-muted); text-decoration: none; transition: 0.2s;
+}
+.footer-links a:hover { color: var(--accent); }
+footer {
+  text-align: center; color: var(--text-muted); padding: 40px 20px;
+  font-family: 'Montserrat', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;
+  border-top: 1px solid var(--border-subtle); margin-top: 40px;
+}
+
+.float-contact { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 99; }
+.float-btn {
+  width: 46px; height: 46px; border-radius: 50%; color: #111310;
+  background: var(--accent); text-decoration: none; display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 11px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  border: 1.5px solid var(--bg); transition: 0.2s;
+}
+.float-btn svg { width: 19px; height: 19px; stroke: #111310; fill: none; stroke-width: 2.2; }
+.float-btn svg.fill { fill: #111310; stroke: none; width: 17px; height: 17px; }
+@media (max-width: 640px) {
+  .float-contact { bottom: 14px; right: 12px; gap: 8px; }
+  .float-btn { width: 40px; height: 40px; }
+}
+.float-btn:hover { transform: scale(1.06); background: #b0c978; }
+#btn

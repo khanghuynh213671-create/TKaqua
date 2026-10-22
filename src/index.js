@@ -550,7 +550,14 @@ async function handleLookup(request, env) {
   let docs = [];
   const phone = normalizePhone(kw);
   if (isPhone(phone)) {
-    docs = await queryOrders(env, "so_dien_thoai", phone, 20);
+    // Lấy rộng rồi tự sắp xếp theo ngày đặt (mới nhất trước) để không bị cắt mất đơn mới
+    docs = await queryOrders(env, "so_dien_thoai", phone, 500);
+    docs.sort(function (a, b) {
+      const ta = Date.parse(fsValue((a.fields || {}).ngay_dat) || "") || 0;
+      const tb = Date.parse(fsValue((b.fields || {}).ngay_dat) || "") || 0;
+      return tb - ta;
+    });
+    docs = docs.slice(0, 20);
   } else {
     let code = kw.toUpperCase().replace(/^#/, "").replace(/\s+/g, "");
     if (!code.startsWith("TKA-")) code = "TKA-" + code.replace(/^TKA/, "");
@@ -558,7 +565,6 @@ async function handleLookup(request, env) {
     docs = await queryOrders(env, "ma_don", code, 1);
   }
   const orders = docs.map(function (d) { return publicOrder(fsFields(d.fields || {})); });
-  orders.sort(function (a, b) { return (b.order_code_num || 0) - (a.order_code_num || 0); });
   return jsonResponse({ orders: orders });
 }
 

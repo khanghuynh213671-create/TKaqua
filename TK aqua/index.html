@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
+<script>document.documentElement.className += " js";</script>
 <style>
 :root {
   --bg: #0d0f0c;
@@ -54,7 +55,7 @@ body {
 header {
   position: sticky;
   top: 14px;
-  z-index: 1000;
+  z-index: 100;
   padding: 0 20px;
   margin-bottom: 10px;
 }
@@ -115,13 +116,7 @@ header.scrolled .bar {
   padding: 4px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
 }
-.header-nav::-webkit-scrollbar { display: none; }
 .header-nav a {
   font-family: 'Montserrat', sans-serif;
   font-size: 11px;
@@ -135,7 +130,6 @@ header.scrolled .bar {
   white-space: nowrap;
   transition: all 0.2s ease;
   cursor: pointer;
-  flex-shrink: 0;
 }
 .header-nav a:hover, .header-nav a.active {
   color: var(--text);
@@ -229,7 +223,6 @@ header.scrolled .bar {
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
   scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
 }
 .mobile-nav-strip::-webkit-scrollbar { display: none; }
 .mobile-nav-strip a {
@@ -243,185 +236,90 @@ header.scrolled .bar {
   border-radius: 999px;
   transition: 0.2s;
   cursor: pointer;
-  flex-shrink: 0;
 }
 .mobile-nav-strip a:hover {
   color: var(--text);
   background: rgba(255, 255, 255, 0.06);
 }
 
-.hero {
-  position: relative;
-  z-index: 1;
-  max-width: 1200px;
-  margin: 18px auto 38px auto;
-  padding: 0 20px;
+/* ===== REDESIGN: HERO ===== */
+.hero { position: relative; max-width: 1200px; margin: 6px auto 18px auto; padding: 0 20px; overflow-x: clip; overflow-y: visible; }
+.hero::before {
+  content: ""; position: absolute; width: 560px; height: 560px; right: -160px; top: -200px;
+  background: radial-gradient(closest-side, rgba(154,179,102,0.16), transparent 70%);
+  pointer-events: none;
 }
-.hero-container {
-  position: relative;
-  background: radial-gradient(circle at 80% 30%, rgba(154, 179, 102, 0.08) 0%, rgba(21, 24, 19, 0.98) 55%, #11140f 100%);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 40px 44px;
-  display: grid;
-  grid-template-columns: 1fr 370px;
-  gap: 40px;
-  align-items: stretch;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+.hero::after {
+  content: ""; position: absolute; width: 420px; height: 420px; left: -180px; bottom: -220px;
+  background: radial-gradient(closest-side, rgba(79,97,50,0.30), transparent 70%);
+  pointer-events: none;
 }
-.hero-container::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 10%; right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(154, 179, 102, 0.45), transparent);
+.hero-wrap {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 64px; align-items: center;
+  padding: 44px 0 34px;
 }
-.hero-left {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.hero-top-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
+.hero-left { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.hero-left > * { animation: heroIn .7s cubic-bezier(.2,.7,.2,1) backwards; }
+.hero-left > *:nth-child(1) { animation-delay: .05s; }
+.hero-left > *:nth-child(2) { animation-delay: .14s; }
+.hero-left > *:nth-child(3) { animation-delay: .24s; }
+.hero-left > *:nth-child(4) { animation-delay: .34s; }
+.hero-left > *:nth-child(5) { animation-delay: .44s; }
+@keyframes heroIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
 .hero-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 10.5px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1.4px;
-  color: var(--accent);
-  background: var(--accent-light);
-  border: 1px solid var(--border);
-  padding: 6px 14px;
-  border-radius: 999px;
-  margin-bottom: 18px;
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1.6px; color: var(--accent);
+  padding: 7px 14px 7px 12px; border-radius: 999px; margin-bottom: 26px;
+  border: 1px dashed var(--border);
 }
 .hero-left h1 {
-  font-family: 'Montserrat', sans-serif;
-  font-size: clamp(24px, 3vw, 36px);
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  line-height: 1.24;
-  margin: 0 0 14px 0;
-  color: var(--text);
+  font-family: 'Montserrat', sans-serif; font-weight: 900; margin: 0 0 22px 0;
+  font-size: clamp(34px, 5.4vw, 66px); line-height: 1.02; letter-spacing: -0.8px; color: var(--text);
 }
-.hero-left h1 .line-main { display: block; color: var(--text); }
-.hero-left h1 .line-highlight { display: block; color: var(--accent); white-space: nowrap; }
-.hero-desc {
-  font-size: 15px;
-  color: var(--text-muted);
-  margin: 0 0 24px 0;
-  max-width: 520px;
-  line-height: 1.65;
+.hero-left h1 .line-main { display: block; }
+.hero-left h1 .line-highlight {
+  display: block; color: var(--accent); font-weight: 800;
+  font-size: 0.5em; line-height: 1.25; letter-spacing: 0; margin-top: 14px;
 }
-.hero-btns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 28px;
+.wave-underline {
+  display: block; width: min(300px, 70%); height: 10px; margin-top: 12px;
+  fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; opacity: .75;
+  stroke-dasharray: 340; stroke-dashoffset: 340; animation: drawWave 1.6s .5s ease forwards;
 }
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--accent);
-  color: #111310;
-  text-decoration: none;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 800;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  padding: 13px 24px;
-  border-radius: 999px;
-  border: 1.5px solid var(--accent);
-  transition: all 0.2s ease;
-}
-.btn-primary:hover { background: transparent; color: var(--accent); }
-.btn-outline {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text);
-  text-decoration: none;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  padding: 13px 22px;
-  border-radius: 999px;
-  border: 1.5px solid var(--border-subtle);
-  transition: all 0.2s ease;
-}
-.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+@keyframes drawWave { to { stroke-dashoffset: 0; } }
 
-.hero-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  padding-top: 22px;
-  border-top: 1px solid var(--border-subtle);
-  width: 100%;
+.hero-desc { font-size: 16px; color: var(--text-muted); margin: 0 0 30px 0; max-width: 500px; line-height: 1.7; }
+.hero-btns { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 38px; }
+.btn-primary, .btn-outline {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  font-family: 'Montserrat', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
+  border-radius: 999px; transition: transform .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
 }
-.metric-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-right: 10px;
-  border-right: 1px solid var(--border-subtle);
-}
-.metric-item:last-child { border-right: none; padding-right: 0; }
+.btn-primary { background: var(--accent); color: #111310; font-weight: 800; padding: 14px 26px; border: 1.5px solid var(--accent); }
+.btn-primary:hover { background: transparent; color: var(--accent); transform: translateY(-2px); }
+.btn-outline { color: var(--text); font-weight: 700; padding: 14px 24px; border: 1.5px solid var(--border-subtle); background: transparent; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+.hero-metrics { display: flex; flex-wrap: wrap; gap: 14px 34px; }
+.metric-item { display: flex; align-items: center; gap: 11px; }
 .metric-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--accent-light);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  border: 1px solid var(--border); background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center;
 }
-.metric-icon svg {
-  width: 15px;
-  height: 15px;
-  stroke: var(--accent);
-  fill: none;
-  stroke-width: 2.2;
-}
-.metric-text b {
-  display: block;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text);
-  margin-bottom: 1px;
-}
-.metric-text span {
-  display: block;
-  font-size: 11.5px;
-  color: var(--text-muted);
-}
+.metric-icon svg { width: 15px; height: 15px; stroke: var(--accent); fill: none; stroke-width: 2.2; }
+.metric-text b { display: block; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; color: var(--text); }
+.metric-text span { display: block; font-size: 11.5px; color: var(--text-muted); }
 
+/* khung 3D showcase (giữ nguyên bản cũ) */
 .hero-right {
   position: relative;
   z-index: 2;
   display: flex;
   perspective: 1100px;
-  isolation: isolate;
-  overflow: visible;
 }
 
 .showcase-card {
@@ -561,189 +459,95 @@ header.scrolled .bar {
   transform: translateZ(22px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
+.swimmer {
+  position: absolute; left: 0; bottom: 70px; width: 96px; height: 38px; z-index: 0; opacity: .16;
+  fill: var(--accent); pointer-events: none; animation: swim 46s linear infinite; will-change: transform;
+}
+@keyframes swim {
+  0%   { transform: translate3d(-140px, 0, 0); }
+  50%  { transform: translate3d(50vw, -16px, 0); }
+  100% { transform: translate3d(110vw, 4px, 0); }
+}
+.hero.paused *, .hero.paused::before { animation-play-state: paused !important; }
 
-.features { max-width: 1200px; margin: 0 auto 36px auto; padding: 0 20px; }
-.feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+/* ===== REDESIGN: FEATURES ===== */
+.features { max-width: 1200px; margin: 0 auto 56px auto; padding: 0 20px; }
+.feature-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); counter-reset: feat;
+  border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);
+}
 .feature-item {
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-card);
-  padding: 24px 20px;
-  text-align: center;
-  border-radius: 14px;
-  transition: all 0.25s ease;
+  counter-increment: feat; position: relative; text-align: left;
+  display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-content: center; align-items: center;
+  padding: 26px 22px; border-right: 1px solid var(--border-subtle);
+  transition: background .25s ease;
 }
-.feature-item:hover {
-  transform: translateY(-4px);
-  border-color: var(--border);
-  background: var(--bg-elevated);
+.feature-item:last-child { border-right: none; }
+.feature-item::after {
+  content: "0" counter(feat); position: absolute; top: 12px; right: 18px;
+  font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 1px;
+  color: rgba(154,179,102,0.4);
 }
+.feature-item:hover { background: rgba(154,179,102,0.05); }
 .feature-icon {
-  width: 48px; height: 48px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  margin: 0 auto 14px auto;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--accent-light);
+  grid-row: 1 / span 2; width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center; transition: transform .3s ease;
 }
-.feature-icon svg { width: 22px; height: 22px; stroke: var(--accent); }
-.feature-title {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700; font-size: 15px;
-  color: var(--text); margin: 0 0 6px 0;
-}
+.feature-item:hover .feature-icon { transform: translateY(-3px) rotate(-6deg); }
+.feature-icon svg { width: 21px; height: 21px; stroke: var(--accent); }
+.feature-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--text); margin: 0 0 3px 0; align-self: end; }
 .feature-link {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 11px; font-weight: 700;
-  color: var(--accent); text-decoration: none;
-  letter-spacing: 0.5px; text-transform: uppercase;
+  font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 700; color: var(--accent);
+  text-decoration: none; letter-spacing: 0.5px; text-transform: uppercase; align-self: start;
 }
-.feature-link:hover { text-decoration: underline; }
+.feature-link:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-/* ---- BỐ CỤC DANH MỤC MỚI (THEO BẢN VẼ) ---- */
-main { max-width: 1200px; margin: 0 auto; padding: 20px; }
-.tools {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 14px;
-  margin-bottom: 22px;
+main { max-width: 1200px; margin: auto; padding: 20px; }
+.tools { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; align-items: center; }
+.tools input {
+  flex: 1; min-width: 240px; padding: 12px 18px;
+  border-radius: 999px; border: 1px solid var(--border-subtle);
+  background: var(--bg-card); color: var(--text);
+  font-family: 'Roboto', sans-serif; font-size: 14px; outline: none;
+  transition: 0.2s;
 }
-.tools > * { min-width: 0; }
-
-.cat-top-bar {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 14px;
-  align-items: stretch;
-  width: 100%;
-}
-.cat-title-pill {
-  margin: 0;
-  padding: 13px 26px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(154, 179, 102, 0.18), rgba(21, 24, 19, 0.96));
-  border: 1.5px solid var(--border);
-  font-family: 'Montserrat', sans-serif;
-  font-size: 17px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--accent);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-}
-.cat-search-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-}
-.cat-search-wrap .search-icon {
-  position: absolute;
-  left: 16px;
-  width: 17px;
-  height: 17px;
-  stroke: var(--text-muted);
-  pointer-events: none;
-  transition: stroke 0.2s ease;
-}
-.cat-search-wrap input {
-  width: 100%;
-  height: 100%;
-  min-height: 48px;
-  padding: 12px 18px 12px 44px;
-  border-radius: 16px;
-  border: 1.5px solid var(--border-subtle);
-  background: var(--bg-card);
-  color: var(--text);
-  font-family: 'Roboto', sans-serif;
-  font-size: 14.5px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-.cat-search-wrap input::placeholder { color: var(--text-muted); }
-.cat-search-wrap input:focus {
-  border-color: var(--accent);
-  background: var(--bg-elevated);
-  box-shadow: 0 0 0 3px var(--accent-light);
-}
-.cat-search-wrap input:focus + .search-icon,
-.cat-search-wrap:focus-within .search-icon {
-  stroke: var(--accent);
-}
-
+.tools input::placeholder { color: var(--text-muted); }
+.tools input:focus { border-color: var(--accent); }
 .chip {
-  color: var(--text-muted);
-  padding: 9px 18px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 11.5px;
-  font-weight: 700;
+  color: var(--text-muted); padding: 10px 18px; border-radius: 999px;
+  cursor: pointer; font-size: 11.5px; font-weight: 700;
   font-family: 'Montserrat', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
   transition: 0.2s;
 }
 .chip:hover { border-color: var(--border); color: var(--text); }
 .chip.on {
-  background: var(--accent);
-  color: #111310;
+  background: var(--accent); color: #111310;
   border-color: var(--accent);
 }
 
-.chip-wrap { position: relative; width: 100%; max-width: 100%; min-width: 0; }
-.chip-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: nowrap;
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent) rgba(255,255,255,0.06);
-  -webkit-overflow-scrolling: touch;
-  padding: 2px 2px 8px 2px;
-  cursor: grab;
-  user-select: none;
+h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 22px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text); margin: 0 0 24px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 14px;
 }
-.chip-row.dragging { cursor: grabbing; }
-.chip-row::-webkit-scrollbar { height: 5px; }
-.chip-row::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 999px; }
-.chip-row::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
-.chip-row .chip { flex-shrink: 0; white-space: nowrap; }
 
-.chip-nav {
-  position: absolute; top: 0; width: 34px; height: 36px; border-radius: 50%;
-  border: 1px solid var(--border); background: rgba(21,24,19,0.95); color: var(--accent);
-  font-size: 15px; font-weight: 800; cursor: pointer; z-index: 2;
-  display: none; align-items: center; justify-content: center;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
-}
-.chip-nav:hover { background: var(--accent); color: #111310; }
-.chip-nav.prev { left: -4px; }
-.chip-nav.next { right: -4px; }
-@media (pointer: fine) { .chip-wrap.can-scroll .chip-nav.show { display: flex; } }
-
-/* ---- LƯỚI SẢN PHẨM 4 CỘT CHUẨN DESKTOP ---- */
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
   gap: 20px;
 }
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
   transition: all 0.25s ease;
 }
 .card:hover {
@@ -816,7 +620,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
   background: var(--accent);
   color: #111310;
   border: 1.5px solid var(--accent);
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 10px;
   font-family: 'Montserrat', sans-serif;
   font-weight: 800; font-size: 11px;
@@ -836,55 +640,16 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
   border-style: dashed;
 }
 
-/* ---- PHÂN TRANG NÚT TRÒN ĐỒNG BỘ BẢN VẼ ---- */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 8px;
-  margin: 34px 0 16px;
-  max-width: 100%;
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 40px 0 20px; flex-wrap: wrap; }
+.pagination button {
+  padding: 9px 16px; border-radius: 8px; cursor: pointer;
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px;
+  color: var(--text); border: 1px solid var(--border-subtle); background: var(--bg-card);
+  transition: 0.2s;
 }
-.pagination button,
-.pagination .dots {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  padding: 0;
-  border-radius: 50%;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 800;
-  font-size: 12.5px;
-  color: var(--text);
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-card);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-.pagination button { cursor: pointer; }
-.pagination button:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
-  transform: translateY(-2px);
-}
-.pagination button.active {
-  background: var(--accent);
-  color: #111310;
-  border-color: var(--accent);
-  box-shadow: 0 4px 14px rgba(154, 179, 102, 0.35);
-}
-.pagination button:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-.pagination .dots {
-  color: var(--text-muted);
-  pointer-events: none;
-}
+.pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pagination button.active { background: var(--accent); color: #111310; border-color: var(--accent); }
+.pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
 
 #panel {
   position: fixed; right: 0; top: 0; bottom: 0;
@@ -1202,6 +967,32 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .btn-map:hover { background: transparent; color: var(--accent); }
 .map-iframe { flex: 1.2; min-width: 300px; min-height: 340px; border-left: 1px solid var(--border-subtle); }
 .map-iframe iframe { width: 100%; height: 100%; border: none; display: block; }
+.price.price-ask {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--border);
+}
+.price.price-ask:hover { text-decoration-color: var(--accent); }
+.info .btn-ask {
+  margin-top: auto;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  transition: 0.2s;
+}
+.info .btn-ask:hover { background: var(--accent); color: #111310; }
 
 .footer-links {
   display: flex; flex-wrap: wrap; justify-content: center;
@@ -1236,34 +1027,143 @@ footer {
 }
 #btnTop:hover { background: var(--accent); color: #111310; }
 
+/* ---- Header nav: thanh trượt ---- */
+.bar > .brand-wrap, .header-actions { flex-shrink: 0; }
+.header-nav {
+  flex: 0 1 auto; min-width: 0;
+  overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.header-nav::-webkit-scrollbar { display: none; }
+.header-nav a { flex-shrink: 0; }
+.mobile-nav-strip { -webkit-overflow-scrolling: touch; }
+.mobile-nav-strip a { flex-shrink: 0; }
+
+/* ---- Bộ lọc: ô tìm kiếm + 1 hàng chip trượt ngang ---- */
+.tools { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 22px; }
+.tools input { flex: none; width: 100%; max-width: 420px; min-width: 0; }
+.tools > * { min-width: 0; }
+.chip-wrap { position: relative; width: 100%; max-width: 100%; min-width: 0; }
+.chip-row {
+  display: flex; gap: 8px; flex-wrap: nowrap;
+  width: 100%; max-width: 100%;
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: thin; scrollbar-color: var(--accent) rgba(255,255,255,0.06);
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 10px 2px;
+  cursor: grab; user-select: none;
+}
+.chip-row.dragging { cursor: grabbing; }
+.chip-row::-webkit-scrollbar { height: 6px; }
+.chip-row::-webkit-scrollbar-track { background: rgba(255,255,255,0.06); border-radius: 999px; }
+.chip-row::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
+.chip-nav {
+  position: absolute; top: 0; width: 34px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border); background: rgba(21,24,19,0.95); color: var(--accent);
+  font-size: 15px; font-weight: 800; cursor: pointer; z-index: 2;
+  display: none; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+}
+.chip-nav:hover { background: var(--accent); color: #111310; }
+.chip-nav.prev { left: -4px; }
+.chip-nav.next { right: -4px; }
+@media (pointer: fine) { .chip-wrap.can-scroll .chip-nav.show { display: flex; } }
+.chip-row .chip { flex-shrink: 0; white-space: nowrap; padding: 9px 16px; }
+
+/* ---- Phân trang 1 dòng ---- */
+.pagination { flex-wrap: nowrap; gap: 6px; max-width: 100%; overflow: hidden; }
+.pagination button { min-width: 36px; padding: 9px 12px; flex-shrink: 0; }
+.pagination .dots { color: var(--text-muted); font-weight: 700; padding: 0 2px; align-self: center; flex-shrink: 0; }
+
+
+/* ===== REDESIGN: TỔNG THỂ ===== */
+[hidden] { display: none !important; }
+body { background: var(--bg); }
+.bar { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.js .rv { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
+.js .rv.in { opacity: 1; transform: none; }
+
+main { max-width: 1200px; margin: 0 auto; padding: 26px 20px 10px; }
+main + main { margin-top: 24px; }
+h2 {
+  display: flex; align-items: center; gap: 16px; margin: 0 0 22px 0; padding: 0; border: 0;
+  font-family: 'Montserrat', sans-serif; font-size: clamp(20px, 2.6vw, 28px); font-weight: 900;
+  letter-spacing: 1.2px; text-transform: uppercase; color: var(--text);
+}
+h2::before { content: ""; width: 10px; height: 10px; flex-shrink: 0; transform: rotate(45deg); background: var(--accent); border-radius: 2px; }
+h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+
+.tools input {
+  padding: 13px 18px 13px 46px; background-color: var(--bg-card); border-color: var(--border-subtle);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23939d87' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cline x1='21' y1='21' x2='16.5' y2='16.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: 17px center;
+}
+.chip { background: transparent; padding: 9px 16px; }
+.chip.on { background: var(--accent); }
+
+.grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 22px; }
+.card {
+  padding: 8px; border-radius: 20px; background: linear-gradient(180deg, #171b14, #12150f);
+  animation: cardIn .5s cubic-bezier(.2,.7,.2,1) backwards;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.grid .card:nth-child(2) { animation-delay: .04s; } .grid .card:nth-child(3) { animation-delay: .08s; }
+.grid .card:nth-child(4) { animation-delay: .12s; } .grid .card:nth-child(5) { animation-delay: .16s; }
+.grid .card:nth-child(6) { animation-delay: .20s; } .grid .card:nth-child(7) { animation-delay: .24s; }
+.grid .card:nth-child(8) { animation-delay: .28s; } .grid .card:nth-child(n+9) { animation-delay: .32s; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.card:hover { transform: translateY(-4px); border-color: var(--border); box-shadow: 0 16px 30px rgba(0,0,0,0.5); }
+.pic { aspect-ratio: 1 / 1; border: 0; border-radius: 14px; }
+.pic::after { border-radius: 999px; padding: 5px 12px; }
+.video-badge { border-radius: 999px; }
+.info { padding: 14px 8px 8px; gap: 5px; }
+.info b { font-size: 15.5px; line-height: 1.3; }
+.info small { font-size: 11px; }
+.price { font-size: 19px; margin: 4px 0 10px 0; }
+.info button { border-radius: 999px; padding: 11px 10px; }
+.card:has(.mono-stock.out-stock) .pic img,
+.card:has(.mono-stock.out-stock) .pic svg { filter: grayscale(.9); opacity: .5; }
+
+.map-section { max-width: 1200px; margin: 64px auto 44px; padding: 0 20px; }
+.map-container {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  border-radius: 26px; border: 1px solid var(--border); background: #11140f; overflow: hidden;
+  box-shadow: 0 20px 44px rgba(0,0,0,0.5);
+}
+.map-info { min-width: 0; padding: 46px 42px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.map-info h3 { font-size: 22px; margin-bottom: 14px; letter-spacing: .5px; }
+.map-iframe { min-width: 0; min-height: 360px; }
+.map-iframe iframe { filter: grayscale(.55) brightness(.85) contrast(1.1); }
+
+footer {
+  position: relative; margin-top: 56px; padding: 44px 20px 50px;
+  background: linear-gradient(180deg, transparent, rgba(154,179,102,0.05));
+  border-top: 1px solid var(--border-subtle);
+}
+footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 120px; height: 2px; transform: translateX(-50%); background: var(--accent); }
+.footer-links a { position: relative; }
+.footer-links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform .25s ease; }
+.footer-links a:hover::after { transform: scaleX(1); }
+
+.pagination button { border-radius: 999px; background: transparent; }
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
   .header-nav { display: none; }
   .mobile-nav-strip { display: flex; }
   .feature-grid { grid-template-columns: repeat(2, 1fr); }
-  .hero-right { perspective: none; }
-  .showcase-card { transform: none !important; transform-style: flat; will-change: auto; }
-  .showcase-media, .showcase-footer, .showcase-caption-text, .showcase-badge { transform: none; }
-  .showcase-spotlight { display: none; }
-  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .feature-item:nth-child(2) { border-right: none; }
+  .feature-item:nth-child(-n+2) { border-bottom: 1px solid var(--border-subtle); }
 }
-
 @media (max-width: 900px) {
-  .hero-container {
-    grid-template-columns: 1fr;
-    padding: 32px 24px;
-    gap: 28px;
-  }
-  .hero-top-content {
-    align-items: center;
-    text-align: center;
-  }
-  .hero-left h1 .line-highlight { white-space: normal; }
-  .hero-desc { margin-left: auto; margin-right: auto; }
-  .hero-btns { justify-content: center; width: 100%; }
+  .hero-wrap { grid-template-columns: 1fr; gap: 44px; padding: 30px 0 24px; }
+  .hero-right { justify-content: flex-start; }
   .showcase-card { max-width: 420px; margin: 0 auto; }
+  .hero-right { justify-content: center; }
+  .map-container { grid-template-columns: 1fr; }
+  .map-iframe { border-left: none; border-top: 1px solid var(--border-subtle); min-height: 300px; }
 }
-
-@media (max-width: 640px) {
+@media (max-width: 600px) {
   header { top: 10px; padding: 0 12px; }
   .bar { height: 54px; padding: 0 8px 0 12px; }
   .brand-wrap img { height: 32px; width: 32px; }
@@ -1271,98 +1171,69 @@ footer {
   .hotline-link { display: none; }
   .cart { padding: 7px 13px; font-size: 10.5px; }
 
-  .hero { margin: 12px auto 26px auto; padding: 0 14px; }
-  .hero-container { padding: 24px 16px; border-radius: 18px; gap: 20px; }
-  .hero-tag { font-size: 9.5px; padding: 5px 12px; margin-bottom: 14px; }
-  .hero-left h1 { font-size: 22px; line-height: 1.28; margin-bottom: 12px; }
-  .hero-desc { font-size: 13.5px; margin-bottom: 20px; line-height: 1.55; }
-
-  .hero-btns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  .btn-primary, .btn-outline {
-    width: 100%;
-    justify-content: center;
-    padding: 11px 10px;
-    font-size: 11px;
-  }
-
-  .hero-metrics {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding-top: 18px;
-  }
-  .metric-item {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 10px 6px;
-    border-right: none;
-    background: rgba(255, 255, 255, 0.025);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    gap: 6px;
-  }
-  .metric-icon { width: 26px; height: 26px; }
-  .metric-text b { font-size: 11px; }
-  .metric-text span { font-size: 10px; line-height: 1.3; }
-
+  .hero { padding: 0 14px; }
+  .hero-tag { font-size: 9.5px; margin-bottom: 20px; }
+  .hero-left h1 { font-size: 34px; margin-bottom: 18px; }
+  .hero-desc { font-size: 14.5px; margin-bottom: 24px; }
+  .hero-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 28px; }
+  .btn-primary, .btn-outline { justify-content: center; padding: 13px 10px; font-size: 11px; }
+  .hero-metrics { display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; }
   .showcase-media { min-height: 210px; }
   .showcase-footer { padding: 12px 14px; }
+  .swimmer { display: none; }
 
-  .features { padding: 0 14px; margin-bottom: 26px; }
-  .feature-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .feature-item { padding: 16px 12px; }
-  .feature-icon { width: 40px; height: 40px; margin-bottom: 10px; }
-  .feature-title { font-size: 13.5px; }
+  .features { padding: 0 14px; margin-bottom: 38px; }
+  .feature-item { grid-template-columns: 1fr; row-gap: 8px; padding: 20px 14px; text-align: left; }
+  .feature-icon { grid-row: auto; width: 40px; height: 40px; }
+  .feature-title { font-size: 13.5px; align-self: auto; }
   .feature-link { font-size: 10px; }
 
-  main { padding: 14px; }
-  .tools { gap: 10px; margin-bottom: 16px; }
-  .cat-top-bar {
-    grid-template-columns: auto 1fr;
-    gap: 8px;
-  }
-  .cat-title-pill {
-    padding: 10px 14px;
-    font-size: 12px;
-    letter-spacing: 0.4px;
-    border-radius: 12px;
-  }
-  .cat-search-wrap .search-icon {
-    left: 12px;
-    width: 15px;
-    height: 15px;
-  }
-  .cat-search-wrap input {
-    min-height: 40px;
-    padding: 9px 12px 9px 34px;
-    font-size: 13px;
-    border-radius: 12px;
-  }
-  .chip-row .chip { padding: 8px 14px; font-size: 11px; }
-
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .card { border-radius: 14px; }
-  .info { padding: 12px 10px; }
+  main { padding: 20px 14px 6px; }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .card { padding: 6px; border-radius: 16px; }
+  .pic { border-radius: 11px; }
+  .info { padding: 10px 6px 6px; }
   .info b { font-size: 14px; }
   .price { font-size: 16.5px; }
+  .map-section { padding: 0 14px; margin-top: 44px; }
+  .map-info { padding: 28px 20px; }
 
-  .pagination { gap: 6px; margin: 26px 0 12px; }
-  .pagination button,
-  .pagination .dots {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    font-size: 11.5px;
-  }
+  .pagination { gap: 4px; }
+  .pagination button { min-width: 32px; padding: 8px 9px; font-size: 11.5px; }
+  .chip-row .chip { padding: 8px 13px; font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .js .rv { opacity: 1; transform: none; }
+  .wave-underline { stroke-dashoffset: 0; }
+}
 
-  .map-section { padding: 0 14px; }
-  .map-info { padding: 24px 18px; }
-  .map-iframe { border-left: none; border-top: 1px solid var(--border-subtle); }
+/* ===== TOOLBAR TÌM KIẾM & LỌC (gọn) ===== */
+.tools { flex-direction: row; align-items: center; flex-wrap: nowrap; gap: 14px; margin: 0 0 22px 0; padding: 8px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 999px; }
+.tools input {
+  flex: 0 0 230px; width: 230px; max-width: 230px; padding: 0 14px 0 40px; height: 36px; font-size: 13px;
+  background-color: rgba(255,255,255,0.04); background-position: 14px center; background-size: 16px; border: 1px solid transparent; border-radius: 999px;
+}
+.tools input:focus { border-color: var(--accent); background-color: rgba(255,255,255,0.06); }
+.chip-wrap { flex: 1 1 auto; min-width: 0; width: auto; }
+.chip-wrap::before, .chip-wrap::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 28px; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .2s;
+}
+.chip-wrap::before { left: 0; background: linear-gradient(90deg, var(--bg-card), transparent); }
+.chip-wrap::after { right: 0; background: linear-gradient(270deg, var(--bg-card), transparent); }
+.chip-wrap.fade-l::before, .chip-wrap.fade-r::after { opacity: 1; }
+.chip-row { gap: 6px; padding: 0; scrollbar-width: none; align-items: center; }
+.chip-row::-webkit-scrollbar { display: none; }
+.chip-row .chip { height: 32px; padding: 0 14px; display: inline-flex; align-items: center; font-size: 11px; letter-spacing: .4px; border-color: transparent; color: var(--text-muted); background: transparent; }
+.chip-row .chip:hover { color: var(--text); background: rgba(255,255,255,0.05); border-color: transparent; }
+.chip-row .chip.on { background: var(--accent); color: #111310; border-color: var(--accent); }
+.chip-nav { top: 50%; transform: translateY(-50%); width: 28px; height: 28px; font-size: 14px; z-index: 2; box-shadow: none; background: var(--bg-elevated); }
+.chip-nav.prev { left: 0; }
+.chip-nav.next { right: 0; }
+@media (max-width: 720px) {
+  .tools { flex-direction: column; align-items: stretch; gap: 8px; padding: 8px; border-radius: 22px; }
+  .tools input { flex: none; width: 100%; max-width: none; }
+  .chip-row .chip { height: 30px; padding: 0 12px; }
 }
 </style>
 </head>
@@ -1378,7 +1249,6 @@ footer {
     <nav class="header-nav" id="headerNav">
       <a href="#sp" class="active">Cá cảnh</a>
       <a href="#pl">Cá “độc” cá lạ</a>
-      <a href="#pk" style="display: none;">Phụ kiện</a>
       <a href="giao-hang.html">Giao hàng</a>
       <a href="bao-hanh.html">Bảo hành</a>
       <a href="ho-tro.html">Hỗ trợ</a>
@@ -1405,7 +1275,6 @@ footer {
   <nav class="mobile-nav-strip">
     <a href="#sp">Cá cảnh</a>
     <a href="#pl">Cá “độc” cá lạ</a>
-    <a href="#pk" style="display: none;">Phụ kiện</a>
     <a href="giao-hang.html">Giao hàng</a>
     <a href="bao-hanh.html">Bảo hành</a>
     <a href="ho-tro.html">Hỗ trợ</a>
@@ -1414,26 +1283,25 @@ footer {
 </header>
 
 <section class="hero">
-  <div class="hero-container">
+  <svg class="swimmer" viewBox="0 0 96 38" aria-hidden="true"><path d="M2 19c14-16 34-16 50-2l16-14v32L52 21C36 35 16 35 2 19z"/><circle cx="70" cy="19" r="0"/></svg>
+  <div class="hero-wrap">
     <div class="hero-left">
-      <div class="hero-top-content">
-        <div class="hero-tag">
-          <span class="status-dot"></span>
-          Aquarium &amp; Biotope Studio
-        </div>
-        <h1>
-          <span class="line-main">Cá Cảnh Thủy Sinh</span>
-          <span class="line-highlight">Tuyển Chọn &amp; Thuần Dưỡng</span>
-        </h1>
-        <p class="hero-desc">
-          Cá khỏe, đã kiểm dịch và thuần nước ổn định.<br>Tư vấn setup bể Biotope &amp; Thủy sinh chuyên sâu.
-        </p>
-        <div class="hero-btns">
-          <a href="#sp" class="btn-primary">Xem danh mục ↓</a>
-          <a href="https://zalo.me/0703008005" target="_blank" class="btn-outline">Tư vấn Zalo</a>
-        </div>
+      <div class="hero-tag">
+        <span class="status-dot"></span>
+        Aquarium &amp; Biotope Studio
       </div>
-
+      <h1>
+        <span class="line-main">Cá Cảnh Thủy Sinh</span>
+        <span class="line-highlight">Tuyển Chọn &amp; Thuần Dưỡng</span>
+        <svg class="wave-underline" viewBox="0 0 300 10" preserveAspectRatio="none" aria-hidden="true"><path d="M0 5 Q 18.75 0 37.5 5 T 75 5 T 112.5 5 T 150 5 T 187.5 5 T 225 5 T 262.5 5 T 300 5"/></svg>
+      </h1>
+      <p class="hero-desc">
+        Cá khỏe, đã kiểm dịch và thuần nước ổn định.<br>Tư vấn setup bể Biotope &amp; Thủy sinh chuyên sâu.
+      </p>
+      <div class="hero-btns">
+        <a href="#sp" class="btn-primary">Xem danh mục ↓</a>
+        <a href="https://zalo.me/0703008005" target="_blank" class="btn-outline">Tư vấn Zalo</a>
+      </div>
       <div class="hero-metrics">
         <div class="metric-item">
           <div class="metric-icon">
@@ -1485,22 +1353,22 @@ footer {
 
 <section class="features">
   <div class="feature-grid">
-    <div class="feature-item">
+    <div class="feature-item rv">
       <div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13H3v-3a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3h-2m-8 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm8 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-8 0h8m-8-2h8m2-2h3.5a2 2 0 0 1 1.8 1.1l1.4 2.9h-6V11z" /></svg></div>
       <p class="feature-title">Giao hàng hỏa tốc</p>
       <a href="giao-hang.html" class="feature-link">Chính sách vận chuyển →</a>
     </div>
-    <div class="feature-item">
+    <div class="feature-item rv">
       <div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.956 11.956 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg></div>
       <p class="feature-title">Bảo hành 100%</p>
       <a href="bao-hanh.html" class="feature-link">Cam kết Arrive Alive →</a>
     </div>
-    <div class="feature-item">
+    <div class="feature-item rv">
       <div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a1.994 1.994 0 0 1-1.414-.586m0 0L11 14h4a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l.586-.586z" /></svg></div>
       <p class="feature-title">Hỗ trợ kỹ thuật</p>
       <a href="ho-tro.html" class="feature-link">Hướng dẫn &amp; FAQ →</a>
     </div>
-    <div class="feature-item">
+    <div class="feature-item rv">
       <div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13v-8.5a1.5 1.5 0 0 1 3 0v7.5"></path><path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0v2.5"></path><path d="M14 10.5v-1.5a1.5 1.5 0 0 1 3 0v4.5"></path><path d="M17 11.5v-1.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7L7 19c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47"></path></svg></div>
       <p class="feature-title">Order cá hiếm</p>
       <a href="order-ca.html" class="feature-link">Đặt theo yêu cầu →</a>
@@ -1508,50 +1376,38 @@ footer {
   </div>
 </section>
 
-<!-- 1. DANH MỤC CÁ CẢNH -->
+<!-- DANH MỤC CÁ CẢNH -->
 <main id="sp">
+  <h2 class="rv">DANH MỤC CÁ CẢNH</h2>
   <div class="tools" id="toolsBox">
-    <div class="cat-top-bar">
-      <h2 class="cat-title-pill">Cá cảnh</h2>
-      <div class="cat-search-wrap">
-        <input id="q" placeholder="Đang tải dữ liệu..." readonly>
-      </div>
-    </div>
+    <input id="q" placeholder="Đang tải dữ liệu..." readonly>
   </div>
   <div class="grid" id="grid"></div>
   <div id="pagination" class="pagination"></div>
 </main>
 
-<!-- 2. DANH MỤC CÁ "ĐỘC" CÁ LẠ (ĐÃ ĐẨY XUỐNG DƯỚI CÁ CẢNH) -->
-<main id="pl" style="margin-top: 24px;">
-  <div class="tools" id="plToolsBox">
-    <div class="cat-top-bar">
-      <h2 class="cat-title-pill">Cá “độc” cá lạ</h2>
-      <div class="cat-search-wrap">
-        <input id="qPl" placeholder="Đang tải dữ liệu..." readonly>
-      </div>
-    </div>
-  </div>
-  <div class="grid" id="plGrid"></div>
-  <div id="plPagination" class="pagination"></div>
-</main>
-
-<!-- 3. DANH MỤC PHỤ KIỆN (TẠM ẨN) -->
-<main id="pk" style="margin-top: 24px; display: none;">
+<!-- DANH MỤC PHỤ KIỆN (tạm ẩn: xoá thuộc tính hidden ở thẻ main bên dưới để hiện lại) -->
+<main id="pk" hidden>
+  <h2 class="rv">DANH MỤC PHỤ KIỆN</h2>
   <div class="tools" id="accToolsBox">
-    <div class="cat-top-bar">
-      <h2 class="cat-title-pill">Phụ kiện</h2>
-      <div class="cat-search-wrap">
-        <input id="qAcc" placeholder="Đang tải dữ liệu..." readonly>
-      </div>
-    </div>
+    <input id="qAcc" placeholder="Đang tải dữ liệu..." readonly>
   </div>
   <div class="grid" id="accGrid"></div>
   <div id="accPagination" class="pagination"></div>
 </main>
 
+<!-- DANH MỤC PLECO -->
+<main id="pl">
+  <h2 class="rv">CÁ “ĐỘC” CÁ LẠ</h2>
+  <div class="tools" id="plToolsBox">
+    <input id="qPl" placeholder="Đang tải dữ liệu..." readonly>
+  </div>
+  <div class="grid" id="plGrid"></div>
+  <div id="plPagination" class="pagination"></div>
+</main>
+
 <section class="map-section">
-  <div class="map-container">
+  <div class="map-container rv">
     <div class="map-info">
       <h3>TK AQUA STUDIO</h3>
       <p><b>Hotline / Zalo:</b> 0703.008.005<br><br>
@@ -1811,20 +1667,12 @@ var filteredPleco = [];
 
 function money(n){ return Number(n ? n : 0).toLocaleString("vi-VN"); }
 
+/* --- TIM KIEM KHONG DAU --- */
 function normVN(s) {
   return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().trim();
 }
 
-function buildTopBarHtml(titleText, inputId, placeholderText, onInputFn) {
-  return '<div class="cat-top-bar">'
-    + '<h2 class="cat-title-pill">' + titleText + '</h2>'
-    + '<div class="cat-search-wrap">'
-    + '<svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'
-    + '<input id="' + inputId + '" placeholder="' + placeholderText + '" oninput="' + onInputFn + '(1, true)">'
-    + '</div>'
-    + '</div>';
-}
-
+/* --- TIEN ICH: chip truot ngang + phan trang gon --- */
 function enableChipScroll(boxId) {
   var row = document.querySelector("#" + boxId + " .chip-row");
   if (!row || row.parentNode.classList.contains("chip-wrap")) return;
@@ -1843,6 +1691,8 @@ function enableChipScroll(boxId) {
     wrap.classList.toggle("can-scroll", can);
     prev.classList.toggle("show", row.scrollLeft > 4);
     next.classList.toggle("show", row.scrollLeft + row.clientWidth < row.scrollWidth - 4);
+    wrap.classList.toggle("fade-l", row.scrollLeft > 4);
+    wrap.classList.toggle("fade-r", row.scrollLeft + row.clientWidth < row.scrollWidth - 4);
   }
   prev.onclick = function() { row.scrollBy({ left: -Math.max(200, row.clientWidth * 0.6), behavior: "smooth" }); };
   next.onclick = function() { row.scrollBy({ left: Math.max(200, row.clientWidth * 0.6), behavior: "smooth" }); };
@@ -1878,22 +1728,22 @@ function buildPager(current, total, fn) {
     if (i === 1 || i === total || Math.abs(i - current) <= around) pages.push(i);
   }
   var out = "";
-  out += '<button aria-label="Trang trước" onclick="' + fn + '(' + (current - 1) + ', true)" ' + (current === 1 ? 'disabled' : '') + '>&lt;</button>';
+  out += '<button aria-label="Trang trước" onclick="' + fn + '(' + (current - 1) + ', true)" ' + (current === 1 ? 'disabled' : '') + '>←</button>';
   var last = 0;
   pages.forEach(function(n) {
-    if (n - last > 1) out += '<span class="dots">...</span>';
+    if (n - last > 1) out += '<span class="dots">…</span>';
     out += '<button onclick="' + fn + '(' + n + ', true)" class="' + (n === current ? 'active' : '') + '">' + n + '</button>';
     last = n;
   });
-  out += '<button aria-label="Trang sau" onclick="' + fn + '(' + (current + 1) + ', true)" ' + (current === total ? 'disabled' : '') + '>&gt;</button>';
+  out += '<button aria-label="Trang sau" onclick="' + fn + '(' + (current + 1) + ', true)" ' + (current === total ? 'disabled' : '') + '>→</button>';
   return out;
 }
 
-/* --- 1. DANH MUC CA CANH --- */
+/* --- DANH MUC CA CANH --- */
 function renderFilters() {
   const rawCats = FISH.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
   const cats = ["all"].concat(Array.from(new Set(rawCats)));
-  let html = buildTopBarHtml("Danh mục cá cảnh", "q", "Tìm kiếm tên cá, dòng cá...", "applyFilters");
+  let html = '<input id="q" placeholder="Tìm tên cá, dòng cá..." oninput="applyFilters(1, true)">';
   html += '<div class="chip-row">';
   cats.forEach(function(c) {
     let label = c === "all" ? "Tất cả" : c;
@@ -1988,11 +1838,96 @@ function renderPagination() {
   paginationContainer.innerHTML = buildPager(currentPage, totalPages, "applyFilters");
 }
 
-/* --- 2. DANH MUC PLECO (CA DOC CA LA) --- */
+/* --- DANH MUC PHU KIEN --- */
+function renderAccFilters() {
+  const rawCats = ACC.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
+  const cats = ["all"].concat(Array.from(new Set(rawCats)));
+  let html = '<input id="qAcc" placeholder="Tìm tên phụ kiện, thiết bị..." oninput="applyAccFilters(1, true)">';
+  html += '<div class="chip-row">';
+  cats.forEach(function(c) {
+    let label = c === "all" ? "Tất cả" : c;
+    let activeClass = accFilter === c ? "on" : "";
+    html += '<button class="chip ' + activeClass + '" data-af="' + c + '">' + label + '</button>';
+  });
+  html += '</div>';
+  document.getElementById("accToolsBox").innerHTML = html;
+  enableChipScroll("accToolsBox");
+
+  document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(btn){
+    btn.onclick = function(){
+      document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(x) { x.classList.remove("on"); });
+      btn.classList.add("on");
+      accFilter = btn.dataset.af;
+      applyAccFilters(1, true);
+    };
+  });
+}
+
+function applyAccFilters(page, isClick) {
+  if (page === undefined) page = 1;
+  var qInput = document.getElementById("qAcc");
+  var q = qInput ? qInput.value.toLowerCase() : "";
+  filteredAcc = ACC.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
+                   .filter(function(f) { return (accFilter === "all" || f.cat === accFilter) && normVN(f.n).indexOf(normVN(q)) > -1; })
+                     .sort(function(a, b) { return (b.sl > 0 ? 1 : 0) - (a.sl > 0 ? 1 : 0) || a.originalIndex - b.originalIndex; });
+  accCurrentPage = page;
+  renderAccGrid();
+  if (isClick) {
+    const accSection = document.getElementById("pk");
+    if (accSection) {
+      const offset = accSection.offsetTop - 85;
+      window.scrollTo({ top: offset, behavior: "smooth" });
+    }
+  }
+}
+
+function renderAccGrid(){
+  var h = "";
+  var start = (accCurrentPage - 1) * itemsPerPage;
+  var end = start + itemsPerPage;
+  var paginatedItems = filteredAcc.slice(start, end);
+
+  paginatedItems.forEach(function(f){
+    var stockHtml = f.sl > 0 
+      ? '<div class="mono-stock in-stock">Sẵn có: ' + f.sl + '</div>' 
+      : '<div class="mono-stock out-stock">Hết hàng</div>';
+    
+    var btnHtml = f.sl > 0 
+      ? '<button onclick="add(' + f.originalIndex + ', \'acc\')">Thêm vào giỏ</button>'
+      : '<button disabled>Hết hàng</button>';
+
+    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svgAcc(f);
+    var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
+
+    h += '<div class="card">'
+      + '<div class="pic" onclick="window.showFishDetail(' + f.originalIndex + ', \'acc\')" ontouchstart="window.startPress(event)" ontouchmove="window.movePress(event)">'
+      + cardMediaHtml + videoBadgeHtml
+      + '</div>'
+      + '<div class="info">'
+      + '<b>' + f.n + '</b>'
+      + '<small>' + f.cat + ' · ' + f.s + '</small>'
+      + stockHtml
+      + '<div class="price">' + money(f.p) + 'đ</div>'
+      + btnHtml
+      + '</div></div>';
+  });
+  
+  document.getElementById("accGrid").innerHTML = h ? h : '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy phụ kiện phù hợp.</div>';
+  renderAccPagination();
+}
+
+function renderAccPagination() {
+  var totalPages = Math.ceil(filteredAcc.length / itemsPerPage);
+  var paginationContainer = document.getElementById("accPagination");
+  if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
+  paginationContainer.innerHTML = buildPager(accCurrentPage, totalPages, "applyAccFilters");
+}
+
+/* --- DANH MUC PLECO --- */
 function renderPlecoFilters() {
   const rawCats = PLECO.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
   const cats = ["all"].concat(Array.from(new Set(rawCats)));
-  let html = buildTopBarHtml("Cá “độc” cá lạ", "qPl", "Tìm kiếm dòng cá độc lạ...", "applyPlecoFilters");
+  let html = '<input id="qPl" placeholder="Tìm tên Pleco..." oninput="applyPlecoFilters(1, true)">';
   html += '<div class="chip-row">';
   cats.forEach(function(c) {
     let label = c === "all" ? "Tất cả" : c;
@@ -2061,91 +1996,6 @@ function renderPlecoPagination() {
   var paginationContainer = document.getElementById("plPagination");
   if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
   paginationContainer.innerHTML = buildPager(plecoCurrentPage, totalPages, "applyPlecoFilters");
-}
-
-/* --- 3. DANH MUC PHU KIEN (TAM AN) --- */
-function renderAccFilters() {
-  const rawCats = ACC.map(function(f) { return f.cat; }).filter(function(c) { return Boolean(c); });
-  const cats = ["all"].concat(Array.from(new Set(rawCats)));
-  let html = buildTopBarHtml("Danh mục phụ kiện", "qAcc", "Tìm kiếm phụ kiện, thiết bị...", "applyAccFilters");
-  html += '<div class="chip-row">';
-  cats.forEach(function(c) {
-    let label = c === "all" ? "Tất cả" : c;
-    let activeClass = accFilter === c ? "on" : "";
-    html += '<button class="chip ' + activeClass + '" data-af="' + c + '">' + label + '</button>';
-  });
-  html += '</div>';
-  document.getElementById("accToolsBox").innerHTML = html;
-  enableChipScroll("accToolsBox");
-
-  document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(btn){
-    btn.onclick = function(){
-      document.querySelectorAll("#accToolsBox .chip[data-af]").forEach(function(x) { x.classList.remove("on"); });
-      btn.classList.add("on");
-      accFilter = btn.dataset.af;
-      applyAccFilters(1, true);
-    };
-  });
-}
-
-function applyAccFilters(page, isClick) {
-  if (page === undefined) page = 1;
-  var qInput = document.getElementById("qAcc");
-  var q = qInput ? qInput.value.toLowerCase() : "";
-  filteredAcc = ACC.map(function(f, index) { return Object.assign({}, f, { originalIndex: index }); })
-                   .filter(function(f) { return (accFilter === "all" || f.cat === accFilter) && normVN(f.n).indexOf(normVN(q)) > -1; })
-                   .sort(function(a, b) { return (b.sl > 0 ? 1 : 0) - (a.sl > 0 ? 1 : 0) || a.originalIndex - b.originalIndex; });
-  accCurrentPage = page;
-  renderAccGrid();
-  if (isClick) {
-    const accSection = document.getElementById("pk");
-    if (accSection) {
-      const offset = accSection.offsetTop - 85;
-      window.scrollTo({ top: offset, behavior: "smooth" });
-    }
-  }
-}
-
-function renderAccGrid(){
-  var h = "";
-  var start = (accCurrentPage - 1) * itemsPerPage;
-  var end = start + itemsPerPage;
-  var paginatedItems = filteredAcc.slice(start, end);
-
-  paginatedItems.forEach(function(f){
-    var stockHtml = f.sl > 0 
-      ? '<div class="mono-stock in-stock">Sẵn có: ' + f.sl + '</div>' 
-      : '<div class="mono-stock out-stock">Hết hàng</div>';
-    
-    var btnHtml = f.sl > 0 
-      ? '<button onclick="add(' + f.originalIndex + ', \'acc\')">Thêm vào giỏ</button>'
-      : '<button disabled>Hết hàng</button>';
-
-    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svgAcc(f);
-    var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
-
-    h += '<div class="card">'
-      + '<div class="pic" onclick="window.showFishDetail(' + f.originalIndex + ', \'acc\')" ontouchstart="window.startPress(event)" ontouchmove="window.movePress(event)">'
-      + cardMediaHtml + videoBadgeHtml
-      + '</div>'
-      + '<div class="info">'
-      + '<b>' + f.n + '</b>'
-      + '<small>' + f.cat + ' · ' + f.s + '</small>'
-      + stockHtml
-      + '<div class="price">' + money(f.p) + 'đ</div>'
-      + btnHtml
-      + '</div></div>';
-  });
-  
-  document.getElementById("accGrid").innerHTML = h ? h : '<div style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:40px 0;">Không tìm thấy phụ kiện phù hợp.</div>';
-  renderAccPagination();
-}
-
-function renderAccPagination() {
-  var totalPages = Math.ceil(filteredAcc.length / itemsPerPage);
-  var paginationContainer = document.getElementById("accPagination");
-  if (totalPages <= 1) { paginationContainer.innerHTML = ""; return; }
-  paginationContainer.innerHTML = buildPager(accCurrentPage, totalPages, "applyAccFilters");
 }
 
 window.addEventListener("resize", function() {
@@ -2952,6 +2802,21 @@ initData();
       btn.textContent = oldText; btn.disabled = false;
     }
   };
+</script>
+<script>
+(function () {
+  var els = document.querySelectorAll(".rv");
+  if (!("IntersectionObserver" in window)) { els.forEach(function (e) { e.classList.add("in"); }); return; }
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { rootMargin: "0px 0px -8% 0px" });
+  els.forEach(function (e) { io.observe(e); });
+  var hero = document.querySelector(".hero");
+  if (hero) {
+    new IntersectionObserver(function (es) { hero.classList.toggle("paused", !es[0].isIntersecting); }).observe(hero);
+    document.addEventListener("visibilitychange", function () { hero.classList.toggle("paused", document.hidden); });
+  }
+})();
 </script>
 </body>
 </html>

@@ -180,7 +180,9 @@ async function queryOrders(env, field, value, limit) {
     })
   });
   const data = await res.json();
-  if (!Array.isArray(data)) throw new Error("Firestore query lỗi: " + JSON.stringify(data).slice(0, 200));
+  const errObj = Array.isArray(data) ? (data[0] && data[0].error) : data && data.error;
+  if (errObj) throw new Error("Firestore: " + (errObj.status || errObj.code || "") + " - " + String(errObj.message || "").slice(0, 500));
+  if (!Array.isArray(data)) throw new Error("Firestore trả về dữ liệu không hợp lệ");
   return data.filter(function (x) { return x.document; }).map(function (x) { return x.document; });
 }
 
@@ -582,7 +584,7 @@ export default {
         return await handleLookup(request, env);
       } catch (err) {
         console.error("lookup error:", err);
-        return jsonResponse({ error: "Không tra cứu được lúc này" }, 500);
+        return jsonResponse({ error: "Không tra cứu được: " + String(err.message || err).slice(0, 600) }, 500);
       }
     }
 

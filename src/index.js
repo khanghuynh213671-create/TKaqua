@@ -51,6 +51,9 @@ async function verifyPayosWebhook(webhookData, checksumKey) {
 const FIREBASE_PROJECT_ID = "tk-aqua";
 const DEFAULT_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbwIvuLes3qi8AH3AINWDDzLPVigzNvp5kDLhYl0azjWWfqf3C2j9ynNSD4Wr7lzfpVvIg/exec";
 
+const CATALOG_FISH_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?output=csv";
+const CATALOG_ACC_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?gid=1785201873&single=true&output=csv";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -82,6 +85,76 @@ function fsFields(fields) {
   const out = {};
   Object.keys(fields).forEach(function (k) { out[k] = fsValue(fields[k]); });
   return out;
+}
+
+/* ---- Bảng giá chuẩn từ Google Sheet (không tin giá do trình duyệt gửi) ---- */
+function parseCsvRows(str) {
+  const rows = []; let row = [], cur = "", q = false;
+  for (let i = 0; i < str.length; i++) {
+    const c = str[i];
+    if (q) {
+      if (c === '"') { if (str[i + 1] === '"') { cur += '"'; i++; } else { q = false; } }
+      else { cur += c; }
+    } else if (c === '"') { q = true; }
+    else if (c === ",") { row.push(cur); cur = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && str[i + 1] === "\n") i++;
+      row.push(cur); cur = ""; rows.push(row); row = [];
+    } else { cur += c; }
+  }
+  if (cur !== "" || row.length) { row.push(cur); rows.push(row); }
+  return rows;
+}
+
+async function loadPriceMap(csvUrl) {
+  const res = await fetch(csvUrl, { cf: { cacheTtl: 60, cacheEverything: true } });
+  const rows = parseCsvRows(await res.text());
+  const map = {};
+  if (rows.length < 2) return map;
+  const head = rows[0].map(function (h) { return h.replace(/\s/g, ""); });
+  const iName = head.findIndex(function (h) { return h === "TenCa" || h === "TenSP"; });
+  const iPrice = head.indexOf("Gia");
+  if (iName < 0 || iPrice < 0) return map;
+  for (let r = 1; r < rows.length; r++) {
+    const name = String(rows[r][iName] || "").trim();
+    const price = parseInt(rows[r][iPrice], 10);
+    if (name && price > 0) map[name] = price;
+  }
+  return map;
+}
+
+// Trả về tiền hàng chuẩn theo bảng giá, hoặc null nếu có món không hợp lệ
+async function computeSubtotal(items) {
+  if (!Array.isArray(items) || !items.length) return null;
+  const maps = await Promise.all([loadPriceMap(CATALOG_FISH_CSV), loadPriceMap(CATALOG_ACC_CSV)]);
+  let total = 0;
+  for (const it of items) {
+    const qty = Number(it.so_luong);
+    if (!(qty > 0) || qty > 999 || Math.floor(qty) !== qty) return null;
+    const map = it.loai === "Phụ kiện" ? maps[1] : maps[0];
+    const price = map[String(it.ten_ca || "").trim()];
+    if (!price) return null;
+    total += price * qty;
+  }
+  return total;
+}
+
+async function findOrderDoc(orderCode) {
+  const queryUrl = "https://firestore.googleapis.com/v1/projects/" + FIREBASE_PROJECT_ID + "/databases/(default)/documents:runQuery";
+  const qRes = await fetch(queryUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      structuredQuery: {
+        from: [{ collectionId: "don_hang" }],
+        where: { fieldFilter: { field: { fieldPath: "ma_don" }, op: "EQUAL", value: { stringValue: "TKA-" + orderCode } } },
+        limit: 1
+      }
+    })
+  });
+  const qData = await qRes.json();
+  if (Array.isArray(qData) && qData[0] && qData[0].document) return qData[0].document;
+  return null;
 }
 
 /* ---- Thông báo Discord (chỉ khi đã thanh toán) ---- */
@@ -127,42 +200,50 @@ async function notifyDiscordPaid(discordUrl, order, orderCode) {
   });
 }
 
-/* ---- Cập nhật cột "Tình Trạng" trên Google Sheet ---- */
-async function updateSheetPaid(env, maDon) {
+/* ---- Google Sheet (Apps Script, có mã bí mật SHEET_SECRET) ---- */
+async function callSheet(env, payload) {
   const sheetUrl = env.GOOGLE_SHEET_WEBHOOK_URL || DEFAULT_SHEET_WEBHOOK;
   await fetch(sheetUrl, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ action: "paid", ma_don: maDon, tinh_trang: "Đã thanh toán" }),
+    body: JSON.stringify(Object.assign({ secret: env.SHEET_SECRET || "" }, payload)),
     redirect: "follow"
   });
 }
 
-/* ---- Đánh dấu đã thanh toán (chỉ chạy 1 lần cho mỗi đơn) ---- */
-async function markOrderPaid(orderCode, env) {
-  try {
-    const queryUrl = "https://firestore.googleapis.com/v1/projects/" + FIREBASE_PROJECT_ID + "/databases/(default)/documents:runQuery";
-    const qRes = await fetch(queryUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        structuredQuery: {
-          from: [{ collectionId: "don_hang" }],
-          where: {
-            fieldFilter: {
-              field: { fieldPath: "ma_don" },
-              op: "EQUAL",
-              value: { stringValue: "TKA-" + orderCode }
-            }
-          },
-          limit: 1
-        }
-      })
-    });
-    const qData = await qRes.json();
-    if (!(Array.isArray(qData) && qData[0] && qData[0].document)) return false;
+function updateSheetPaid(env, maDon) {
+  return callSheet(env, { action: "paid", ma_don: maDon, tinh_trang: "Đã thanh toán" });
+}
 
-    const document = qData[0].document;
+function createSheetRow(env, order, maDon) {
+  const items = Array.isArray(order.san_pham) ? order.san_pham : [];
+  const chiTiet = items.map(function (sp) {
+    const dv = sp.loai === "Phụ kiện" ? "sp" : "con";
+    const sz = sp.size ? " (" + sp.size + ")" : "";
+    return sp.ten_ca + sz + " x" + sp.so_luong + " " + dv;
+  }).join(", ") + " | Ship: " + (order.phuong_thuc_ship || "Tiêu chuẩn") + " (+" + Number(order.phi_ship || 0).toLocaleString("vi-VN") + "đ)";
+  const note = order.ghi_chu && order.ghi_chu !== "Không có" ? order.ghi_chu + " | " : "";
+  return callSheet(env, {
+    action: "create",
+    tinh_trang: "Chưa thanh toán",
+    ma_don: maDon,
+    thoi_gian: new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
+    ten_khach: order.ten_khach,
+    so_dien_thoai: order.so_dien_thoai,
+    dia_chi: order.dia_chi,
+    chi_tiet_sp: chiTiet,
+    chi_tiet_ca: chiTiet,
+    tong_so_luong: order.tong_so_luong,
+    tong_tien: order.tong_tien,
+    ghi_chu: note + (order.phuong_thuc_ship || "Tiêu chuẩn")
+  });
+}
+
+/* ---- Đánh dấu đã thanh toán (chỉ chạy 1 lần cho mỗi đơn) ---- */
+async function markOrderPaid(orderCode, env, paidAmount) {
+  try {
+    const document = await findOrderDoc(orderCode);
+    if (!document) return false;
     const fields = document.fields || {};
 
     // Đã thanh toán từ trước -> không làm lại, không thông báo lại
@@ -170,6 +251,13 @@ async function markOrderPaid(orderCode, env) {
       (fields.paid && fields.paid.booleanValue === true) ||
       (fields.trang_thai && fields.trang_thai.stringValue === "Đã thanh toán");
     if (alreadyPaid) return false;
+
+    // Chỉ chấp nhận khi số tiền đã trả >= giá trị đơn
+    const expected = fsValue(fields.tong_tien);
+    if (!(Number(expected) > 0) || !(Number(paidAmount) >= Number(expected))) {
+      console.error("Số tiền không khớp, đơn", orderCode, "cần", expected, "đã trả", paidAmount);
+      return false;
+    }
 
     const patchUrl = "https://firestore.googleapis.com/v1/" + document.name +
       "?updateMask.fieldPaths=trang_thai&updateMask.fieldPaths=paid" +
@@ -212,13 +300,27 @@ export default {
       try {
         const body = await request.json();
         const orderCode = Number(body.orderCode);
-        const amount = Number(body.amount);
-
-        let rawDesc = "Than tang TK TKA-" + orderCode;
-        if (body.description) {
-          rawDesc = body.description;
+        if (!Number.isSafeInteger(orderCode) || orderCode <= 0) {
+          return jsonResponse({ error: "Mã đơn không hợp lệ" }, 400);
         }
-        const description = String(rawDesc).slice(0, 25);
+
+        // Lấy đơn thật từ Firestore, KHÔNG dùng số tiền do trình duyệt gửi
+        const document = await findOrderDoc(orderCode);
+        if (!document) return jsonResponse({ error: "Không tìm thấy đơn hàng" }, 404);
+        const order = fsFields(document.fields || {});
+        if (order.paid === true || order.trang_thai === "Đã thanh toán") {
+          return jsonResponse({ error: "Đơn đã thanh toán" }, 409);
+        }
+
+        // Kiểm tra giá theo bảng giá hiện tại
+        const subtotal = await computeSubtotal(order.san_pham);
+        const phiShip = Number(order.phi_ship || 0);
+        const amount = Number(order.tong_tien);
+        if (subtotal === null || !(phiShip >= 0) || !(amount > 0) || amount < subtotal + phiShip) {
+          return jsonResponse({ error: "Giá trị đơn hàng không hợp lệ" }, 400);
+        }
+
+        const description = ("Than tang TK TKA-" + orderCode).slice(0, 25);
         const cancelUrl = "https://tkaqua.khanghuynh213671.workers.dev";
         const returnUrl = "https://tkaqua.khanghuynh213671.workers.dev";
 
@@ -243,6 +345,11 @@ export default {
         });
 
         const resData = await response.json();
+
+        // Ghi đơn vào Google Sheet từ phía server (chỉ 1 lần khi tạo link thành công)
+        if (resData && resData.data) {
+          await createSheetRow(env, order, "TKA-" + orderCode).catch(function (e) { console.error("Sheet error:", e); });
+        }
         return jsonResponse(resData);
       } catch (err) {
         return jsonResponse({ error: err.message }, 500);
@@ -264,7 +371,8 @@ export default {
         if (resData && resData.data) {
           const d = resData.data;
           if (d.status === "PAID" || (d.amountPaid > 0 && d.amountPaid >= d.amount)) {
-            await markOrderPaid(orderCode, env);
+            const paid = d.amountPaid > 0 ? d.amountPaid : d.amount;
+            await markOrderPaid(orderCode, env, paid);
           }
         }
 
@@ -284,7 +392,7 @@ export default {
         if (webhookData.code === "00" && webhookData.data) {
           const orderCode = webhookData.data.orderCode;
           if (orderCode !== 123) {
-            await markOrderPaid(orderCode, env);
+            await markOrderPaid(orderCode, env, webhookData.data.amount);
           }
         }
         return jsonResponse({ success: true });

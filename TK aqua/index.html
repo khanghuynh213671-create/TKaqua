@@ -2610,6 +2610,7 @@ initData();
 
       let kw = keyword ? keyword.trim() : "";
       let results = [];
+      let lookupErrorText = "";
 
       const fetchOrders = async function(q) {
         const res = await fetch(API_BASE + "/api/lookup", {
@@ -2638,9 +2639,8 @@ initData();
         console.error("Lookup error:", err);
         let rawLocal = localStorage.getItem("tka_order_history");
         results = rawLocal ? JSON.parse(rawLocal) : [];
-        if (container && err && err.message && err.message.indexOf("quá nhanh") > -1) {
-          container.innerHTML = '<div style="text-align:center; padding: 24px 10px; color: var(--text-muted);">' + err.message + '</div>';
-          return;
+        if (container && err && err.message) {
+          lookupErrorText = err.message;
         }
       }
 
@@ -2650,6 +2650,10 @@ initData();
         return nb - na;
       });
       renderOrderCards(results);
+      if (lookupErrorText) {
+        const box = document.getElementById("lookupResults");
+        if (box) box.insertAdjacentHTML("afterbegin", '<div style="padding:10px 12px;margin-bottom:10px;border:1px solid rgba(255,138,128,.4);border-radius:8px;color:#ff8a80;font-size:12.5px;line-height:1.5;word-break:break-word;">' + lookupErrorText.replace(/</g, "&lt;") + '</div>');
+      }
     };
 
     document.getElementById("btnLookupSearch").onclick = function() {

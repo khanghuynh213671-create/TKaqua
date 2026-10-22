@@ -40,7 +40,7 @@
   to { transform: translateX(0); }
 }
 
-html { scroll-behavior: smooth; background-color: var(--bg); }
+html { scroll-behavior: smooth; background-color: var(--bg); overflow-x: clip; }
 * { box-sizing: border-box; }
 body {
   margin: 0;
@@ -48,7 +48,7 @@ body {
   background-color: var(--bg);
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-tap-highlight-color: transparent;
-  overflow-x: hidden;
+  overflow-x: clip;
   line-height: 1.5;
 }
 
@@ -69,8 +69,6 @@ header {
   justify-content: space-between;
   gap: 12px;
   background: rgba(21, 24, 19, 0.78);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -243,7 +241,7 @@ header.scrolled .bar {
 }
 
 /* ===== REDESIGN: HERO ===== */
-.hero { position: relative; max-width: 1200px; margin: 6px auto 18px auto; padding: 0 20px; overflow-x: clip; overflow-y: visible; }
+.hero { position: relative; max-width: 1200px; margin: 6px auto 18px auto; padding: 0 20px; overflow: visible; }
 .hero::before {
   content: ""; position: absolute; width: 560px; height: 560px; right: -160px; top: -200px;
   background: radial-gradient(closest-side, rgba(154,179,102,0.16), transparent 70%);
@@ -256,7 +254,7 @@ header.scrolled .bar {
 }
 .hero-wrap {
   position: relative; z-index: 1;
-  display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 64px; align-items: center;
+  display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 48px; align-items: center;
   padding: 44px 0 34px;
 }
 .hero-left { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
@@ -314,11 +312,14 @@ header.scrolled .bar {
 .metric-text b { display: block; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; color: var(--text); }
 .metric-text span { display: block; font-size: 11.5px; color: var(--text-muted); }
 
-/* khung 3D showcase (giữ nguyên bản cũ) */
+/* Khung 3D showcase */
 .hero-right {
   position: relative;
   z-index: 2;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   perspective: 1100px;
 }
 
@@ -329,9 +330,11 @@ header.scrolled .bar {
   --rotate-y: 0deg;
   position: relative;
   width: 100%;
-  border-radius: 16px;
+  max-width: 360px;
+  margin: 0 auto;
+  border-radius: 18px;
   border: 1px solid rgba(154, 179, 102, 0.32);
-  background: rgba(18, 21, 16, 0.65);
+  background: rgba(18, 21, 16, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 
@@ -357,7 +360,7 @@ header.scrolled .bar {
 .showcase-spotlight {
   position: absolute;
   inset: 0;
-  border-radius: 16px;
+  border-radius: 18px;
   pointer-events: none;
   z-index: 3;
   background: radial-gradient(
@@ -376,16 +379,16 @@ header.scrolled .bar {
 
 .showcase-media {
   position: relative;
-  flex: 1;
   width: calc(100% - 20px);
   margin: 10px 10px 0 10px;
-  min-height: 225px;
-  border-radius: 11px;
+  aspect-ratio: 1 / 1;
+  min-height: 240px;
+  border-radius: 12px;
+  transform: translateZ(28px);
   background: #0a0a0a;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  transform: translateZ(28px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
 }
 
 .showcase-media img {
@@ -400,29 +403,23 @@ header.scrolled .bar {
 }
 
 .showcase-card:hover .showcase-media img {
-  transform: scale(1.07);
+  transform: scale(1.06);
 }
 
 .showcase-footer {
+  transform-style: preserve-3d;
+  transform: translateZ(42px);
   position: relative;
   z-index: 4;
-  background: rgba(22, 26, 20, 0.72);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(22, 26, 20, 0.85);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0 0 16px 16px;
+  border-radius: 0 0 18px 18px;
   padding: 14px 18px;
   margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  transform-style: preserve-3d;
-  transform: translateZ(42px);
-}
-
-.showcase-caption-text {
-  transform: translateZ(15px);
 }
 
 .showcase-caption-text b {
@@ -434,7 +431,6 @@ header.scrolled .bar {
   text-transform: uppercase;
   letter-spacing: 0.6px;
   margin-bottom: 2px;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
 }
 
 .showcase-caption-text span {
@@ -445,6 +441,7 @@ header.scrolled .bar {
 }
 
 .showcase-badge {
+  transform: translateZ(22px);
   font-family: 'Montserrat', sans-serif;
   font-size: 10px;
   font-weight: 800;
@@ -456,9 +453,8 @@ header.scrolled .bar {
   border: 1px solid var(--border);
   white-space: nowrap;
   flex-shrink: 0;
-  transform: translateZ(22px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
+
 .swimmer {
   position: absolute; left: 0; bottom: 70px; width: 96px; height: 38px; z-index: 0; opacity: .16;
   fill: var(--accent); pointer-events: none; animation: swim 46s linear infinite; will-change: transform;
@@ -539,7 +535,7 @@ h2 {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
 }
 .card {
@@ -556,13 +552,28 @@ h2 {
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
 }
 
+/* KHUNG HÌNH SẢN PHẨM: HIỂN THỊ TRỌN VẸN CÁ + NỀN MỜ TỰ ĐỘNG */
 .pic {
-  background: #090b08;
-  aspect-ratio: 4/3;
+  background: radial-gradient(circle at center, #151a12 0%, #090b08 100%);
+  aspect-ratio: 4 / 3;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid var(--border-subtle);
+  border: 0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pic-bg {
+  position: absolute;
+  inset: -10px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px) brightness(0.42) saturate(1.15);
+  transform: scale(1.12);
+  pointer-events: none;
+  z-index: 0;
 }
 .pic::after {
   content: "CHI TIẾT";
@@ -570,19 +581,29 @@ h2 {
   position: absolute; bottom: 8px; right: 8px;
   font-size: 9px; font-weight: 800; letter-spacing: 1px;
   color: #111310; opacity: 0; transition: opacity 0.2s ease;
-  background: var(--accent); padding: 4px 10px; border-radius: 5px;
+  background: var(--accent); padding: 5px 12px; border-radius: 999px;
   pointer-events: none;
+  z-index: 3;
 }
 .pic:hover::after { opacity: 1; }
 .video-badge {
   position: absolute; top: 8px; left: 8px;
   background: rgba(14, 16, 13, 0.85); color: var(--accent);
-  border: 1px solid var(--border); border-radius: 6px;
+  border: 1px solid var(--border); border-radius: 999px;
   padding: 3px 9px; font-family: 'Montserrat', sans-serif;
   font-size: 9.5px; font-weight: 700; pointer-events: none;
   display: inline-flex; align-items: center; gap: 4px;
+  z-index: 3;
 }
-.pic svg, .pic img, .pic video { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 0.35s ease; }
+.pic svg, .pic img, .pic video {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  transition: transform 0.35s ease;
+}
 .pic:hover svg, .pic:hover img, .pic:hover video { transform: scale(1.04); }
 
 .info { padding: 18px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
@@ -929,12 +950,37 @@ h2 {
 
 .fish-info-wrap { text-align: left; }
 .fish-info-pic {
-  width: 100%; height: 240px; border-radius: 10px; margin-bottom: 20px;
-  border: 1px solid var(--border); overflow: hidden; background: #090b08;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  max-height: 270px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: radial-gradient(circle at center, #151a12 0%, #090b08 100%);
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.fish-info-pic video, .fish-info-pic img, .fish-info-pic svg, .fish-info-pic iframe {
-  width: 100%; height: 100%; object-fit: cover; border: none; display: block;
+.fish-info-pic img, .fish-info-pic svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border: none;
+  display: block;
+}
+.fish-info-pic video, .fish-info-pic iframe {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  border: none;
+  display: block;
 }
 .info-detail-row { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
 .info-detail-row:last-child { border-bottom: none; }
@@ -947,6 +993,9 @@ h2 {
   font-size: 12px; text-transform: uppercase; cursor: pointer; transition: 0.2s;
 }
 .btn-close-info:hover { background: var(--accent); color: #111310; }
+
+.card:has(.mono-stock.out-stock) .pic-bg { filter: blur(8px) grayscale(1) brightness(0.3); }
+.pic { contain: paint; }
 
 .map-section { max-width: 1200px; margin: 50px auto; padding: 0 20px; }
 .map-container {
@@ -1018,6 +1067,11 @@ footer {
   border: 1.5px solid var(--bg); transition: 0.2s;
 }
 .float-btn svg { width: 19px; height: 19px; stroke: #111310; fill: none; stroke-width: 2.2; }
+.float-btn svg.fill { fill: #111310; stroke: none; width: 17px; height: 17px; }
+@media (max-width: 640px) {
+  .float-contact { bottom: 14px; right: 12px; gap: 8px; }
+  .float-btn { width: 40px; height: 40px; }
+}
 .float-btn:hover { transform: scale(1.06); background: #b0c978; }
 #btnTop {
   position: fixed; left: 24px; bottom: 24px; background: var(--bg-card);
@@ -1101,7 +1155,8 @@ h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg
 .chip { background: transparent; padding: 9px 16px; }
 .chip.on { background: var(--accent); }
 
-.grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 22px; }
+/* Đảm bảo chuẩn 4 cột trên Desktop */
+.grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
 .card {
   padding: 8px; border-radius: 20px; background: linear-gradient(180deg, #171b14, #12150f);
   animation: cardIn .5s cubic-bezier(.2,.7,.2,1) backwards;
@@ -1113,9 +1168,7 @@ h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg
 .grid .card:nth-child(8) { animation-delay: .28s; } .grid .card:nth-child(n+9) { animation-delay: .32s; }
 @keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .card:hover { transform: translateY(-4px); border-color: var(--border); box-shadow: 0 16px 30px rgba(0,0,0,0.5); }
-.pic { aspect-ratio: 1 / 1; border: 0; border-radius: 14px; }
-.pic::after { border-radius: 999px; padding: 5px 12px; }
-.video-badge { border-radius: 999px; }
+
 .info { padding: 14px 8px 8px; gap: 5px; }
 .info b { font-size: 15.5px; line-height: 1.3; }
 .info small { font-size: 11px; }
@@ -1147,23 +1200,26 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
 
 .pagination button { border-radius: 999px; background: transparent; }
 
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE ĐA THIẾT BỊ ===== */
 @media (max-width: 1024px) {
   .header-nav { display: none; }
   .mobile-nav-strip { display: flex; }
   .feature-grid { grid-template-columns: repeat(2, 1fr); }
   .feature-item:nth-child(2) { border-right: none; }
   .feature-item:nth-child(-n+2) { border-bottom: 1px solid var(--border-subtle); }
+  .hero-right { perspective: none; }
+  .showcase-card { transform: none !important; transform-style: flat; will-change: auto; }
+  .showcase-spotlight { display: none; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 }
 @media (max-width: 900px) {
-  .hero-wrap { grid-template-columns: 1fr; gap: 44px; padding: 30px 0 24px; }
-  .hero-right { justify-content: flex-start; }
-  .showcase-card { max-width: 420px; margin: 0 auto; }
+  .hero-wrap { grid-template-columns: 1fr; gap: 36px; padding: 30px 0 24px; }
   .hero-right { justify-content: center; }
+  .showcase-card { max-width: 360px; margin: 0 auto; }
   .map-container { grid-template-columns: 1fr; }
   .map-iframe { border-left: none; border-top: 1px solid var(--border-subtle); min-height: 300px; }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   header { top: 10px; padding: 0 12px; }
   .bar { height: 54px; padding: 0 8px 0 12px; }
   .brand-wrap img { height: 32px; width: 32px; }
@@ -1189,9 +1245,9 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
   .feature-link { font-size: 10px; }
 
   main { padding: 20px 14px 6px; }
-  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .card { padding: 6px; border-radius: 16px; }
-  .pic { border-radius: 11px; }
+  .pic { border-radius: 11px; aspect-ratio: 4 / 3; }
   .info { padding: 10px 6px 6px; }
   .info b { font-size: 14px; }
   .price { font-size: 16.5px; }
@@ -1451,6 +1507,9 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
   </a>
   <a href="https://zalo.me/0703008005" class="float-btn" target="_blank" title="Zalo">Zalo</a>
   <a href="https://www.facebook.com/share/19gZAZgohs/?mibextid=wwXIfr" class="float-btn" target="_blank" title="Facebook">FB</a>
+  <a href="https://www.tiktok.com/@tk0aqua" class="float-btn" target="_blank" rel="noopener" title="TikTok" aria-label="TikTok">
+    <svg class="fill" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+  </a>
 </div>
 
 <div id="customModal" class="modal-overlay" onclick="window.closeModalOutside(event)">
@@ -1650,6 +1709,15 @@ function buildDetailVideoHtml(vidUrl, posterUrl) {
   return '<video autoplay loop muted playsinline controls preload="metadata" ' + posterAttr + '><source src="' + url + '" type="video/mp4"></video>';
 }
 
+function buildCardPicContent(f, fallbackSvg) {
+  if (f.img) {
+    var safeUrl = f.img.replace(/"/g, '&quot;').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
+    return '<div class="pic-bg" style="background-image:url(\'' + safeUrl + '\')"></div>'
+         + '<img src="' + safeUrl + '" alt="' + f.n + '" loading="lazy" decoding="async">';
+  }
+  return fallbackSvg;
+}
+
 var cart = [];
 const itemsPerPage = 12;
 
@@ -1811,7 +1879,7 @@ function renderGrid(){
       ? '<button onclick="add(' + f.originalIndex + ', \'fish\')">Thêm vào giỏ</button>'
       : '<button disabled>Hết hàng</button>';
 
-    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svg(f);
+    var cardMediaHtml = buildCardPicContent(f, svg(f));
     var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
 
     h += '<div class="card">'
@@ -1896,7 +1964,7 @@ function renderAccGrid(){
       ? '<button onclick="add(' + f.originalIndex + ', \'acc\')">Thêm vào giỏ</button>'
       : '<button disabled>Hết hàng</button>';
 
-    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svgAcc(f);
+    var cardMediaHtml = buildCardPicContent(f, svgAcc(f));
     var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
 
     h += '<div class="card">'
@@ -1974,7 +2042,7 @@ function renderPlecoGrid(){
   paginatedItems.forEach(function(f){
     var detailCall = 'window.showFishDetail(' + f.originalIndex + ', \'pleco\')';
 
-    var cardMediaHtml = f.img ? '<img src="' + f.img + '" alt="' + f.n + '" loading="lazy">' : svg(f);
+    var cardMediaHtml = buildCardPicContent(f, svg(f));
     var videoBadgeHtml = f.vid ? '<span class="video-badge">▶ Video</span>' : '';
 
     h += '<div class="card">'
@@ -2338,7 +2406,7 @@ window.showFishDetail = function(index, type) {
   let defaultSvg = type === 'acc' ? svgAcc(f) : svg(f);
   let detailMediaHtml = f.vid 
       ? buildDetailVideoHtml(f.vid, f.img) 
-      : (f.img ? '<img src="' + f.img + '" alt="' + f.n + '">' : defaultSvg);
+      : buildCardPicContent(f, defaultSvg);
 
   let label1 = type === 'acc' ? "Công Dụng & Đặc Điểm" : "Đặc Điểm & Tập Tính";
   let label2 = type === 'acc' ? "Hướng Dẫn Sử Dụng" : "Thông Số Nước & Bể";
@@ -2687,36 +2755,6 @@ initData();
 
       await setDoc(orderDocRef, orderRecord);
       saveOrderToLocalHistory(Object.assign({}, orderRecord, { ngay_dat_text: thoiGianDat }));
-
-      const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwIvuLes3qi8AH3AINWDDzLPVigzNvp5kDLhYl0azjWWfqf3C2j9ynNSD4Wr7lzfpVvIg/exec";
-
-      let chuoiChiTietSP = danhSachSP.map(function(sp) {
-        let dv = sp.loai === "Phụ kiện" ? "sp" : "con";
-        let sz = sp.size ? " (" + sp.size + ")" : "";
-        return sp.ten_ca + sz + " x" + sp.so_luong + " " + dv;
-      }).join(", ") + " | Ship: " + phuongThucShip + " (+" + phiShip.toLocaleString('vi-VN') + "đ)";
-
-      const sheetPayload = {
-        action: "create",
-        tinh_trang: "Chưa thanh toán",
-        ma_don: "TKA-" + maSo,
-        thoi_gian: thoiGianDat,
-        ten_khach: customer.name,
-        so_dien_thoai: customer.phone,
-        dia_chi: customer.address,
-        chi_tiet_sp: chuoiChiTietSP,
-        chi_tiet_ca: chuoiChiTietSP,
-        tong_so_luong: tongSoLuong,
-        tong_tien: tongTien,
-        ghi_chu: (customer.note ? customer.note + " | " : "") + phuongThucShip
-      };
-
-      fetch(GOOGLE_SHEET_WEBHOOK_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(sheetPayload)
-      }).catch(function(err) { console.log("Google Sheet error:", err); });
 
       let payosPaymentData = null;
       try {

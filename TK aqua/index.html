@@ -2468,23 +2468,14 @@ initData();
 </script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-analytics.js";
-  import { getFirestore, collection, doc, setDoc, getDocs, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyB05d2OGQLkMiOQQrXRLtfE8tUVb3f5iMs",
-    authDomain: "tk-aqua.firebaseapp.com",
-    projectId: "tk-aqua",
-    storageBucket: "tk-aqua.firebasestorage.app",
-    messagingSenderId: "2700293713",
-    appId: "1:2700293713:web:cb704001cba8b33554ea70",
-    measurementId: "G-JTVTCH34S1"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getFirestore(app);
+  function markLocalOrderPaid(maDon) {
+    try {
+      let raw = localStorage.getItem("tka_order_history");
+      let list = raw ? JSON.parse(raw) : [];
+      list = list.map(function(x) { return x.ma_don === maDon ? Object.assign({}, x, { trang_thai: "Đã thanh toán", paid: true, payos: null }) : x; });
+      localStorage.setItem("tka_order_history", JSON.stringify(list));
+    } catch (e) {}
+  }
 
   function saveOrderToLocalHistory(orderSummary) {
     try {
@@ -2512,7 +2503,7 @@ initData();
     }
 
     if (info && (info.status === "PAID" || (Number(info.amount) > 0 && Number(info.amountPaid) >= Number(info.amount)))) {
-      saveOrderToLocalHistory(Object.assign({}, o, { trang_thai: "Đã thanh toán", paid: true }));
+      markLocalOrderPaid(o.ma_don);
       await window.showModalAlert("Đơn đã thanh toán", "Đơn hàng <b>#" + o.ma_don + "</b> đã được thanh toán đầy đủ. Cảm ơn bạn!");
       return;
     }
@@ -2534,27 +2525,8 @@ initData();
       return;
     }
 
-    const docId = o._docId ? o._docId : (o.ma_don + " - " + o.so_dien_thoai + " - " + o.ten_khach);
-    const orderDocRef = doc(db, "don_hang", docId);
-
     const onPaymentSuccess = async function() {
-      try {
-        await setDoc(orderDocRef, {
-          trang_thai: "Đã thanh toán",
-          paid: true,
-          ngay_thanh_toan: serverTimestamp()
-        }, { merge: true });
-      } catch (e) {}
-      saveOrderToLocalHistory(Object.assign({}, o, { trang_thai: "Đã thanh toán", paid: true }));
-    };
-
-    const listenFirestorePaid = function(cb) {
-      return onSnapshot(orderDocRef, function(snap) {
-        const data = snap.data();
-        if (data && (data.trang_thai === "Đã thanh toán" || data.paid === true)) {
-          cb();
-        }
-      });
+      markLocalOrderPaid(o.ma_don);
     };
 
     await window.showPayOSModal(
@@ -2569,7 +2541,7 @@ initData();
         tongCong: o.tong_tien ? o.tong_tien : 0
       },
       onPaymentSuccess,
-      listenFirestorePaid
+      null
     );
   };
 
@@ -2639,27 +2611,25 @@ initData();
       let kw = keyword ? keyword.trim() : "";
       let results = [];
 
+      const fetchOrders = async function(q) {
+        const res = await fetch(API_BASE + "/api/lookup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ q: q })
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json && json.error ? json.error : "Lỗi tra cứu");
+        return Array.isArray(json.orders) ? json.orders : [];
+      };
+
       try {
         if (kw) {
-          let cleanPhone = kw.replace(/[\s\.\-]/g, '');
-          if (cleanPhone.length >= 9 && cleanPhone.length <= 11 && cleanPhone.charAt(0) === '0') {
-            const qPhone = query(collection(db, "don_hang"), where("so_dien_thoai", "==", cleanPhone));
-            const snap = await getDocs(qPhone);
-            snap.forEach(function(d) { results.push(d.data()); });
-          } else {
-            let code = kw.toUpperCase().replace(/^#/, '');
-            if (!code.startsWith("TKA-")) code = "TKA-" + code.replace(/^TKA\s*/, '');
-            const qCode = query(collection(db, "don_hang"), where("ma_don", "==", code));
-            const snap = await getDocs(qCode);
-            snap.forEach(function(d) { results.push(d.data()); });
-          }
+          results = await fetchOrders(kw);
         } else {
           let rawLocal = localStorage.getItem("tka_order_history");
           const localList = rawLocal ? JSON.parse(rawLocal) : [];
           if (localList.length > 0 && localList[0].so_dien_thoai) {
-            const qPhone = query(collection(db, "don_hang"), where("so_dien_thoai", "==", localList[0].so_dien_thoai));
-            const snap = await getDocs(qPhone);
-            snap.forEach(function(d) { results.push(d.data()); });
+            results = await fetchOrders(localList[0].so_dien_thoai);
           } else {
             results = localList;
           }
@@ -2668,6 +2638,10 @@ initData();
         console.error("Lookup error:", err);
         let rawLocal = localStorage.getItem("tka_order_history");
         results = rawLocal ? JSON.parse(rawLocal) : [];
+        if (container && err && err.message && err.message.indexOf("quá nhanh") > -1) {
+          container.innerHTML = '<div style="text-align:center; padding: 24px 10px; color: var(--text-muted);">' + err.message + '</div>';
+          return;
+        }
       }
 
       results.sort(function(a, b) {
@@ -2704,133 +2678,63 @@ initData();
     btn.textContent = "ĐANG XỬ LÝ...";
     btn.disabled = true; 
 
-    let danhSachSP = [];
-    let tienHang = 0;
-    let tongSoLuong = 0;
-
-    cart.forEach(function(item) {
-      let source = getItemSource(item.type);
-      let f = source[item.index];
-      let thanhTien = f.p * item.qty;
-      tienHang += thanhTien;
-      tongSoLuong += item.qty;
-
-      danhSachSP.push({
-        loai: item.type === 'acc' ? "Phụ kiện" : "Cá cảnh",
-        ten_ca: f.n,
-        size: f.s ? f.s : "",
-        so_luong: item.qty,
-        don_gia: f.p,
-        thanh_tien: thanhTien
+    try {
+      const itemsPayload = cart.map(function(item) {
+        const source = getItemSource(item.type);
+        const f = source[item.index];
+        return { type: item.type === 'acc' ? 'acc' : 'fish', name: f.n, size: f.s ? f.s : "", qty: item.qty };
       });
 
-    });
-
-    const phiShip = customer.shipFee ? customer.shipFee : 0;
-    const phuongThucShip = customer.shipMethod ? customer.shipMethod : "Tiêu chuẩn";
-    const tongTien = tienHang + phiShip;
-
-    try {
-      let maSo = Number(String(Date.now()).slice(-6) + String(Math.floor(10 + Math.random() * 90)));
-      let maDonHang = "TKA-" + maSo + " - " + customer.phone + " - " + customer.name;
-      let thoiGianDat = new Date().toLocaleString('vi-VN');
-      const orderDocRef = doc(db, "don_hang", maDonHang);
-
-      const orderRecord = {
-        ma_don: "TKA-" + maSo,
-        order_code_num: maSo,
-        trang_thai: "Chờ thanh toán",
-        ten_khach: customer.name,       
-        so_dien_thoai: customer.phone,
-        dia_chi: customer.address,
-        phuong_thuc_ship: phuongThucShip,
-        phi_ship: phiShip,
-        tien_hang: tienHang,
-        ghi_chu: customer.note ? customer.note : "Không có",
-        san_pham: danhSachSP,
-        tong_so_luong: tongSoLuong,
-        tong_tien: tongTien,
-        ngay_dat: serverTimestamp()
-      };
-
-      await setDoc(orderDocRef, orderRecord);
-      saveOrderToLocalHistory(Object.assign({}, orderRecord, { ngay_dat_text: thoiGianDat }));
-
-      let payosPaymentData = null;
-      try {
-        const payRes = await fetch(API_BASE + "/api/create-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderCode: maSo,
-            amount: tongTien,
-            description: "Than tang TK TKA-" + maSo,
-            buyerName: customer.name,
-            buyerPhone: customer.phone,
-            buyerAddress: customer.address
-          })
-        });
-        const payJson = await payRes.json();
-        if (payJson && payJson.data && (payJson.data.qrCode || payJson.data.checkoutUrl)) {
-          payosPaymentData = payJson.data;
-        } else if (payJson && (payJson.qrCode || payJson.checkoutUrl)) {
-          payosPaymentData = payJson;
-        }
-      } catch (payErr) {
-        console.error("Lỗi gọi API payOS:", payErr);
+      const res = await fetch(API_BASE + "/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: {
+            name: customer.name,
+            phone: customer.phone,
+            address: customer.address,
+            note: customer.note ? customer.note : "",
+            shipMethod: customer.shipMethod
+          },
+          items: itemsPayload
+        })
+      });
+      const result = await res.json();
+      if (!res.ok || !result || !result.order) {
+        await window.showModalAlert("Không thể tạo đơn", (result && result.error) ? result.error : "Vui lòng thử lại hoặc gọi trực tiếp 0703.008.005.");
+        return;
       }
 
-      if (payosPaymentData) {
-        const payosSaved = {
-          qrCode: payosPaymentData.qrCode ? payosPaymentData.qrCode : "",
-          checkoutUrl: payosPaymentData.checkoutUrl ? payosPaymentData.checkoutUrl : "",
-          accountNumber: payosPaymentData.accountNumber ? payosPaymentData.accountNumber : "",
-          description: payosPaymentData.description ? payosPaymentData.description : ""
-        };
-        try { await setDoc(orderDocRef, { payos: payosSaved }, { merge: true }); } catch (e) { console.log("Save payos error:", e); }
-        saveOrderToLocalHistory(Object.assign({}, orderRecord, { payos: payosSaved, ngay_dat_text: thoiGianDat }));
-      }
+      const o = result.order;
+      const maSo = o.order_code_num;
+      const payosPaymentData = result.payos;
+      saveOrderToLocalHistory(Object.assign({}, o, { ngay_dat_text: new Date().toLocaleString('vi-VN') }));
 
       cart = []; upd(); toggle();
 
       if (payosPaymentData) {
         const onPaymentSuccess = async function() {
-          await setDoc(orderDocRef, {
-            trang_thai: "Đã thanh toán",
-            paid: true,
-            ngay_thanh_toan: serverTimestamp()
-          }, { merge: true });
-
-          saveOrderToLocalHistory(Object.assign({}, orderRecord, { trang_thai: "Đã thanh toán", paid: true }));
-        };
-
-        const listenFirestorePaid = function(cb) {
-          return onSnapshot(orderDocRef, function(snap) {
-            const data = snap.data();
-            if (data && (data.trang_thai === "Đã thanh toán" || data.paid === true)) {
-              cb();
-            }
-          });
+          markLocalOrderPaid(o.ma_don);
         };
 
         await window.showPayOSModal(
           payosPaymentData,
           {
-            maDon: "TKA-" + maSo,
+            maDon: o.ma_don,
             orderCodeNum: maSo,
             tenKhach: customer.name,
             sdt: customer.phone,
-            tienHang: tienHang,
-            phiShip: phiShip,
-            tongCong: tongTien
+            tienHang: o.tien_hang,
+            phiShip: o.phi_ship,
+            tongCong: o.tong_tien
           },
           onPaymentSuccess,
-          listenFirestorePaid
+          null
         );
       } else {
         await window.showModalAlert(
           "Đặt hàng thành công",
-          "Cảm ơn <b>" + customer.name.toUpperCase() + "</b>.<br>Đơn hàng <b>#TKA-" + maSo + "</b> (" + tongSoLuong + " sản phẩm — Tổng cộng <b>" + tongTien.toLocaleString('vi-VN') + "đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>" + customer.phone + "</b> để xác nhận lịch giao."
+          "Cảm ơn <b>" + customer.name.toUpperCase() + "</b>.<br>Đơn hàng <b>#" + o.ma_don + "</b> (" + o.tong_so_luong + " sản phẩm — Tổng cộng <b>" + Number(o.tong_tien).toLocaleString('vi-VN') + "đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>" + customer.phone + "</b> để xác nhận lịch giao."
         );
       }
     } catch (error) {

@@ -1356,7 +1356,7 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
       </p>
       <div class="hero-btns">
         <a href="#sp" class="btn-primary">Xem danh mục ↓</a>
-        <a href="https://zalo.me/0703008005" target="_blank" class="btn-outline">Tư vấn Zalo</a>
+        <a href="https://zalo.me/0703008005" target="_blank" rel="noopener noreferrer" class="btn-outline">Tư vấn Zalo</a>
       </div>
       <div class="hero-metrics">
         <div class="metric-item">
@@ -1453,7 +1453,7 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
 </main>
 
 <!-- DANH MỤC PLECO -->
-<main id="pl" hidden>
+<main id="pl">
   <h2 class="rv">CÁ “ĐỘC” CÁ LẠ</h2>
   <div class="tools" id="plToolsBox">
     <input id="qPl" placeholder="Đang tải dữ liệu..." readonly>
@@ -1468,7 +1468,7 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
       <h3>TK AQUA STUDIO</h3>
       <p><b>Hotline / Zalo:</b> 0703.008.005<br><br>
       Mời bạn ghé thăm studio để trực tiếp trải nghiệm hệ thống bể dưỡng và chọn lựa những cá thể ưng ý nhất. Vui lòng liên hệ trước khi đến để được tiếp đón chu đáo.</p>
-      <a href="https://www.google.com/maps?cid=3282746348525042852" target="_blank" class="btn-map">
+      <a href="https://www.google.com/maps?cid=3282746348525042852" target="_blank" rel="noopener noreferrer" class="btn-map">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
         Chỉ đường Google Maps
       </a>
@@ -1505,8 +1505,8 @@ footer::before { content: ""; position: absolute; top: -1px; left: 50%; width: 1
   <a href="tel:0703008005" class="float-btn" title="Gọi điện">
     <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
   </a>
-  <a href="https://zalo.me/0703008005" class="float-btn" target="_blank" title="Zalo">Zalo</a>
-  <a href="https://www.facebook.com/share/19gZAZgohs/?mibextid=wwXIfr" class="float-btn" target="_blank" title="Facebook">FB</a>
+  <a href="https://zalo.me/0703008005" class="float-btn" target="_blank" rel="noopener noreferrer" title="Zalo">Zalo</a>
+  <a href="https://www.facebook.com/share/19gZAZgohs/?mibextid=wwXIfr" class="float-btn" target="_blank" rel="noopener noreferrer" title="Facebook">FB</a>
   <a href="https://www.tiktok.com/@tk0aqua" class="float-btn" target="_blank" rel="noopener" title="TikTok" aria-label="TikTok">
     <svg class="fill" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
   </a>
@@ -2097,7 +2097,7 @@ function add(i, type) {
     if (existing.qty < product.sl) {
       existing.qty++;
     } else {
-      window.showModalAlert("Giới hạn tồn kho", "<b>" + product.n + "</b> hiện chỉ còn tối đa <b>" + product.sl + "</b> " + unitLabel + ".");
+      window.showModalAlert("Giới hạn tồn kho", "<b>" + esc(product.n) + "</b> hiện chỉ còn tối đa <b>" + product.sl + "</b> " + unitLabel + ".");
       return;
     }
   } else {
@@ -2118,7 +2118,7 @@ function changeQty(k, delta) {
   if (newQty <= 0) {
     cart.splice(k, 1);
   } else if (newQty > maxStock) {
-    window.showModalAlert("Giới hạn tồn kho", "<b>" + product.n + "</b> hiện chỉ còn <b>" + maxStock + "</b> " + unitLabel + ".");
+    window.showModalAlert("Giới hạn tồn kho", "<b>" + esc(product.n) + "</b> hiện chỉ còn <b>" + maxStock + "</b> " + unitLabel + ".");
   } else {
     item.qty = newQty;
   }
@@ -2141,7 +2141,7 @@ function upd() {
     t += subTotal;
     return '<div class="row">'
       + '<div class="cart-item-info">'
-      + '<span class="cart-item-title">' + product.n + '</span>'
+      + '<span class="cart-item-title">' + esc(product.n) + '</span>'
       + '<span class="cart-item-sub">' + money(product.p) + 'đ × ' + item.qty + ' = <b style="color:var(--accent)">' + money(subTotal) + 'đ</b></span>'
       + '</div>'
       + '<div class="qty-box">'
@@ -2201,9 +2201,9 @@ window.showCheckoutModal = function(tienHang) {
     modalBox.innerHTML = '<h3>Thông Tin Nhận Hàng</h3>'
       + '<p style="margin-bottom: 16px;">Điền thông tin để TK aqua xác nhận và khởi tạo mã thanh toán:</p>'
       + '<div class="checkout-form">'
-      + '<div class="form-group"><label>Người nhận *</label><input type="text" id="chkName" placeholder="Nguyễn Văn A" autocomplete="name" value="' + savedName + '"></div>'
-      + '<div class="form-group"><label>Số điện thoại *</label><input type="tel" id="chkPhone" placeholder="0703008005" autocomplete="tel" value="' + savedPhone + '"></div>'
-      + '<div class="form-group"><label>Địa chỉ nhận hàng *</label><textarea id="chkAddress" placeholder="Số nhà, đường, Phường/Xã, Quận/Huyện, Tỉnh/TP...">' + savedAddress + '</textarea></div>'
+      + '<div class="form-group"><label>Người nhận *</label><input type="text" id="chkName" placeholder="Nguyễn Văn A" autocomplete="name" value="' + esc(savedName) + '"></div>'
+      + '<div class="form-group"><label>Số điện thoại *</label><input type="tel" id="chkPhone" placeholder="0703008005" autocomplete="tel" value="' + esc(savedPhone) + '"></div>'
+      + '<div class="form-group"><label>Địa chỉ nhận hàng *</label><textarea id="chkAddress" placeholder="Số nhà, đường, Phường/Xã, Quận/Huyện, Tỉnh/TP...">' + esc(savedAddress) + '</textarea></div>'
       + '<div class="form-group"><label>Khu vực & Phương thức giao hàng *</label>'
       + '<select id="chkShipping">'
       + '<option value="110000" data-label="Nội thành TP.HCM (Hộp đóng hàng + Ship Grab/Ahamove)">Nội thành TP.HCM (Hộp + Ship app): +110.000đ</option>'
@@ -2281,6 +2281,10 @@ window.showCheckoutModal = function(tienHang) {
   });
 };
 
+function esc(v) {
+  return String(v == null ? "" : v).replace(/[&<>"']/g, function(c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; });
+}
+function safeUrl(u) { return /^https:\/\//i.test(String(u || "")) ? String(u) : "#"; }
 window.showModalAlert = function(title, message) {
   clearTimeout(modalTimer);
   return new Promise(function(resolve) {
@@ -2295,23 +2299,23 @@ window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, liste
   clearTimeout(modalTimer);
   return new Promise(function(resolve) {
     const qrRaw = paymentInfo.qrCode ? paymentInfo.qrCode : "";
-    const checkoutUrl = paymentInfo.checkoutUrl ? paymentInfo.checkoutUrl : "#";
+    const checkoutUrl = safeUrl(paymentInfo.checkoutUrl);
     const qrImgSrc = qrRaw
       ? "https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=6&data=" + encodeURIComponent(qrRaw)
       : "";
 
     let accRow = paymentInfo.accountNumber
-      ? '<div class="payos-info-row"><span>Số tài khoản nhận:</span><b>' + paymentInfo.accountNumber + '</b></div>'
+      ? '<div class="payos-info-row"><span>Số tài khoản nhận:</span><b>' + esc(paymentInfo.accountNumber) + '</b></div>'
       : '';
     let descRow = paymentInfo.description
-      ? '<div class="payos-info-row"><span>Nội dung CK:</span><b>' + paymentInfo.description + '</b></div>'
+      ? '<div class="payos-info-row"><span>Nội dung CK:</span><b>' + esc(paymentInfo.description) + '</b></div>'
       : '';
 
-    modalBox.innerHTML = '<h3>Thanh Toán Đơn #' + orderInfo.maDon + '</h3>'
+    modalBox.innerHTML = '<h3>Thanh Toán Đơn #' + esc(orderInfo.maDon) + '</h3>'
       + '<p style="margin-bottom: 10px; font-size: 13px;">Mở App Ngân hàng bất kỳ để quét mã VietQR payOS bên dưới (số tiền & nội dung đã được khóa tự động):</p>'
       + '<div class="payos-qr-box">'
       + (qrImgSrc ? '<div class="payos-qr-img-wrap"><img src="' + qrImgSrc + '" alt="Mã QR payOS"></div>' : '')
-      + '<div class="payos-info-row"><span>Mã đơn hàng:</span><b>#' + orderInfo.maDon + '</b></div>'
+      + '<div class="payos-info-row"><span>Mã đơn hàng:</span><b>#' + esc(orderInfo.maDon) + '</b></div>'
       + '<div class="payos-info-row"><span>Tiền sản phẩm:</span><b>' + money(orderInfo.tienHang) + 'đ</b></div>'
       + '<div class="payos-info-row"><span>Phí đóng gói & ship:</span><b>' + money(orderInfo.phiShip) + 'đ</b></div>'
       + '<div class="payos-info-row"><span>Tổng thanh toán:</span><b style="font-size: 15px; color: #ffcc00;">' + money(orderInfo.tongCong) + 'đ</b></div>'
@@ -2320,7 +2324,7 @@ window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, liste
       + '<span class="pulse-dot"></span><span>Đang chờ xác nhận thanh toán tự động...</span>'
       + '</div></div>'
       + '<div class="modal-actions">'
-      + '<a href="' + checkoutUrl + '" target="_blank" class="btn-cancel">Mở cổng payOS ↗</a>'
+      + '<a href="' + esc(checkoutUrl) + '" target="_blank" rel="noopener noreferrer" class="btn-cancel">Mở cổng payOS ↗</a>'
       + '<button id="modalConfirm" class="btn-confirm">Kiểm tra / Đóng</button>'
       + '</div>';
 
@@ -2350,7 +2354,7 @@ window.showPayOSModal = function(paymentInfo, orderInfo, onPaymentSuccess, liste
         window.closeModal();
         await window.showModalAlert(
           "Xác Nhận Thanh Toán Thành Công",
-          "Cảm ơn <b>" + orderInfo.tenKhach.toUpperCase() + "</b>!<br>Hệ thống đã nhận đủ <b>" + money(orderInfo.tongCong) + "đ</b> cho đơn hàng <b>#" + orderInfo.maDon + "</b>.<br>Bạn có thể xem lại trạng thái đơn bất cứ lúc nào tại mục <b>Tra cứu đơn</b>."
+          "Cảm ơn <b>" + esc(orderInfo.tenKhach.toUpperCase()) + "</b>!<br>Hệ thống đã nhận đủ <b>" + money(orderInfo.tongCong) + "đ</b> cho đơn hàng <b>#" + esc(orderInfo.maDon) + "</b>.<br>Bạn có thể xem lại trạng thái đơn bất cứ lúc nào tại mục <b>Tra cứu đơn</b>."
         );
         resolve(true);
       }, 900);
@@ -2414,11 +2418,11 @@ window.showFishDetail = function(index, type) {
   
   modalBox.innerHTML = '<div class="fish-info-wrap">'
     + '<div class="fish-info-pic">' + detailMediaHtml + '</div>'
-    + '<h3 style="margin-bottom: 4px;">' + f.n + '</h3>'
-    + '<div style="font-size: 12px; font-family:\'Montserrat\',sans-serif; text-transform:uppercase; letter-spacing:1px; margin-bottom: 20px; color: var(--text-muted);">Phân loại: ' + f.cat + ' · ' + f.s + '</div>'
-    + '<div class="info-detail-row"><b>' + label1 + '</b><span>' + (f.desc ? f.desc : "Đang cập nhật.") + '</span></div>'
-    + '<div class="info-detail-row"><b>' + label2 + '</b><span>' + (f.env ? f.env : "Đang cập nhật.") + '</span></div>'
-    + '<div class="info-detail-row"><b>' + label3 + '</b><span>' + (f.mates ? f.mates : "Đang cập nhật.") + '</span></div>'
+    + '<h3 style="margin-bottom: 4px;">' + esc(f.n) + '</h3>'
+    + '<div style="font-size: 12px; font-family:\'Montserrat\',sans-serif; text-transform:uppercase; letter-spacing:1px; margin-bottom: 20px; color: var(--text-muted);">Phân loại: ' + esc(f.cat) + ' · ' + esc(f.s) + '</div>'
+    + '<div class="info-detail-row"><b>' + label1 + '</b><span>' + esc(f.desc || "Đang cập nhật.") + '</span></div>'
+    + '<div class="info-detail-row"><b>' + label2 + '</b><span>' + esc(f.env || "Đang cập nhật.") + '</span></div>'
+    + '<div class="info-detail-row"><b>' + label3 + '</b><span>' + esc(f.mates || "Đang cập nhật.") + '</span></div>'
     + '<button class="btn-close-info" onclick="window.closeModal()">Đóng</button>'
     + '</div>';
   modalOverlay.classList.add('show');
@@ -2504,11 +2508,11 @@ initData();
 
     if (info && (info.status === "PAID" || (Number(info.amount) > 0 && Number(info.amountPaid) >= Number(info.amount)))) {
       markLocalOrderPaid(o.ma_don);
-      await window.showModalAlert("Đơn đã thanh toán", "Đơn hàng <b>#" + o.ma_don + "</b> đã được thanh toán đầy đủ. Cảm ơn bạn!");
+      await window.showModalAlert("Đơn đã thanh toán", "Đơn hàng <b>#" + esc(o.ma_don) + "</b> đã được thanh toán đầy đủ. Cảm ơn bạn!");
       return;
     }
     if (info && (info.status === "CANCELLED" || info.status === "EXPIRED")) {
-      await window.showModalAlert("Link thanh toán đã hết hạn", "Đơn <b>#" + o.ma_don + "</b> không còn mã thanh toán hợp lệ. Vui lòng liên hệ Zalo <b>0703.008.005</b> để được hỗ trợ.");
+      await window.showModalAlert("Link thanh toán đã hết hạn", "Đơn <b>#" + esc(o.ma_don) + "</b> không còn mã thanh toán hợp lệ. Vui lòng liên hệ Zalo <b>0703.008.005</b> để được hỗ trợ.");
       return;
     }
 
@@ -2552,7 +2556,7 @@ initData();
     modalBox.innerHTML = '<h3>Đơn Hàng Đã Đặt</h3>'
       + '<p style="margin-bottom: 12px; font-size: 13px;">Nhập <b>Số điện thoại</b> hoặc <b>Mã đơn</b> (VD: TKA-92881161) để xem trạng thái đơn hàng:</p>'
       + '<div class="order-lookup-bar">'
-      + '<input type="text" id="lookupInput" placeholder="Nhập SĐT hoặc Mã đơn..." value="' + savedPhone + '">'
+      + '<input type="text" id="lookupInput" placeholder="Nhập SĐT hoặc Mã đơn..." value="' + esc(savedPhone) + '">'
       + '<button id="btnLookupSearch">Tìm kiếm</button>'
       + '</div>'
       + '<div id="lookupResults" class="order-history-list">'
@@ -2574,20 +2578,20 @@ initData();
         const badgeClass = isPaid ? "paid" : "pending";
         const badgeText = isPaid ? "✅ Đã thanh toán" : "⏳ Chờ thanh toán";
         const spList = Array.isArray(o.san_pham)
-          ? o.san_pham.map(function(sp) { return sp.ten_ca + (sp.size ? " (" + sp.size + ")" : "") + " × " + sp.so_luong; }).join(", ")
+          ? o.san_pham.map(function(sp) { return esc(sp.ten_ca) + (sp.size ? " (" + esc(sp.size) + ")" : "") + " × " + esc(sp.so_luong); }).join(", ")
           : "";
 
         return '<div class="order-history-card">'
           + '<div class="order-history-head">'
-          + '<b>#' + (o.ma_don ? o.ma_don : "") + '</b>'
+          + '<b>#' + esc(o.ma_don) + '</b>'
           + '<span class="order-badge ' + badgeClass + '">' + badgeText + '</span>'
           + '</div>'
           + '<div class="order-history-body">'
-          + '<div><b>Khách hàng:</b> ' + (o.ten_khach ? o.ten_khach : "") + ' (' + (o.so_dien_thoai ? o.so_dien_thoai : "") + ')</div>'
+          + '<div><b>Khách hàng:</b> ' + esc(o.ten_khach) + ' (' + esc(o.so_dien_thoai) + ')</div>'
           + '<div><b>Sản phẩm:</b> ' + spList + '</div>'
-          + '<div><b>Vận chuyển:</b> ' + (o.phuong_thuc_ship ? o.phuong_thuc_ship : "Tiêu chuẩn") + '</div>'
-          + '<div><b>Địa chỉ:</b> ' + (o.dia_chi ? o.dia_chi : "") + '</div>'
-          + '<div style="margin-top:4px;"><b>Tổng thanh toán:</b> <span style="color:var(--accent); font-weight:800;">' + money(o.tong_tien) + 'đ</span></div>'
+          + '<div><b>Vận chuyển:</b> ' + esc(o.phuong_thuc_ship || "Tiêu chuẩn") + '</div>'
+          + '<div><b>Địa chỉ:</b> ' + esc(o.dia_chi) + '</div>'
+          + '<div style="margin-top:4px;"><b>Tổng thanh toán:</b> <span style="color:var(--accent); font-weight:800;">' + money(Number(o.tong_tien) || 0) + 'đ</span></div>'
           + (!isPaid ? '<button class="btn-resume-pay" data-idx="' + idx + '">Xem lại mã QR thanh toán</button>' : '')
           + '</div></div>';
       }).join("");
@@ -2700,7 +2704,7 @@ initData();
       });
       const result = await res.json();
       if (!res.ok || !result || !result.order) {
-        await window.showModalAlert("Không thể tạo đơn", (result && result.error) ? result.error : "Vui lòng thử lại hoặc gọi trực tiếp 0703.008.005.");
+        await window.showModalAlert("Không thể tạo đơn", (result && result.error) ? esc(result.error) : "Vui lòng thử lại hoặc gọi trực tiếp 0703.008.005.");
         return;
       }
 
@@ -2733,7 +2737,7 @@ initData();
       } else {
         await window.showModalAlert(
           "Đặt hàng thành công",
-          "Cảm ơn <b>" + customer.name.toUpperCase() + "</b>.<br>Đơn hàng <b>#" + o.ma_don + "</b> (" + o.tong_so_luong + " sản phẩm — Tổng cộng <b>" + Number(o.tong_tien).toLocaleString('vi-VN') + "đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>" + customer.phone + "</b> để xác nhận lịch giao."
+          "Cảm ơn <b>" + esc(customer.name.toUpperCase()) + "</b>.<br>Đơn hàng <b>#" + esc(o.ma_don) + "</b> (" + o.tong_so_luong + " sản phẩm — Tổng cộng <b>" + Number(o.tong_tien).toLocaleString('vi-VN') + "đ</b> gồm phí vận chuyển) đã được ghi nhận. TK aqua sẽ liên hệ qua số <b>" + customer.phone + "</b> để xác nhận lịch giao."
         );
       }
     } catch (error) {

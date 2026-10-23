@@ -378,14 +378,14 @@ function createSheetRow(env, order, maDon) {
     tinh_trang: "Chưa thanh toán",
     ma_don: maDon,
     thoi_gian: new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
-    ten_khach: order.ten_khach,
+    ten_khach: sheetSafe(order.ten_khach),
     so_dien_thoai: order.so_dien_thoai,
-    dia_chi: order.dia_chi,
-    chi_tiet_sp: chiTiet,
-    chi_tiet_ca: chiTiet,
+    dia_chi: sheetSafe(order.dia_chi),
+    chi_tiet_sp: sheetSafe(chiTiet),
+    chi_tiet_ca: sheetSafe(chiTiet),
     tong_so_luong: order.tong_so_luong,
     tong_tien: order.tong_tien,
-    ghi_chu: note + (order.phuong_thuc_ship || "Tiêu chuẩn")
+    ghi_chu: sheetSafe(note + (order.phuong_thuc_ship || "Tiêu chuẩn"))
   });
 }
 
@@ -434,12 +434,41 @@ async function markOrderPaid(orderCode, env, paidAmount) {
   return false;
 }
 
+/* ================= Bảo mật chung ================= */
+class HttpError extends Error { constructor(status, msg) { super(msg); this.status = status; } }
+async function readJson(request, maxBytes) {
+  const txt = await request.text();
+  if (txt.length > (maxBytes || 20000)) throw new HttpError(413, "Dữ liệu quá lớn");
+  try { return JSON.parse(txt); } catch (e) { throw new HttpError(400, "Dữ liệu không hợp lệ"); }
+}
+function errResponse(err, fallback) {
+  if (err instanceof HttpError) return jsonResponse({ error: err.message }, err.status);
+  return jsonResponse({ error: fallback }, 500);
+}
+function sheetSafe(v) {
+  const t = String(v == null ? "" : v);
+  return /^[=+\-@\t\r]/.test(t) ? "'" + t : t;
+}
+const SECURITY_HEADERS = {
+  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; frame-src https://www.google.com https://maps.google.com https://drive.google.com https://www.youtube.com https://pay.payos.vn https://www.facebook.com; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://api-merchant.payos.vn; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+};
+function withSecurity(res) {
+  const h = new Headers(res.headers);
+  for (const k in SECURITY_HEADERS) h.set(k, SECURITY_HEADERS[k]);
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
+}
+
 /* ================= API ================= */
 async function handleCreateOrder(request, env) {
   if (rateLimited(request, "order", 8, 10 * 60 * 1000)) {
     return jsonResponse({ error: "Bạn thao tác quá nhanh, vui lòng thử lại sau ít phút." }, 429);
   }
-  const body = await request.json();
+  const body = await readJson(request, 20000);
   const c = body && body.customer ? body.customer : {};
   const name = cleanText(c.name, 80);
   const phone = normalizePhone(c.phone);
@@ -457,14 +486,18 @@ async function handleCreateOrder(request, env) {
 
   const catalogs = await Promise.all([loadCatalog(CATALOG_FISH_CSV), loadCatalog(CATALOG_ACC_CSV)]);
   const lines = [];
+  const used = {};
   let tienHang = 0, tongSoLuong = 0;
   for (const it of items) {
+    if (!it || typeof it !== "object") return jsonResponse({ error: "Giỏ hàng không hợp lệ" }, 400);
     const qty = Number(it.qty);
     if (!Number.isInteger(qty) || qty < 1 || qty > 999) return jsonResponse({ error: "Số lượng không hợp lệ" }, 400);
     const isAcc = it.type === "acc";
     const prod = findCatalogItem(isAcc ? catalogs[1] : catalogs[0], String(it.name || "").trim(), String(it.size || "").trim());
     if (!prod) return jsonResponse({ error: "Sản phẩm không còn trong danh mục: " + cleanText(it.name, 60) }, 400);
-    if (qty > prod.stock) return jsonResponse({ error: "Sản phẩm \"" + prod.name + "\" không đủ hàng" }, 400);
+    const ukey = (isAcc ? "a|" : "f|") + prod.name + "|" + prod.size;
+    used[ukey] = (used[ukey] || 0) + qty;
+    if (used[ukey] > prod.stock) return jsonResponse({ error: "Sản phẩm \"" + prod.name + "\" không đủ hàng" }, 400);
     const thanhTien = prod.price * qty;
     tienHang += thanhTien;
     tongSoLuong += qty;
@@ -473,6 +506,15 @@ async function handleCreateOrder(request, env) {
 
   const phiShip = SHIPPING[shipLabel];
   const tongTien = tienHang + phiShip;
+
+  // Chặn spam đơn chưa thanh toán theo SĐT (đổi IP vẫn bị chặn)
+  const prev = await queryOrders(env, "so_dien_thoai", phone, 200);
+  const hourAgo = Date.now() - 3600 * 1000;
+  const pending = prev.filter(function (d) {
+    const f = fsFields(d.fields || {});
+    return !f.paid && (Date.parse(f.ngay_dat || "") || 0) > hourAgo;
+  }).length;
+  if (pending >= 5) return jsonResponse({ error: "Bạn có quá nhiều đơn chưa thanh toán, vui lòng thanh toán hoặc thử lại sau." }, 429);
 
   // Tạo mã đơn không trùng
   let maSo = 0;
@@ -543,7 +585,7 @@ async function handleLookup(request, env) {
   if (rateLimited(request, "lookup", 20, 60 * 1000)) {
     return jsonResponse({ error: "Bạn tra cứu quá nhanh, vui lòng thử lại sau ít phút." }, 429);
   }
-  const body = await request.json();
+  const body = await readJson(request, 2000);
   const kw = cleanText(body && body.q, 40);
   if (!kw) return jsonResponse({ orders: [] });
 
@@ -568,7 +610,7 @@ async function handleLookup(request, env) {
   return jsonResponse({ orders: orders });
 }
 
-export default {
+const handler = {
   async fetch(request, env) {
     const url = new URL(request.url);
 
@@ -581,7 +623,7 @@ export default {
         return await handleCreateOrder(request, env);
       } catch (err) {
         console.error("create-order error:", err);
-        return jsonResponse({ error: "Không thể tạo đơn lúc này" }, 500);
+        return errResponse(err, "Không thể tạo đơn lúc này");
       }
     }
 
@@ -590,7 +632,7 @@ export default {
         return await handleLookup(request, env);
       } catch (err) {
         console.error("lookup error:", err);
-        return jsonResponse({ error: "Không tra cứu được: " + String(err.message || err).slice(0, 600) }, 500);
+        return errResponse(err, "Không tra cứu được lúc này, vui lòng thử lại");
       }
     }
 
@@ -626,14 +668,14 @@ export default {
 
     if (url.pathname === "/api/payos-webhook" && request.method === "POST") {
       try {
-        const webhookData = await request.json();
+        const webhookData = await readJson(request, 20000);
         const validSignature = await verifyPayosWebhook(webhookData, env.PAYOS_CHECKSUM_KEY);
         if (!validSignature) {
           return jsonResponse({ error: "Invalid signature" }, 401);
         }
         if (webhookData.code === "00" && webhookData.data) {
           const orderCode = webhookData.data.orderCode;
-          if (orderCode !== 123) {
+          if (Number.isSafeInteger(orderCode) && orderCode > 1000) {
             await markOrderPaid(orderCode, env, webhookData.data.amount);
           }
         }
@@ -644,5 +686,11 @@ export default {
     }
 
     return env.ASSETS ? env.ASSETS.fetch(request) : new Response("Not Found", { status: 404 });
+  }
+};
+
+export default {
+  async fetch(request, env) {
+    return withSecurity(await handler.fetch(request, env));
   }
 };

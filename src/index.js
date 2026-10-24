@@ -23,9 +23,9 @@ const CATALOG_FISH_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_Y
 const CATALOG_ACC_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?gid=1785201873&single=true&output=csv";
 
 const SHIPPING = {
-  "Nội thành TP.HCM (Hộp đóng hàng + Ship Grab/Ahamove)": 110000,
-  "Tỉnh / Ngoại thành (Hộp đóng hàng + Xe khách)": 210000,
-  "Quốc tế / Đi máy bay (Đóng gói chuyên dụng + Cước bay)": 500000
+  "J&T Miền Nam (1-2 ngày, đã gồm thùng)": 40000,
+  "J&T Miền Trung/Bắc (2-3 ngày, đã gồm thùng)": 50000,
+  "Chành xe (Ship + Chành + Thùng)": 100000
 };
 
 const corsHeaders = {
@@ -376,13 +376,27 @@ async function callSheet(env, payload) {
   return fetch(sheetUrl, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(Object.assign({ secret: env.SHEET_SECRET || "" }, payload)),
+    body: JSON.stringify(Object.assign({}, payload, { secret: env.SHEET_SECRET || "" })),
     redirect: "follow"
   });
 }
 
-function updateSheetPaid(env, maDon) {
-  return callSheet(env, { action: "paid", ma_don: maDon, tinh_trang: "Đã thanh toán" });
+function vnNow() {
+  const p = {};
+  new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })
+    .formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+  return p.day + "/" + p.month + "/" + p.year + " " + (p.hour === "24" ? "00" : p.hour) + ":" + p.minute + ":" + p.second;
+}
+
+function updateSheetPaid(env, maDon, order) {
+  const items = Array.isArray(order && order.san_pham) ? order.san_pham : [];
+  return callSheet(env, {
+    action: "paid", ma_don: maDon, tinh_trang: "Đã thanh toán",
+    tong_tien: Number(order && order.tong_tien) || 0,
+    items: items.map(function (sp) {
+      return { type: sp.loai === "Phụ kiện" ? "acc" : "fish", name: sp.ten_ca, size: sp.size || "", qty: sp.so_luong };
+    })
+  });
 }
 
 function createSheetRow(env, order, maDon) {
@@ -397,7 +411,7 @@ function createSheetRow(env, order, maDon) {
     action: "create",
     tinh_trang: "Chưa thanh toán",
     ma_don: maDon,
-    thoi_gian: new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
+    thoi_gian: vnNow(),
     ten_khach: sheetSafe(order.ten_khach),
     so_dien_thoai: order.so_dien_thoai,
     dia_chi: sheetSafe(order.dia_chi),
@@ -443,7 +457,7 @@ async function markOrderPaid(orderCode, env, paidAmount) {
     const order = fsFields(fields);
     await Promise.all([
       notifyDiscordPaid(env.DISCORD_WEBHOOK_URL, order, orderCode).catch(function (e) { console.error(e); }),
-      updateSheetPaid(env, "TKA-" + orderCode).catch(function (e) { console.error(e); })
+      updateSheetPaid(env, "TKA-" + orderCode, order).catch(function (e) { console.error(e); })
     ]);
     return true;
   } catch (e) {
@@ -479,6 +493,64 @@ function withSecurity(res) {
   const h = new Headers(res.headers);
   for (const k in SECURITY_HEADERS) h.set(k, SECURITY_HEADERS[k]);
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
+}
+
+/* ================= Phiên đăng nhập POS (token ký HMAC) ================= */
+function tokenSecret(env) { return env.POS_TOKEN_SECRET || env.SHEET_SECRET || ""; }
+function b64urlDecodeStr(t) {
+  const b = atob(String(t).replace(/-/g, "+").replace(/_/g, "/") + "===".slice((String(t).length + 3) % 4));
+  return new TextDecoder().decode(Uint8Array.from(b, function (c) { return c.charCodeAt(0); }));
+}
+function safeEqual(a, b) {
+  a = String(a); b = String(b);
+  if (a.length !== b.length) return false;
+  let d = 0;
+  for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return d === 0;
+}
+async function signToken(env, user) {
+  const body = b64urlStr(JSON.stringify({ p: user.phone, n: user.name, r: user.role, e: Date.now() + 14 * 86400000 }));
+  return body + "." + await createSignature(body, tokenSecret(env));
+}
+async function verifyToken(request, env) {
+  try {
+    const key = tokenSecret(env);
+    const h = request.headers.get("Authorization") || "";
+    const t = h.startsWith("Bearer ") ? h.slice(7) : "";
+    const parts = t.split(".");
+    if (!key || parts.length !== 2) return null;
+    if (!safeEqual(await createSignature(parts[0], key), parts[1])) return null;
+    const u = JSON.parse(b64urlDecodeStr(parts[0]));
+    if (!u || !(u.e > Date.now()) || !isPhone(u.p)) return null;
+    return { phone: u.p, name: u.n, role: u.r };
+  } catch (e) { return null; }
+}
+const _rlk = new Map();
+function rateLimitedKey(key, limit, windowMs) {
+  const now = Date.now();
+  let e = _rlk.get(key);
+  if (!e || now > e.reset) { e = { n: 0, reset: now + windowMs }; _rlk.set(key, e); }
+  e.n++;
+  if (_rlk.size > 5000) _rlk.clear();
+  return e.n > limit;
+}
+async function pbkdf2Hex(pass, saltHex) {
+  const salt = Uint8Array.from(saltHex.match(/../g), function (h) { return parseInt(h, 16); });
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: salt, iterations: 100000 }, k, 256);
+  return Array.from(new Uint8Array(bits)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+}
+async function hashPassword(pass) {
+  const salt = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+  return "pbkdf2$" + salt + "$" + await pbkdf2Hex(pass, salt);
+}
+async function checkPassword(stored, pass) {
+  stored = String(stored || "");
+  if (stored.startsWith("pbkdf2$")) {
+    const p = stored.split("$");
+    return { ok: p.length === 3 && safeEqual(await pbkdf2Hex(pass, p[1]), p[2]), upgrade: false };
+  }
+  return { ok: stored !== "" && safeEqual(stored, pass), upgrade: true }; // mật khẩu cũ lưu thô -> tự nâng cấp
 }
 
 /* ================= ĐIỀU PHỐI API ROUTING ================= */
@@ -637,17 +709,20 @@ const handler = {
       }
     }
 
-    // 3. TẠO MÃ THANH TOÁN CHO POS
+    // 3. TẠO MÃ THANH TOÁN CHO POS (cần đăng nhập)
     if (url.pathname === "/api/create-payment" && request.method === "POST") {
       try {
+        if (!(await verifyToken(request, env))) return jsonResponse({ error: "Chưa đăng nhập" }, 401);
         const body = await readJson(request, 10000);
         const orderCode = Number(body.orderCode);
         const amount = Number(body.amount);
-        const description = String(body.description || ("POS TKA-" + orderCode));
+        if (!Number.isSafeInteger(orderCode) || orderCode < 1000) return jsonResponse({ error: "Mã đơn không hợp lệ" }, 400);
+        if (!Number.isInteger(amount) || amount < 1000 || amount > 200000000) return jsonResponse({ error: "Số tiền không hợp lệ" }, 400);
+        const description = cleanText(body.description || ("POS TKA-" + orderCode), 25);
         const resData = await createPayosLink(env, orderCode, amount, description);
         return jsonResponse(resData);
       } catch (err) {
-        return jsonResponse({ error: err.message }, 500);
+        return errResponse(err, "Không tạo được mã thanh toán");
       }
     }
 
@@ -703,6 +778,8 @@ const handler = {
     // 6. GỬI DISCORD: CHIA CHÙM (BATCHING) CHO PHÉP NHIỀU ẢNH/VIDEO KHÔNG GIỚI HẠN
     if (url.pathname === "/api/notify" && request.method === "POST") {
       try {
+        if (!(await verifyToken(request, env))) return jsonResponse({ error: "Chưa đăng nhập" }, 401);
+        if (rateLimited(request, "notify", 60, 60 * 1000)) return jsonResponse({ error: "Thao tác quá nhanh" }, 429);
         const payload = await readJson(request, 35000000);
         let targetWebhook = env.DISCORD_WEBHOOK_URL;
 
@@ -746,7 +823,7 @@ const handler = {
           await fetch(targetWebhook, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content: payload.content, embeds: payload.embeds })
+            body: JSON.stringify({ content: payload.content, embeds: payload.embeds, allowed_mentions: { parse: [] } })
           });
         } else {
           // Chia chùm tối đa 9 tệp/lần gửi để tránh chạm trần giới hạn 10 tệp của Discord
@@ -759,7 +836,8 @@ const handler = {
               // Tin nhắn đầu tiên chứa đầy đủ thông tin hóa đơn và embeds
               formData.append("payload_json", JSON.stringify({
                 content: payload.content,
-                embeds: payload.embeds
+                embeds: payload.embeds,
+                allowed_mentions: { parse: [] }
               }));
             } else {
               // Các đợt gửi sau chỉ báo tệp đính kèm tiếp theo
@@ -778,19 +856,56 @@ const handler = {
 
         return jsonResponse({ ok: true });
       } catch (err) {
-        return jsonResponse({ error: err.message }, 500);
+        return errResponse(err, "Không gửi được Discord");
       }
     }
 
-    // 7. POS SYNC GOOGLE SHEET
+    // 7. POS SYNC GOOGLE SHEET (cần đăng nhập, chỉ cho phép các thao tác POS)
     if (url.pathname === "/api/pos-sync" && request.method === "POST") {
       try {
+        const user = await verifyToken(request, env);
+        if (!user) return jsonResponse({ ok: false, error: "Chưa đăng nhập" }, 401);
+        if (rateLimited(request, "possync", 120, 60 * 1000)) return jsonResponse({ ok: false, error: "Thao tác quá nhanh" }, 429);
         const body = await readJson(request, 50000);
-        const res = await callSheet(env, body);
-        const resJson = await res.json();
-        return jsonResponse(resJson);
+        const action = String(body.action || "");
+        let payload;
+        if (action === "pos_sale") {
+          const items = (Array.isArray(body.items) ? body.items : []).slice(0, 60).map(function (it) {
+            return { type: it && it.type === "acc" ? "acc" : "fish", name: cleanText(it && it.name, 120), size: cleanText(it && it.size, 40), qty: Math.floor(Number(it && it.qty)) || 0 };
+          }).filter(function (it) { return it.name && it.qty > 0 && it.qty < 1000; });
+          payload = {
+            action: action,
+            ma_don: cleanText(body.ma_don, 40), thoi_gian: vnNow(), nhan_vien: user.name,
+            ten_khach: cleanText(body.ten_khach, 80), so_dien_thoai: cleanText(body.so_dien_thoai, 15),
+            phuong_thuc_tt: cleanText(body.phuong_thuc_tt, 30), chi_tiet_sp: cleanText(body.chi_tiet_sp, 1500),
+            tong_so_luong: Number(body.tong_so_luong) || 0, giam_gia: Number(body.giam_gia) || 0,
+            phi_ship: Number(body.phi_ship) || 0, tong_tien: Number(body.tong_tien) || 0,
+            ghi_chu: cleanText(body.ghi_chu, 300), items: items
+          };
+          if (!payload.ma_don || !items.length) return jsonResponse({ ok: false, error: "Đơn không hợp lệ" }, 400);
+        } else if (action === "pos_checkin" || action === "pos_checkout") {
+          payload = { action: action, so_dien_thoai: user.phone, ten_nhan_vien: user.name };
+        } else if (action === "get_timesheet") {
+          const m = String(body.thang_nam || "");
+          payload = { action: action, thang_nam: /^\d{2}\/\d{4}$/.test(m) ? m : "", so_dien_thoai: user.phone, is_sep: user.role === "sep" };
+        } else if (action === "today_stats") {
+          if (user.role !== "sep") return jsonResponse({ ok: false, error: "Chỉ Sếp mới xem được doanh thu" }, 403);
+          payload = { action: action };
+        } else {
+          return jsonResponse({ ok: false, error: "Thao tác không hợp lệ" }, 400);
+        }
+        const res = await callSheet(env, payload);
+        const text = await res.text();
+        let j;
+        try { j = JSON.parse(text); } catch (e) {
+          return jsonResponse({ ok: false, error: "Google Sheet không phản hồi đúng (Apps Script chưa Deploy phiên bản mới hoặc sai quyền truy cập)" }, 502);
+        }
+        if (j && j.ok === false && j.error === "unauthorized") {
+          return jsonResponse({ ok: false, error: "SHEET_SECRET ở Cloudflare và Apps Script không khớp nhau" }, 502);
+        }
+        return jsonResponse(j);
       } catch (err) {
-        return jsonResponse({ ok: false, error: err.message }, 500);
+        return errResponse(err, "Không kết nối được Google Sheet");
       }
     }
 
@@ -807,12 +922,20 @@ const handler = {
         const name = cleanText(body.name, 80);
 
         if (!isPhone(phone)) return jsonResponse({ ok: false, error: "Số điện thoại gồm 10 chữ số, bắt đầu bằng số 0." }, 400);
-        if (pass.length < 4) return jsonResponse({ ok: false, error: "Mật khẩu phải từ 4 ký tự trở lên." }, 400);
+        if (pass.length < 4 || pass.length > 100) return jsonResponse({ ok: false, error: "Mật khẩu phải từ 4 ký tự trở lên." }, 400);
+        if (!tokenSecret(env)) return jsonResponse({ ok: false, error: "Máy chủ chưa cấu hình SHEET_SECRET" }, 500);
+        if (rateLimitedKey("auth:" + phone, 10, 10 * 60 * 1000)) {
+          return jsonResponse({ ok: false, error: "Sai quá nhiều lần, vui lòng thử lại sau 10 phút." }, 429);
+        }
 
         const docUrl = FS_BASE + "/nhan_vien/" + encodeURIComponent(phone);
         const getRes = await fsFetch(env, docUrl, { method: "GET" });
 
         if (mode === "register") {
+          if (!env.POS_REGISTER_CODE) return jsonResponse({ ok: false, error: "Chưa bật đăng ký (thiếu POS_REGISTER_CODE trên máy chủ)." }, 403);
+          if (!safeEqual(String(body.code || "").trim(), env.POS_REGISTER_CODE)) {
+            return jsonResponse({ ok: false, error: "Mã đăng ký không đúng. Hãy hỏi chủ cửa hàng." }, 403);
+          }
           if (getRes.ok) {
             return jsonResponse({ ok: false, error: "Số điện thoại này đã đăng ký! Hãy bấm Đăng nhập." }, 400);
           }
@@ -833,7 +956,7 @@ const handler = {
           const newUser = {
             phone: phone,
             name: name,
-            password: pass,
+            password: await hashPassword(pass),
             role: role,
             created_at: new Date()
           };
@@ -845,32 +968,31 @@ const handler = {
 
           if (!createRes.ok) return jsonResponse({ ok: false, error: "Không thể tạo tài khoản lúc này." }, 500);
 
-          return jsonResponse({
-            ok: true,
-            user: { phone: phone, name: name, role: role }
-          });
+          const u = { phone: phone, name: name, role: role };
+          return jsonResponse({ ok: true, user: u, token: await signToken(env, u) });
         } else {
           if (!getRes.ok) {
-            return jsonResponse({ ok: false, error: "Số điện thoại chưa được đăng ký! Bấm đăng ký bên dưới." }, 400);
+            return jsonResponse({ ok: false, error: "Số điện thoại hoặc mật khẩu không đúng!" }, 400);
           }
           const docData = await getRes.json();
           const userData = fsFields(docData.fields || {});
 
-          if (String(userData.password || "") !== pass) {
-            return jsonResponse({ ok: false, error: "Mật khẩu không đúng!" }, 400);
+          const chk = await checkPassword(userData.password, pass);
+          if (!chk.ok) {
+            return jsonResponse({ ok: false, error: "Số điện thoại hoặc mật khẩu không đúng!" }, 400);
+          }
+          if (chk.upgrade) {
+            await fsFetch(env, docUrl + "?updateMask.fieldPaths=password", {
+              method: "PATCH",
+              body: JSON.stringify({ fields: { password: toFs(await hashPassword(pass)) } })
+            }).catch(function () {});
           }
 
-          return jsonResponse({
-            ok: true,
-            user: {
-              phone: userData.phone || phone,
-              name: userData.name || "Nhân viên",
-              role: userData.role || "nhan_vien"
-            }
-          });
+          const u = { phone: userData.phone || phone, name: userData.name || "Nhân viên", role: userData.role || "nhan_vien" };
+          return jsonResponse({ ok: true, user: u, token: await signToken(env, u) });
         }
       } catch (err) {
-        return jsonResponse({ ok: false, error: "Lỗi máy chủ: " + err.message }, 500);
+        return errResponse(err, "Lỗi máy chủ, vui lòng thử lại");
       }
     }
 

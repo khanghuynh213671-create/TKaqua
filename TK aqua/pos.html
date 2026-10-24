@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TK POS">
@@ -218,6 +218,68 @@ html, body {
   .pos-bill.open { transform: translateY(0); }
   .mobile-cart-bar { display: flex; }
 }
+
+/* ===== TỐI ƯU ĐIỆN THOẠI ===== */
+input, textarea, select { -webkit-user-select: text; user-select: text; font-size: 16px; }
+.pic-ph { height:100%; display:flex; align-items:center; justify-content:center; font-size:26px; }
+.pos-grid { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); }
+.stock-tag { position: static; display: inline-block; }
+.pos-item-text { min-width: 0; display: flex; flex-direction: column; flex: 1; }
+.pos-item-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+.pos-add { display: none; }
+.pos-step { display: none; }
+.sync-line { font-size: 12.5px; padding: 8px 10px; border-radius: 10px; margin: 6px 0; text-align: left; line-height: 1.45; }
+.sync-line.ok { background: rgba(154,179,102,.14); color: var(--accent); }
+.sync-line.warn { background: rgba(255,204,0,.12); color: var(--warn); }
+.sync-line.err { background: rgba(255,82,82,.12); color: var(--danger); }
+.icon-btn.sync-ok { border-color: var(--border); color: var(--accent); }
+.icon-btn.sync-warn { border-color: rgba(255,204,0,.5); color: var(--warn); }
+.icon-btn.sync-err { border-color: rgba(255,82,82,.6); color: var(--danger); }
+
+@media (max-width: 860px) {
+  .pos-bill { height: 100dvh; }
+  .bill-footer { max-height: 62dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .modal-overlay { align-items: flex-end; }
+  .modal-box { width: 100%; max-width: none; border-radius: 20px 20px 0 0; max-height: 92dvh; }
+  .btn-pay, .q-btn, .icon-btn, .tab-btn { min-height: 44px; }
+  .q-btn { min-width: 44px; }
+}
+
+@media (max-width: 600px) {
+  .pos-header { flex-direction: row; align-items: center; gap: 6px; padding: calc(var(--safe-top) + 6px) 8px 6px; }
+  .header-top { flex: 0 0 auto; gap: 6px; }
+  .pos-brand-title, .icon-btn .lbl { display: none; }
+  .pos-brand img { width: 32px; height: 32px; }
+  .nav-actions { flex: 1; justify-content: flex-end; gap: 5px; }
+  .icon-btn { padding: 0 9px; height: 40px; min-height: 40px; font-size: 15px; }
+  #syncLbl { display: inline; font-size: 10px; }
+  .pos-controls { padding: 6px 10px; gap: 6px; }
+  .search-box input { height: 44px; }
+
+  .pos-grid { grid-template-columns: 1fr; gap: 7px; padding: 4px 10px calc(var(--safe-bottom) + 96px); }
+  .pos-item { flex-direction: row; align-items: center; gap: 10px; padding: 8px 10px 8px 8px; border-radius: 12px; }
+  .pos-item-pic { width: 62px; height: 62px; aspect-ratio: auto; margin: 0; flex-shrink: 0; }
+  .pos-item-pic img { object-fit: cover; }
+  .in-cart-badge { width: 18px; height: 18px; font-size: 10px; top: 2px; left: 2px; }
+  .pos-item-name { font-size: 13px; margin-bottom: 1px; }
+  .pos-item-meta { margin-bottom: 3px; }
+  .pos-item-foot { flex-wrap: nowrap; justify-content: flex-start; gap: 8px; }
+  .pos-add { display: flex; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #111310; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; flex-shrink: 0; }
+  .pos-item.out .pos-add { display: none; }
+  .pos-step { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .pos-step b { min-width: 20px; text-align: center; font-family: 'Montserrat', sans-serif; font-size: 14px; }
+  .pos-item:active { transform: none; background: var(--bg-elevated); }
+
+  .mobile-cart-bar { padding: 8px 12px calc(var(--safe-bottom) + 8px); }
+  .btn-open-bill { min-height: 46px; }
+  .pay-actions-3 { gap: 6px; }
+  .btn-pay { padding: 14px 2px; font-size: 10.5px; }
+  .bill-header { padding: calc(var(--safe-top) + 10px) 12px 10px; }
+  .auth-box { max-height: 96dvh; overflow-y: auto; }
+}
+
+.bill-row-name,.bill-row-sub{display:block}
+.bill-row-name{margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -236,6 +298,10 @@ html, body {
       <input type="tel" id="authPhoneInput" class="auth-input" placeholder="0901234567">
       <label>Mật Khẩu</label>
       <input type="password" id="authPassInput" class="auth-input" placeholder="Nhập mật khẩu...">
+      <div id="authCodeGroup" style="display:none;">
+        <label>Mã Đăng Ký (hỏi chủ cửa hàng)</label>
+        <input type="password" id="authCodeInput" class="auth-input" placeholder="Mã đăng ký nhân viên">
+      </div>
       <div class="auth-error" id="authError"></div>
       <button class="auth-btn" id="btnAuthSubmit" onclick="handleAuthAction()">Đăng Nhập</button>
     </div>
@@ -251,15 +317,16 @@ html, body {
         <div class="pos-brand-title">TK <span>POS</span></div>
       </div>
       <button class="icon-btn" onclick="showAccountMenu()">
-        👤 <span id="headerUserName">Tài khoản</span>
+        👤 <span id="headerUserName" class="lbl">Tài khoản</span>
         <span id="headerUserRole" class="role-badge nv">NV</span>
       </button>
     </div>
     <div class="nav-actions">
-      <button class="icon-btn" onclick="openCheckInOutModal()">⏱️ Chấm công</button>
-      <button class="icon-btn" id="btnTimesheet" onclick="openTimesheetModal()">📅 Bảng công</button>
-      <button class="icon-btn" id="btnTodayOwner" onclick="openTodayReport()">📊 Hôm nay</button>
-      <button class="icon-btn" onclick="reloadInventory(true)">🔄 Kho</button>
+      <button class="icon-btn" id="syncChip" onclick="openSyncStatus()" title="Trạng thái Google Sheet">☁️ <span class="lbl" id="syncLbl">Sheet</span></button>
+      <button class="icon-btn" onclick="openCheckInOutModal()">⏱️ <span class="lbl">Chấm công</span></button>
+      <button class="icon-btn" id="btnTimesheet" onclick="openTimesheetModal()">📅 <span class="lbl">Bảng công</span></button>
+      <button class="icon-btn" id="btnTodayOwner" onclick="openTodayReport()">📊 <span class="lbl">Hôm nay</span></button>
+      <button class="icon-btn" onclick="reloadInventory(true)">🔄 <span class="lbl">Kho</span></button>
     </div>
   </header>
 
@@ -294,9 +361,9 @@ html, body {
         <div class="pos-field-grid">
           <select id="shipSelect" class="pos-select" onchange="updateBillTotals()">
             <option value="0" data-label="Mua tại Studio">Tại tiệm (Ship 0đ)</option>
-            <option value="110000" data-label="Nội thành TP.HCM">Ship TP.HCM (+110k)</option>
-            <option value="210000" data-label="Tỉnh / Xe khách">Ship Tỉnh (+210k)</option>
-            <option value="500000" data-label="Máy bay / Quốc tế">Ship Bay (+500k)</option>
+            <option value="40000" data-label="J&T Miền Nam (1-2 ngày, đã gồm thùng)">J&amp;T Miền Nam 1-2 ngày (+40k)</option>
+            <option value="50000" data-label="J&T Miền Trung/Bắc (2-3 ngày, đã gồm thùng)">J&amp;T Miền Trung/Bắc 2-3 ngày (+50k)</option>
+            <option value="100000" data-label="Chành xe (Ship + Chành + Thùng)">Chành xe, gồm thùng (+100k)</option>
           </select>
           <input type="number" id="discountInput" class="pos-input" placeholder="Giảm giá (VNĐ)" oninput="updateBillTotals()">
         </div>
@@ -341,6 +408,102 @@ var isRegisterMode = false;
 var currentUser = null;
 
 function money(n) { return Number(n || 0).toLocaleString("vi-VN"); }
+
+function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function(c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+/* ---------- Gọi API có đăng nhập ---------- */
+function authHeaders() { return { "Content-Type": "application/json", "Authorization": "Bearer " + ((currentUser && currentUser.token) || "") }; }
+function SessionExpired() { var e = new Error("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại"); e.expired = true; return e; }
+async function apiCall(path, body) {
+  var res = await fetch(API_BASE + path, { method: "POST", headers: authHeaders(), body: JSON.stringify(body) });
+  var data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (res.status === 401) { forceRelogin(); throw SessionExpired(); }
+  if (!res.ok || !data || data.ok === false) throw new Error((data && data.error) || ("Lỗi máy chủ (" + res.status + ")"));
+  return data;
+}
+function forceRelogin() {
+  localStorage.removeItem("tka_logged_user");
+  currentUser = null;
+  document.getElementById("authOverlay").style.display = "flex";
+}
+
+/* ---------- Đồng bộ Google Sheet: hiện trạng thái + hàng chờ gửi lại ---------- */
+var syncQueue = [];
+var syncLastError = "";
+try { syncQueue = JSON.parse(localStorage.getItem("tka_pos_sync_queue") || "[]"); } catch (e) { syncQueue = []; }
+function saveSyncQueue() { try { localStorage.setItem("tka_pos_sync_queue", JSON.stringify(syncQueue)); } catch (e) {} }
+function renderSyncChip() {
+  var chip = document.getElementById("syncChip"), lbl = document.getElementById("syncLbl");
+  if (!chip) return;
+  var state = syncQueue.length ? (syncLastError ? "err" : "warn") : "ok";
+  chip.className = "icon-btn sync-" + state;
+  lbl.textContent = syncQueue.length ? ("Chờ " + syncQueue.length) : "Sheet ✓";
+}
+function rememberStock(stock) {
+  // Sheet danh mục xuất bản có độ trễ -> giữ số tồn mới nhất trong vài phút
+  if (!stock || !stock.stocks) return;
+  var ov = {};
+  try { ov = JSON.parse(localStorage.getItem("tka_pos_stock_override") || "{}"); } catch (e) {}
+  Object.keys(stock.stocks).forEach(function(k) { ov[k] = { sl: stock.stocks[k], ts: Date.now() }; });
+  try { localStorage.setItem("tka_pos_stock_override", JSON.stringify(ov)); } catch (e) {}
+  applyStockOverride();
+  renderCatalog();
+}
+function applyStockOverride() {
+  var ov = {};
+  try { ov = JSON.parse(localStorage.getItem("tka_pos_stock_override") || "{}"); } catch (e) {}
+  var fresh = {}, now = Date.now();
+  Object.keys(ov).forEach(function(k) { if (now - ov[k].ts < 8 * 60 * 1000) fresh[k] = ov[k]; });
+  try { localStorage.setItem("tka_pos_stock_override", JSON.stringify(fresh)); } catch (e) {}
+  ALL_PRODUCTS.forEach(function(p) {
+    var o = fresh[(p.group === "Phụ kiện" ? "acc" : "fish") + "|" + p.n + "|" + p.s];
+    if (o) p.sl = o.sl;
+  });
+}
+// Trả về { ok, error, stock }
+async function sendSale(payload) {
+  try {
+    var data = await apiCall("/api/pos-sync", payload);
+    return { ok: true, stock: data.stock || null, duplicate: !!data.duplicate };
+  } catch (e) {
+    if (e.expired) return { ok: false, error: e.message, retry: true };
+    return { ok: false, error: e.message, retry: true };
+  }
+}
+async function syncSale(payload) {
+  var r = await sendSale(payload);
+  if (r.ok) { syncLastError = ""; if (r.stock) rememberStock(r.stock); }
+  else { syncLastError = r.error; syncQueue.push(payload); saveSyncQueue(); }
+  renderSyncChip();
+  return r;
+}
+var flushing = false;
+async function flushSyncQueue() {
+  if (flushing || !syncQueue.length || !currentUser) return;
+  flushing = true;
+  var rest = [];
+  for (var i = 0; i < syncQueue.length; i++) {
+    var r = await sendSale(syncQueue[i]);
+    if (r.ok) { if (r.stock) rememberStock(r.stock); } else { syncLastError = r.error; rest.push(syncQueue[i]); }
+  }
+  syncQueue = rest; saveSyncQueue();
+  if (!rest.length) syncLastError = "";
+  flushing = false; renderSyncChip();
+}
+window.openSyncStatus = function() {
+  showPosModal(
+    '<h3>☁️ Google Sheet</h3>' +
+    (syncQueue.length
+      ? '<p style="font-size:13px;color:var(--warn);">' + syncQueue.length + ' đơn chưa ghi được vào Sheet.</p>' +
+        (syncLastError ? '<div class="receipt-box" style="color:var(--danger);">' + esc(syncLastError) + '</div>' : '') +
+        '<button class="btn-pay qr" style="width:100%;margin-bottom:8px;" onclick="flushSyncQueue().then(openSyncStatus)">Gửi lại ngay</button>'
+      : '<p style="font-size:13px;color:var(--accent);">✅ Tất cả đơn đã được ghi vào Google Sheet.</p>') +
+    '<button class="btn-pay cash" style="width:100%;" onclick="closePosModal()">Đóng</button>');
+};
+window.addEventListener("online", flushSyncQueue);
+setInterval(flushSyncQueue, 60000);
+
 function normVN(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().trim(); }
 
 function extractDriveId(url) {
@@ -409,7 +572,6 @@ function parseCSV(str, sourceGroup, sheetTabHint) {
 }
 
 async function reloadInventory(clearSessionDeduct) {
-  if (clearSessionDeduct) sessionStorage.removeItem("tka_pos_deducted");
   var list = [];
   var bust = "&_t=" + Date.now();
   try {
@@ -421,13 +583,8 @@ async function reloadInventory(clearSessionDeduct) {
     list = list.concat(parseCSV(await resAcc.text(), "Phụ kiện", "PhuKien"));
   } catch (e) {}
 
-  var localDeduct = JSON.parse(sessionStorage.getItem("tka_pos_deducted") || "{}");
-  list.forEach(item => {
-    var key = item.n + "__" + item.s;
-    if (localDeduct[key]) item.sl = Math.max(0, item.sl - localDeduct[key]);
-  });
-
   ALL_PRODUCTS = list;
+  applyStockOverride();
   renderCategoryTabs();
   renderCatalog();
 }
@@ -439,7 +596,7 @@ function renderCategoryTabs() {
   var html = "";
   uniqueCats.forEach(c => {
     var label = c === "ALL" ? "Tất cả (" + ALL_PRODUCTS.length + ")" : c;
-    html += '<button class="tab-btn ' + (currentCat === c ? 'active' : '') + '" onclick="selectCat(\'' + c.replace(/'/g, "\\'") + '\')">' + label + '</button>';
+    html += '<button class="tab-btn ' + (currentCat === c ? 'active' : '') + '" onclick="selectCat(this.dataset.c)" data-c="' + esc(c) + '">' + esc(label) + '</button>';
   });
   document.getElementById("catTabs").innerHTML = html;
 }
@@ -459,17 +616,23 @@ function renderCatalog() {
 
   var html = "";
   filtered.forEach(item => {
-    var inBill = BILL.find(b => b.id === item.id);
+    var idx = BILL.findIndex(b => b.id === item.id);
+    var inBill = idx > -1 ? BILL[idx] : null;
     var isOut = item.sl <= 0;
-    html += '<div class="pos-item ' + (isOut ? 'out' : '') + '" onclick="tapProduct(\'' + item.id + '\')">'
+    html += '<div class="pos-item ' + (isOut ? 'out' : '') + '" onclick="tapProduct(\'' + esc(item.id) + '\')">'
       + '<div class="pos-item-pic">'
-      + (item.img ? '<img src="' + item.img + '" alt="' + item.n + '" loading="lazy">' : '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px;">🐟</div>')
+      + (item.img ? '<img src="' + esc(item.img) + '" alt="" loading="lazy">' : '<div class="pic-ph">🐟</div>')
       + (inBill ? '<div class="in-cart-badge">' + inBill.qty + '</div>' : '')
-      + '<span class="stock-tag ' + (isOut ? 'zero' : '') + '">' + (isOut ? 'Hết hàng' : 'Kho: ' + item.sl) + '</span>'
       + '</div>'
-      + '<div class="pos-item-name">' + item.n + '</div>'
-      + '<div class="pos-item-meta">' + item.cat + (item.s ? ' · ' + item.s : '') + '</div>'
-      + '<div class="pos-item-price">' + money(item.p) + 'đ</div>'
+      + '<div class="pos-item-text">'
+      + '<div class="pos-item-name">' + esc(item.n) + '</div>'
+      + '<div class="pos-item-meta">' + esc(item.cat) + (item.s ? ' · ' + esc(item.s) : '') + '</div>'
+      + '<div class="pos-item-foot"><span class="pos-item-price">' + money(item.p) + 'đ</span>'
+      + '<span class="stock-tag ' + (isOut ? 'zero' : '') + '">' + (isOut ? 'Hết hàng' : 'Kho: ' + item.sl) + '</span></div>'
+      + '</div>'
+      + (isOut ? '' : (inBill
+          ? '<div class="pos-step" onclick="event.stopPropagation()"><button class="q-btn" onclick="changeBillQty(' + idx + ',-1)">−</button><b>' + inBill.qty + '</b><button class="q-btn" onclick="changeBillQty(' + idx + ',1)">+</button></div>'
+          : '<div class="pos-add">+</div>'))
       + '</div>';
   });
   document.getElementById("posGrid").innerHTML = html || '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Không tìm thấy sản phẩm.</div>';
@@ -544,7 +707,7 @@ function renderBill() {
     box.innerHTML = BILL.map((b, idx) => `
       <div class="bill-row">
         <div class="bill-row-info">
-          <span class="bill-row-name">${b.n} ${b.s ? '(' + b.s + ')' : ''}</span>
+          <span class="bill-row-name">${esc(b.n)} ${b.s ? '(' + esc(b.s) + ')' : ''}</span>
           <span class="bill-row-sub">${money(b.p)}đ × ${b.qty} = <b style="color:var(--accent)">${money(b.p * b.qty)}đ</b></span>
         </div>
         <div class="bill-qty-ctrl">
@@ -685,7 +848,8 @@ window.startOrderProcess = function(method) {
     giam_gia: totals.giamGia, tien_hang: totals.tienHang, tong_so_luong: totals.tongSL,
     tong_tien: totals.tongCong, chi_tiet_sp: chuoiSP,
     ghi_chu: "POS (" + staff + ")" + (totals.giamGia > 0 ? " | Giảm: " + money(totals.giamGia) + "đ" : "") + (note ? " | " + note : ""),
-    method, rawItems: BILL.map(x => Object.assign({}, x))
+    method, rawItems: BILL.map(x => Object.assign({}, x)),
+    items: BILL.map(x => ({ type: x.group === "Phụ kiện" ? "acc" : "fish", name: x.n, size: x.s || "", qty: x.qty }))
   };
 
   capturedMediaList = [];
@@ -791,7 +955,7 @@ window.executeOrderProcess = async function() {
   if (orderData.method === "CASH" || orderData.method === "CARD") {
     showPosModal(`
       <h3>${orderData.method === "CASH" ? "💵 Thu Tiền Mặt" : "💳 Quẹt Thẻ"}</h3>
-      <p style="margin:4px 0 12px;font-size:13px;color:var(--text-muted);">Đơn #${orderData.ma_don} · Cần thu: <b style="color:var(--accent);font-size:17px;">${money(orderData.tong_tien)}đ</b></p>
+      <p style="margin:4px 0 12px;font-size:13px;color:var(--text-muted);">Đơn #${esc(orderData.ma_don)} · Cần thu: <b style="color:var(--accent);font-size:17px;">${money(orderData.tong_tien)}đ</b></p>
       <div style="display:flex;gap:8px;">
         <button class="btn-pay cash" style="flex:1;" onclick="closePosModal()">Hủy</button>
         <button class="btn-pay qr" style="flex:1;" onclick="completeAndEmitReceipt(currentPendingOrder)">Hoàn tất &amp; Xuất Bill</button>
@@ -803,10 +967,13 @@ window.executeOrderProcess = async function() {
   showPosModal('<h3>⏳ Đang tạo mã VietQR...</h3>');
   try {
     var payRes = await fetch(API_BASE + "/api/create-payment", {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST", headers: authHeaders(),
       body: JSON.stringify({ orderCode: orderData.orderCodeNum, amount: orderData.tong_tien, description: "POS " + orderData.ma_don })
     });
-    var payData = (await payRes.json()).data;
+    if (payRes.status === 401) { forceRelogin(); throw SessionExpired(); }
+    var payJson = await payRes.json();
+    if (!payJson || !payJson.data) throw new Error((payJson && (payJson.error || payJson.desc)) || "payOS không trả về mã QR");
+    var payData = payJson.data;
     var qrImg = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=6&data=" + encodeURIComponent(payData.qrCode || "");
 
     showPosModal(`
@@ -836,59 +1003,74 @@ window.executeOrderProcess = async function() {
 };
 
 window.completeAndEmitReceipt = async function(orderData) {
+  if (orderData._done) return; // tránh xử lý 2 lần (QR tự động + bấm tay)
+  orderData._done = true;
+  if (activePollInterval) { clearInterval(activePollInterval); activePollInterval = null; }
   var receiptBase64 = generateReceipt72mmBase64(orderData);
+  var media = capturedMediaList.slice();
 
-  // 1. Gửi dữ liệu về Google Sheet
-  fetch(API_BASE + "/api/pos-sync", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      action: "pos_sale",
-      ma_don: orderData.ma_don, thoi_gian: orderData.thoi_gian, nhan_vien: orderData.nhan_vien,
-      ten_khach: orderData.ten_khach, so_dien_thoai: orderData.so_dien_thoai,
-      phuong_thuc_tt: orderData.phuong_thuc_tt, chi_tiet_sp: orderData.chi_tiet_sp,
-      tong_so_luong: orderData.tong_so_luong, giam_gia: orderData.giam_gia,
-      phi_ship: orderData.phi_ship, tong_tien: orderData.tong_tien, ghi_chu: orderData.ghi_chu
-    })
-  }).catch(function(e) { console.error("Sheet Sync Error:", e); });
+  showPosModal('<h3>⏳ Đang ghi đơn vào Google Sheet...</h3>');
 
-  // 2. Gửi Hóa đơn và TẤT CẢ ảnh / video lên Discord Webhook
+  // 1. Ghi Google Sheet + trừ kho (có hàng chờ gửi lại nếu lỗi)
+  var sheetRes = await syncSale({
+    action: "pos_sale",
+    ma_don: orderData.ma_don, nhan_vien: orderData.nhan_vien,
+    ten_khach: orderData.ten_khach, so_dien_thoai: orderData.so_dien_thoai,
+    phuong_thuc_tt: orderData.phuong_thuc_tt, chi_tiet_sp: orderData.chi_tiet_sp,
+    tong_so_luong: orderData.tong_so_luong, giam_gia: orderData.giam_gia,
+    phi_ship: orderData.phi_ship, tong_tien: orderData.tong_tien, ghi_chu: orderData.ghi_chu,
+    items: orderData.items
+  });
+  // Trừ kho tạm trên máy khi Sheet chưa trả số tồn mới
+  if (sheetRes.ok && !(sheetRes.stock && sheetRes.stock.stocks)) {
+    orderData.rawItems.forEach(function(it) { var p = ALL_PRODUCTS.find(x => x.id === it.id); if (p) p.sl = Math.max(0, p.sl - it.qty); });
+  }
+
+  var sheetLine, stock = sheetRes.stock;
+  if (!sheetRes.ok) sheetLine = '<div class="sync-line err">⚠️ Chưa ghi được Google Sheet: ' + esc(sheetRes.error) + '<br>Đơn đã lưu trên máy, sẽ tự gửi lại.</div>';
+  else if (stock && stock.error) sheetLine = '<div class="sync-line warn">✅ Đã ghi Sheet đơn hàng<br>⚠️ Chưa trừ được kho: ' + esc(stock.error) + '</div>';
+  else if (stock && stock.skipped && stock.reason === "Chưa đặt CATALOG_SHEET_ID") sheetLine = '<div class="sync-line warn">✅ Đã ghi Sheet đơn hàng<br>⚠️ Chưa trừ kho: thiếu CATALOG_SHEET_ID trong Apps Script</div>';
+  else if (stock && stock.missing && stock.missing.length) sheetLine = '<div class="sync-line warn">✅ Đã ghi Sheet đơn hàng<br>⚠️ Không tìm thấy trong kho: ' + esc(stock.missing.join(", ")) + '</div>';
+  else sheetLine = '<div class="sync-line ok">✅ Đã ghi Sheet &amp; trừ kho</div>';
+
+  // 2. Gửi Discord ở nền (có thể chậm vì ảnh/video)
   var notifyPayload = {
     is_pos: true,
-    content: `🧾 **[TK POS] HÓA ĐƠN #${orderData.ma_don} (${String(orderData.phuong_thuc_tt).toUpperCase()})**`,
+    content: "🧾 **[TK POS] HÓA ĐƠN #" + orderData.ma_don + " (" + String(orderData.phuong_thuc_tt).toUpperCase() + ")**",
     embeds: [{
       title: "HÓA ĐƠN 72MM #" + orderData.ma_don,
       color: 5763719,
       fields: [
-        { name: "Thu ngân", value: orderData.nhan_vien, inline: true },
-        { name: "Khách hàng", value: orderData.ten_khach, inline: true },
+        { name: "Thu ngân", value: String(orderData.nhan_vien).slice(0, 200), inline: true },
+        { name: "Khách hàng", value: String(orderData.ten_khach).slice(0, 200), inline: true },
         { name: "Phương thức", value: orderData.phuong_thuc_tt, inline: true },
-        { name: "Sản phẩm", value: orderData.chi_tiet_sp, inline: false },
+        { name: "Sản phẩm", value: String(orderData.chi_tiet_sp).slice(0, 1000), inline: false },
         { name: "TỔNG THU", value: "**" + money(orderData.tong_tien) + " VNĐ**", inline: true }
       ]
     }],
     receipt_base64: receiptBase64,
-    media_list: capturedMediaList
+    media_list: media
   };
-
-  fetch(API_BASE + "/api/notify", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(notifyPayload)
-  }).catch(function(e) { console.error("Discord Error:", e); });
+  fetch(API_BASE + "/api/notify", { method: "POST", headers: authHeaders(), body: JSON.stringify(notifyPayload) })
+    .then(function(r) { return r.json().catch(function() { return {}; }); })
+    .then(function(j) {
+      var el = document.getElementById("discordLine");
+      if (el) el.innerHTML = j && j.ok ? '✅ Đã gửi Discord' : '⚠️ Chưa gửi được Discord';
+    })
+    .catch(function() { var el = document.getElementById("discordLine"); if (el) el.innerHTML = '⚠️ Chưa gửi được Discord'; });
 
   clearBill();
   toggleMobileBill(false);
 
-  var imgHtml = receiptBase64 
+  var imgHtml = receiptBase64
     ? '<img src="' + receiptBase64 + '" style="width:100%;height:auto;display:block;border-radius:8px;" alt="Hóa đơn">'
-    : '<div style="padding:30px;color:var(--text-muted);">Đã ghi nhận đơn #' + orderData.ma_don + '</div>';
+    : '<div style="padding:30px;color:var(--text-muted);">Đã ghi nhận đơn #' + esc(orderData.ma_don) + '</div>';
 
-  showPosModal(`
-    <h3>✅ ĐÃ HOÀN TẤT ĐƠN HÀNG</h3>
-    <div style="max-height:300px;overflow-y:auto;background:#fff;padding:6px;border-radius:12px;margin:10px 0;border:1px solid var(--border);">
-      ${imgHtml}
-    </div>
-    <button class="btn-pay qr" style="width:100%;padding:14px;font-size:13px;" onclick="closePosModal()">TẠO ĐƠN MỚI →</button>
-  `);
+  showPosModal(
+    '<h3>✅ ĐÃ HOÀN TẤT ĐƠN HÀNG</h3>' + sheetLine +
+    '<div class="sync-line" id="discordLine" style="color:var(--text-muted);">⏳ Đang gửi Discord...</div>' +
+    '<div style="max-height:300px;overflow-y:auto;background:#fff;padding:6px;border-radius:12px;margin:10px 0;border:1px solid var(--border);">' + imgHtml + '</div>' +
+    '<button class="btn-pay qr" style="width:100%;padding:14px;font-size:13px;" onclick="closePosModal()">TẠO ĐƠN MỚI →</button>');
 };
 
 // =========================================================================
@@ -956,17 +1138,11 @@ window.submitCheckInOut = async function(type) {
   var action = type === "IN" ? "pos_checkin" : "pos_checkout";
 
   try {
-    var res = await fetch(API_BASE + "/api/pos-sync", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action, ngay: todayStr, gio: timeStr,
-        ten_nhan_vien: currentUser.name, so_dien_thoai: currentUser.phone
-      })
-    });
-    var data = await res.json();
+    var data = await apiCall("/api/pos-sync", { action: action });
+    timeStr = data.gio_checkin || data.gio_checkout || timeStr;
 
     fetch(API_BASE + "/api/notify", {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST", headers: authHeaders(),
       body: JSON.stringify({
         is_checkin: true,
         content: `⏰ **[CHẤM CÔNG] ${type === "IN" ? "VÀO CA (CHECK-IN)" : "HẾT CA (CHECK-OUT)"}**`,
@@ -976,7 +1152,7 @@ window.submitCheckInOut = async function(type) {
           fields: [
             { name: "Nhân viên", value: currentUser.name + " (" + currentUser.phone + ")", inline: true },
             { name: "Thời gian", value: timeStr + " — " + todayStr, inline: true },
-            { name: "Số giờ làm ca này", value: type === "OUT" ? (data.so_gio + " giờ") : "Đang làm việc", inline: false }
+            { name: "Số giờ làm ca này", value: type === "OUT" ? ((data.so_gio || 0) + " giờ") : "Đang làm việc", inline: false }
           ]
         }],
         image_base64: capturedCheckinPhoto
@@ -985,12 +1161,12 @@ window.submitCheckInOut = async function(type) {
 
     showPosModal(`
       <h3>✅ ${type === "IN" ? "Check-in Thành Công" : "Check-out Thành Công"}</h3>
-      <p style="font-size:13px;color:var(--text-muted);">${currentUser.name} lúc <b>${timeStr}</b> ngày <b>${todayStr}</b></p>
+      <p style="font-size:13px;color:var(--text-muted);">${esc(currentUser.name)} lúc <b>${timeStr}</b> ngày <b>${todayStr}</b></p>
       ${type === "OUT" ? `<div style="font-size:17px;font-weight:900;color:var(--accent);margin:10px 0;">Tổng giờ ca này: ${data.so_gio} Giờ</div>` : ''}
       <button class="btn-pay qr" style="width:100%;margin-top:10px;" onclick="closePosModal()">Đóng</button>
     `);
   } catch (err) {
-    alert("Lỗi chấm công: " + err.message);
+    alert("Chưa ghi được vào Google Sheet: " + err.message);
     btnIn.disabled = false; btnOut.disabled = false;
   }
 };
@@ -1007,21 +1183,14 @@ window.openTimesheetModal = async function() {
   var isSep = currentUser.role === "sep";
 
   try {
-    var res = await fetch(API_BASE + "/api/pos-sync", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "get_timesheet", thang_nam: monthYear,
-        so_dien_thoai: currentUser.phone, is_sep: isSep
-      })
-    });
-    var data = await res.json();
+    var data = await apiCall("/api/pos-sync", { action: "get_timesheet", thang_nam: monthYear });
     var allEmps = (data && Array.isArray(data.allEmployees)) ? data.allEmployees : [];
     var logs = (data && Array.isArray(data.logs)) ? data.logs : [];
 
     var summaryHtml = isSep
       ? `<div class="receipt-box"><b style="color:var(--accent);">👑 TỔNG HỢP CÔNG TẤT CẢ NHÂN VIÊN (${monthYear})</b><br>` +
         (allEmps.length > 0
-          ? allEmps.map(e => `<div>• <b>${e.name || 'NV'}</b> (${e.phone}): <b style="color:var(--accent);">${e.totalHours || 0} giờ</b> (${e.shifts || 0} ca)</div>`).join("")
+          ? allEmps.map(e => `<div>• <b>${esc(e.name || 'NV')}</b> (${esc(e.phone)}): <b style="color:var(--accent);">${e.totalHours || 0} giờ</b> (${e.shifts || 0} ca)</div>`).join("")
           : '<div style="color:var(--text-muted);font-size:12px;margin-top:4px;">Chưa có dữ liệu chấm công tháng này.</div>') +
         `</div>`
       : `<div class="receipt-box" style="text-align:center;">
@@ -1031,8 +1200,8 @@ window.openTimesheetModal = async function() {
 
     var logsHtml = logs.map(l => `
       <div style="padding:6px 0;border-bottom:1px dashed var(--border-subtle);text-align:left;font-size:12px;">
-        <div style="display:flex;justify-content:space-between;"><b>${l.ngay} · ${l.ten}</b><b style="color:var(--accent);">${l.gio}h</b></div>
-        <div style="color:var(--text-muted);font-size:11px;">Vào: ${l.checkin || '--'} | Ra: ${l.checkout || '--'}</div>
+        <div style="display:flex;justify-content:space-between;"><b>${esc(l.ngay)} · ${esc(l.ten)}</b><b style="color:var(--accent);">${l.gio}h</b></div>
+        <div style="color:var(--text-muted);font-size:11px;">Vào: ${esc(l.checkin || '--')} | Ra: ${esc(l.checkout || '--')}</div>
       </div>
     `).join("");
 
@@ -1057,11 +1226,7 @@ window.openTodayReport = async function() {
   var todayPrefix = String(now.getDate()).padStart(2, "0") + "/" + String(now.getMonth() + 1).padStart(2, "0") + "/" + now.getFullYear();
 
   try {
-    var res = await fetch(API_BASE + "/api/pos-sync", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "today_stats", today_prefix: todayPrefix })
-    });
-    var data = await res.json();
+    var data = await apiCall("/api/pos-sync", { action: "today_stats" });
     showPosModal(`
       <h3>📊 Doanh Thu Ngày (${todayPrefix})</h3>
       <div class="receipt-box" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:center;">
@@ -1083,6 +1248,7 @@ window.toggleAuthMode = function() {
   document.getElementById("authError").style.display = "none";
   isRegisterMode = !isRegisterMode;
   document.getElementById("authNameGroup").style.display = isRegisterMode ? "block" : "none";
+  document.getElementById("authCodeGroup").style.display = isRegisterMode ? "block" : "none";
   document.getElementById("authModeDesc").textContent = isRegisterMode ? "Đăng ký tài khoản nhân viên mới" : "Đăng nhập tài khoản bán hàng";
   document.getElementById("btnAuthSubmit").textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
   document.getElementById("btnToggleAuthMode").textContent = isRegisterMode ? "Đã có tài khoản? Đăng nhập ngay" : "Chưa có tài khoản? Đăng ký ngay";
@@ -1106,7 +1272,7 @@ window.handleAuthAction = async function() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         mode: isRegisterMode ? "register" : "login",
-        phone: phone, password: pass, name: name
+        phone: phone, password: pass, name: name, code: document.getElementById("authCodeInput").value
       })
     });
     var data = await res.json();
@@ -1115,7 +1281,7 @@ window.handleAuthAction = async function() {
       btn.disabled = false; btn.textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
       return;
     }
-    applyUser(data.user);
+    applyUser(Object.assign({}, data.user, { token: data.token }));
   } catch (e) {
     showAuthErr("Lỗi kết nối: " + e.message);
     btn.disabled = false; btn.textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
@@ -1139,8 +1305,8 @@ window.showAccountMenu = function() {
   showPosModal(`
     <h3>👤 Tài Khoản Nhân Viên</h3>
     <div class="receipt-box">
-      <div><b>Họ tên:</b> ${currentUser.name}</div>
-      <div><b>Số điện thoại:</b> ${currentUser.phone}</div>
+      <div><b>Họ tên:</b> ${esc(currentUser.name)}</div>
+      <div><b>Số điện thoại:</b> ${esc(currentUser.phone)}</div>
       <div><b>Quyền hạn:</b> <b style="color:${currentUser.role === 'sep' ? '#ffcc00' : 'var(--accent)'};">${currentUser.role === 'sep' ? 'SẾP (Toàn quyền)' : 'Nhân viên bán hàng'}</b></div>
     </div>
     <div style="display:flex;gap:8px;">
@@ -1158,14 +1324,19 @@ window.logoutPOS = function() {
 };
 
 var saved = localStorage.getItem("tka_logged_user");
-if (saved) {
-  try { applyUser(JSON.parse(saved)); } catch (e) {}
+var savedUser = null;
+try { savedUser = saved ? JSON.parse(saved) : null; } catch (e) {}
+if (savedUser && savedUser.token) {
+  applyUser(savedUser);
 } else {
+  localStorage.removeItem("tka_logged_user");
   document.getElementById("authOverlay").style.display = "flex";
 }
 
 reloadInventory(false);
 renderBill();
+renderSyncChip();
+flushSyncQueue();
 </script>
 </body>
 </html>

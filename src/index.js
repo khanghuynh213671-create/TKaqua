@@ -871,7 +871,7 @@ const handler = {
         let payload;
         if (action === "pos_sale") {
           const items = (Array.isArray(body.items) ? body.items : []).slice(0, 60).map(function (it) {
-            return { type: it && it.type === "acc" ? "acc" : "fish", name: cleanText(it && it.name, 120), size: cleanText(it && it.size, 40), qty: Math.floor(Number(it && it.qty)) || 0 };
+            return { type: it && it.type === "acc" ? "acc" : (it && it.type === "pleco" ? "pleco" : "fish"), name: cleanText(it && it.name, 120), size: cleanText(it && it.size, 40), qty: Math.floor(Number(it && it.qty)) || 0 };
           }).filter(function (it) { return it.name && it.qty > 0 && it.qty < 1000; });
           payload = {
             action: action,

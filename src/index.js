@@ -456,7 +456,6 @@ function sheetSafe(v) {
   return /^[=+\-@\t\r]/.test(t) ? "'" + t : t;
 }
 
-// BẬT QUYỀN CAMERA CHO POS & CHẤM CÔNG VÀ KẾT NỐI FIREBASE SDK
 const SECURITY_HEADERS = {
   "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; frame-src https://www.google.com https://maps.google.com https://drive.google.com https://www.youtube.com https://pay.payos.vn https://www.facebook.com; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://api-merchant.payos.vn https://*.googleapis.com https://*.firebaseio.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
   "X-Frame-Options": "DENY",
@@ -480,7 +479,7 @@ const handler = {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // 1. TẠO ĐƠN WEB ONLINE (GIỮ NGUYÊN CODE CHUẨN CŨ)
+    // 1. TẠO ĐƠN WEB ONLINE (GIỮ NGUYÊN)
     if (url.pathname === "/api/create-order" && request.method === "POST") {
       try {
         if (rateLimited(request, "order", 8, 10 * 60 * 1000)) {
@@ -643,7 +642,7 @@ const handler = {
       }
     }
 
-    // 4. KIỂM TRA TRẠNG THÁI THANH TOÁN (DÙNG CHUNG WEB & POS)
+    // 4. KIỂM TRA TRẠNG THÁI THANH TOÁN
     if (url.pathname === "/api/check-payment" && request.method === "GET") {
       try {
         if (rateLimited(request, "check", 120, 60 * 1000)) return jsonResponse({ error: "Too many requests" }, 429);
@@ -692,7 +691,7 @@ const handler = {
       }
     }
 
-    // 6. GỬI DISCORD THÔNG BÁO: TÁCH RIÊNG 3 BIẾN SECRET (WEB / POS / CHẤM CÔNG)
+    // 6. GỬI DISCORD: PHÂN LUỒNG 3 KÊNH (WEB / POS BÁN HÀNG / CHẤM CÔNG)
     if (url.pathname === "/api/notify" && request.method === "POST") {
       try {
         const payload = await readJson(request, 600000);
@@ -737,7 +736,7 @@ const handler = {
       }
     }
 
-    // 7. POS SYNC (ĐỒNG BỘ ĐƠN BÁN QUẦY, CHECK-IN, CHECK-OUT, BẢNG CÔNG, DOANH THU VÀO SHEET)
+    // 7. POS SYNC (ĐỒNG BỘ ĐƠN BÁN QUẦY, CHECK-IN, CHECK-OUT, DOANH THU VÀO SHEET)
     if (url.pathname === "/api/pos-sync" && request.method === "POST") {
       try {
         const body = await readJson(request, 50000);
@@ -746,6 +745,90 @@ const handler = {
         return jsonResponse(resJson);
       } catch (err) {
         return jsonResponse({ ok: false, error: err.message }, 500);
+      }
+    }
+
+    // 8. POS AUTH: ĐĂNG KÝ & ĐĂNG NHẬP QUA SERVICE ACCOUNT (CHỐNG LỖI PERMISSION FIREBASE)
+    if (url.pathname === "/api/pos-auth" && request.method === "POST") {
+      try {
+        if (rateLimited(request, "pos_auth", 20, 60 * 1000)) {
+          return jsonResponse({ ok: false, error: "Thao tác quá nhanh, vui lòng thử lại sau." }, 429);
+        }
+        const body = await readJson(request, 10000);
+        const mode = body.mode;
+        const phone = normalizePhone(body.phone);
+        const pass = String(body.password || "").trim();
+        const name = cleanText(body.name, 80);
+
+        if (!isPhone(phone)) return jsonResponse({ ok: false, error: "Số điện thoại gồm 10 chữ số, bắt đầu bằng số 0." }, 400);
+        if (pass.length < 4) return jsonResponse({ ok: false, error: "Mật khẩu phải từ 4 ký tự trở lên." }, 400);
+
+        const docUrl = FS_BASE + "/nhan_vien/" + encodeURIComponent(phone);
+        const getRes = await fsFetch(env, docUrl, { method: "GET" });
+
+        if (mode === "register") {
+          if (getRes.ok) {
+            return jsonResponse({ ok: false, error: "Số điện thoại này đã đăng ký! Hãy bấm Đăng nhập." }, 400);
+          }
+          if (name.length < 2) {
+            return jsonResponse({ ok: false, error: "Vui lòng nhập họ và tên nhân viên." }, 400);
+          }
+
+          // Kiểm tra xem đã có ai đăng ký chưa (Người đầu tiên tự động thành SẾP)
+          const checkRes = await fsFetch(env, FS_BASE + ":runQuery", {
+            method: "POST",
+            body: JSON.stringify({
+              structuredQuery: { from: [{ collectionId: "nhan_vien" }], limit: 1 }
+            })
+          });
+          const checkData = await checkRes.json();
+          const hasAnyUser = Array.isArray(checkData) && checkData.some(function (x) { return x.document; });
+          const role = hasAnyUser ? "nhan_vien" : "sep";
+
+          const newUser = {
+            phone: phone,
+            name: name,
+            password: pass,
+            role: role,
+            created_at: new Date()
+          };
+
+          const createRes = await fsFetch(env, FS_BASE + "/nhan_vien?documentId=" + encodeURIComponent(phone), {
+            method: "POST",
+            body: JSON.stringify({ fields: toFsFields(newUser) })
+          });
+
+          if (!createRes.ok) {
+            return jsonResponse({ ok: false, error: "Không thể tạo tài khoản lúc này." }, 500);
+          }
+
+          return jsonResponse({
+            ok: true,
+            user: { phone: phone, name: name, role: role }
+          });
+        } else {
+          // Chế độ Login
+          if (!getRes.ok) {
+            return jsonResponse({ ok: false, error: "Số điện thoại chưa được đăng ký! Bấm đăng ký bên dưới." }, 400);
+          }
+          const docData = await getRes.json();
+          const userData = fsFields(docData.fields || {});
+
+          if (String(userData.password || "") !== pass) {
+            return jsonResponse({ ok: false, error: "Mật khẩu không đúng!" }, 400);
+          }
+
+          return jsonResponse({
+            ok: true,
+            user: {
+              phone: userData.phone || phone,
+              name: userData.name || "Nhân viên",
+              role: userData.role || "nhan_vien"
+            }
+          });
+        }
+      } catch (err) {
+        return jsonResponse({ ok: false, error: "Lỗi máy chủ: " + err.message }, 500);
       }
     }
 

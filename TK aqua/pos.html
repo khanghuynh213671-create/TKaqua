@@ -407,6 +407,7 @@ html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?output=csv";
 const ACC_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?gid=1785201873&single=true&output=csv";
+const PLECO_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSa8H3gMwtXhLMbl2Vns3bWyOfMXIBxhaVDa2B2xgPEnodgMWwTNbhRiXa3pSJz3InIpY_M_o6qHiDv/pub?output=csv";
 const API_BASE = "https://tkaqua.khanghuynh213671.workers.dev";
 
 var ALL_PRODUCTS = [];
@@ -418,6 +419,7 @@ var capturedMediaList = []; // Danh sách ảnh & video KHÔNG GIỚI HẠN
 var isRegisterMode = false;
 var currentUser = null;
 
+function itemType(g) { return g === "Phụ kiện" ? "acc" : (g === "Pleco" ? "pleco" : "fish"); }
 function money(n) { return Number(n || 0).toLocaleString("vi-VN"); }
 
 function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function(c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
@@ -472,7 +474,7 @@ function applyStockOverride() {
   Object.keys(ov).forEach(function(k) { if (now - ov[k].ts < 8 * 60 * 1000) fresh[k] = ov[k]; });
   try { localStorage.setItem("tka_pos_stock_override", JSON.stringify(fresh)); } catch (e) {}
   ALL_PRODUCTS.forEach(function(p) {
-    var o = fresh[(p.group === "Phụ kiện" ? "acc" : "fish") + "|" + p.n + "|" + p.s];
+    var o = fresh[itemType(p.group) + "|" + p.n + "|" + p.s];
     if (o) p.sl = o.sl;
   });
 }
@@ -598,6 +600,11 @@ async function reloadInventory(clearSessionDeduct) {
     list = list.concat(parseCSV(await resAcc.text(), "Phụ kiện", "PhuKien"));
   } catch (e) {}
 
+  try {
+    var resPl = await fetch(PLECO_CSV_URL + bust, { cache: "no-store" });
+    list = list.concat(parseCSV(await resPl.text(), "Pleco", "Pleco"));
+  } catch (e) {}
+
   ALL_PRODUCTS = list;
   applyStockOverride();
   renderCategoryTabs();
@@ -606,7 +613,7 @@ async function reloadInventory(clearSessionDeduct) {
 
 function renderCategoryTabs() {
   var rawCats = ALL_PRODUCTS.map(p => p.cat).filter(Boolean);
-  var uniqueCats = ["ALL", "Cá cảnh", "Phụ kiện"].concat(Array.from(new Set(rawCats)));
+  var uniqueCats = ["ALL", "Cá cảnh", "Phụ kiện", "Pleco"].concat(Array.from(new Set(rawCats)));
   uniqueCats = Array.from(new Set(uniqueCats));
   var html = "";
   uniqueCats.forEach(c => {
@@ -869,7 +876,7 @@ window.startOrderProcess = function(method) {
     tong_tien: totals.tongCong, chi_tiet_sp: chuoiSP,
     ghi_chu: "POS (" + staff + ")" + (totals.giamGia > 0 ? " | Giảm: " + money(totals.giamGia) + "đ" : "") + (note ? " | " + note : ""),
     method, rawItems: BILL.map(x => Object.assign({}, x)),
-    items: BILL.map(x => ({ type: x.group === "Phụ kiện" ? "acc" : "fish", name: x.n, size: x.s || "", qty: x.qty }))
+    items: BILL.map(x => ({ type: itemType(x.group), name: x.n, size: x.s || "", qty: x.qty }))
   };
 
   capturedMediaList = [];

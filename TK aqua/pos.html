@@ -1,1 +1,1038 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TK POS">
+<title>TK aqua POS — Hệ Thống Bán Hàng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
+<style>
+:root {
+  --bg: #0d0f0c;
+  --bg-card: #151813;
+  --bg-elevated: #1b1f18;
+  --text: #eaece6;
+  --text-muted: #939d87;
+  --accent: #9ab366;
+  --accent-light: rgba(154, 179, 102, 0.14);
+  --border: rgba(154, 179, 102, 0.28);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --danger: #e57373;
+  --warn: #ffcc00;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: 'Roboto', -apple-system, sans-serif; height: 100%; overflow: hidden;
+}
+
+.auth-overlay {
+  position: fixed; inset: 0; background: radial-gradient(circle at 50% 30%, #171c14 0%, #0d0f0c 100%);
+  z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 18px;
+}
+.auth-box {
+  width: 100%; max-width: 380px; background: var(--bg-card); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 26px 20px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.85);
+}
+.auth-logo { width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid var(--accent); margin-bottom: 10px; }
+.auth-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; }
+.auth-title span { color: var(--accent); }
+.auth-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+.auth-form { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+.auth-form label { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+.auth-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-subtle); background: #0e100d; color: var(--text); font-size: 14px; outline: none; }
+.auth-input:focus { border-color: var(--accent); }
+.auth-btn { width: 100%; padding: 13px; border-radius: 10px; background: var(--accent); color: #111310; border: none; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; margin-top: 6px; }
+.auth-toggle { font-size: 12px; color: var(--text-muted); margin-top: 14px; cursor: pointer; text-decoration: underline; text-align: center; }
+.auth-error { color: var(--danger); font-size: 12px; margin-top: 4px; display: none; text-align: center; }
+
+.pos-app { display: flex; flex-direction: column; height: 100dvh; max-width: 1400px; margin: 0 auto; }
+.pos-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: max(8px, env(safe-area-inset-top)) 12px 8px 12px;
+  background: var(--bg-card); border-bottom: 1px solid var(--border-subtle);
+  gap: 8px; flex-shrink: 0;
+}
+.pos-brand { display: flex; align-items: center; gap: 8px; }
+.pos-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
+.pos-brand-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 13.5px; text-transform: uppercase; }
+.pos-brand-title span { color: var(--accent); }
+
+.role-badge { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 6px; text-transform: uppercase; }
+.role-badge.sep { background: #ffcc00; color: #111310; }
+.role-badge.nv { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+
+.pos-header-right { display: flex; align-items: center; gap: 6px; }
+.icon-btn {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); color: var(--text);
+  height: 34px; padding: 0 10px; border-radius: 8px; font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+}
+.icon-btn.active { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+
+.pos-body { display: grid; grid-template-columns: 1fr 390px; flex: 1; min-height: 0; overflow: hidden; }
+.pos-catalog { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border-subtle); }
+.pos-controls { padding: 8px 12px; background: var(--bg); border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.search-box { position: relative; width: 100%; }
+.search-box input { width: 100%; height: 38px; padding: 0 34px 0 12px; border-radius: 10px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text); font-size: 13.5px; outline: none; }
+.search-box input:focus { border-color: var(--accent); }
+.clear-search { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; }
+
+.source-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.source-tabs::-webkit-scrollbar { display: none; }
+.tab-btn { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-muted); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
+.tab-btn.active { background: var(--accent); color: #111310; border-color: var(--accent); font-weight: 800; }
+
+.pos-grid { flex: 1; overflow-y: auto; padding: 10px 12px 90px 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; align-content: start; }
+.pos-item { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; cursor: pointer; position: relative; }
+.pos-item:active { transform: scale(0.96); border-color: var(--accent); }
+.pos-item.out { opacity: 0.35; filter: grayscale(0.8); }
+.pos-item-pic { aspect-ratio: 4 / 3; background: #090b08; border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 6px; }
+.pos-item-pic img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.stock-tag { position: absolute; top: 4px; right: 4px; background: rgba(13, 15, 12, 0.88); color: var(--accent); border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-family: 'Montserrat', sans-serif; font-size: 9.5px; font-weight: 800; }
+.stock-tag.zero { color: var(--danger); border-color: rgba(229,115,115,0.4); }
+.in-cart-badge { position: absolute; top: 4px; left: 4px; background: var(--accent); color: #111310; width: 20px; height: 20px; border-radius: 50%; font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.pos-item-name { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 800; color: var(--text); line-height: 1.25; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pos-item-meta { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.pos-item-price { margin-top: auto; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 900; color: var(--accent); }
+
+.pos-bill { background: var(--bg-card); display: flex; flex-direction: column; min-height: 0; z-index: 50; }
+.bill-header { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
+.bill-header h3 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 13.5px; font-weight: 900; color: var(--accent); text-transform: uppercase; }
+.btn-clear-bill { background: transparent; border: 1px solid rgba(229,115,115,0.35); color: var(--danger); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 700; cursor: pointer; }
+
+.bill-items { flex: 1; overflow-y: auto; padding: 6px 12px; }
+.bill-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--border-subtle); }
+.bill-row-info { flex: 1; min-width: 0; }
+.bill-row-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12.5px; color: var(--text); }
+.bill-row-sub { font-size: 11px; color: var(--text-muted); }
+.bill-qty-ctrl { display: flex; align-items: center; gap: 4px; }
+.q-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: #0e100d; color: var(--accent); font-weight: 900; font-size: 14px; cursor: pointer; }
+.q-val { min-width: 20px; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12.5px; }
+
+.bill-footer { padding: 10px 12px max(12px, env(safe-area-inset-bottom)); background: #10130e; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+.pos-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pos-input, .pos-select { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text); font-size: 12px; outline: none; }
+.pos-input:focus, .pos-select:focus { border-color: var(--accent); }
+.calc-line { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+.calc-line.grand { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 900; color: var(--text); padding-top: 4px; border-top: 1px solid var(--border-subtle); }
+.calc-line.grand b { color: var(--accent); font-size: 17.5px; }
+
+.pay-actions-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 4px; }
+.btn-pay { padding: 11px 4px; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 10.5px; text-transform: uppercase; cursor: pointer; border: none; text-align: center; }
+.btn-pay.cash { background: var(--bg-elevated); color: var(--text); border: 1.5px solid var(--border); }
+.btn-pay.card { background: #1f271b; color: var(--accent); border: 1.5px solid var(--border); }
+.btn-pay.qr { background: var(--accent); color: #111310; }
+
+.mobile-cart-bar {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 8px 12px max(8px, env(safe-area-inset-bottom));
+  background: rgba(18, 21, 16, 0.96); backdrop-filter: blur(16px);
+  border-top: 1.5px solid var(--border); z-index: 40; align-items: center; justify-content: space-between;
+}
+.mobile-cart-info b { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 900; color: var(--accent); }
+.mobile-cart-info span { font-size: 11px; color: var(--text-muted); }
+.btn-open-bill { background: var(--accent); color: #111310; border: none; padding: 10px 18px; border-radius: 999px; font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 11.5px; text-transform: uppercase; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(6, 8, 5, 0.86); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: 0.2s; }
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-box { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 16px; padding: 18px 16px; width: 92%; max-width: 420px; max-height: 90dvh; overflow-y: auto; text-align: center; }
+.modal-box h3 { margin: 0 0 8px; font-family: 'Montserrat', sans-serif; color: var(--accent); font-size: 16px; text-transform: uppercase; }
+.receipt-box { background: #0e100d; border: 1px dashed var(--border); border-radius: 10px; padding: 12px; text-align: left; font-size: 12px; margin: 10px 0; line-height: 1.55; }
+
+@media (max-width: 860px) {
+  .pos-body { grid-template-columns: 1fr; }
+  .pos-bill { position: fixed; inset: 0; transform: translateY(100%); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+  .pos-bill.open { transform: translateY(0); }
+  .mobile-cart-bar { display: flex; }
+}
+</style>
+</head>
+<body>
+
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <img src="logo.jpg" alt="Logo" class="auth-logo">
+    <div class="auth-title">TK <span>POS</span></div>
+    <div class="auth-desc" id="authModeDesc">Đăng nhập tài khoản bán hàng</div>
+    <div class="auth-form">
+      <div id="authNameGroup" style="display:none;">
+        <label>Họ và Tên Nhân Viên</label>
+        <input type="text" id="authNameInput" class="auth-input" placeholder="Nguyễn Văn A">
+      </div>
+      <label>Số Điện Thoại</label>
+      <input type="tel" id="authPhoneInput" class="auth-input" placeholder="0901234567">
+      <label>Mật Khẩu</label>
+      <input type="password" id="authPassInput" class="auth-input" placeholder="Nhập mật khẩu...">
+      <div class="auth-error" id="authError"></div>
+      <button class="auth-btn" id="btnAuthSubmit" onclick="handleAuthAction()">Đăng Nhập</button>
+    </div>
+    <div class="auth-toggle" id="btnToggleAuthMode" onclick="toggleAuthMode()">Chưa có tài khoản? Đăng ký ngay</div>
+  </div>
+</div>
+
+<div class="pos-app">
+  <header class="pos-header">
+    <div class="pos-brand">
+      <img src="logo.jpg" alt="TK aqua">
+      <div class="pos-brand-title">TK <span>POS</span></div>
+    </div>
+    <div class="pos-header-right">
+      <button class="icon-btn" onclick="openCheckInOutModal()">⏱️ Chấm công</button>
+      <button class="icon-btn" id="btnTimesheet" onclick="openTimesheetModal()">📅 Bảng công</button>
+      <button class="icon-btn" id="btnTodayOwner" onclick="openTodayReport()">📊 Hôm nay</button>
+      <button class="icon-btn" onclick="showAccountMenu()">👤 <span id="headerUserRole" class="role-badge nv">NV</span></button>
+    </div>
+  </header>
+
+  <div class="pos-body">
+    <section class="pos-catalog">
+      <div class="pos-controls">
+        <div class="search-box">
+          <input type="text" id="posSearch" placeholder="Tìm không dấu tên cá, phụ kiện, size..." oninput="renderCatalog()">
+          <button class="clear-search" onclick="clearSearch()">✕</button>
+        </div>
+        <div class="source-tabs" id="catTabs"></div>
+      </div>
+      <div class="pos-grid" id="posGrid"></div>
+    </section>
+
+    <aside class="pos-bill" id="posBill">
+      <div class="bill-header">
+        <h3>🧾 Giỏ Hàng (<span id="billCount">0</span>)</h3>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-clear-bill" onclick="clearBill()">Xóa giỏ</button>
+          <button class="icon-btn" style="height:26px;display:none;" id="btnCloseBillMobile" onclick="toggleMobileBill(false)">Đóng ↓</button>
+        </div>
+      </div>
+
+      <div class="bill-items" id="billItems"></div>
+
+      <div class="bill-footer">
+        <div class="pos-field-grid">
+          <input type="text" id="custName" class="pos-input" placeholder="Tên khách (Lẻ)">
+          <input type="tel" id="custPhone" class="pos-input" placeholder="SĐT khách">
+        </div>
+        <div class="pos-field-grid">
+          <select id="shipSelect" class="pos-select" onchange="updateBillTotals()">
+            <option value="0" data-label="Mua tại Studio">Tại tiệm (Ship 0đ)</option>
+            <option value="110000" data-label="Nội thành TP.HCM">Ship TP.HCM (+110k)</option>
+            <option value="210000" data-label="Tỉnh / Xe khách">Ship Tỉnh (+210k)</option>
+            <option value="500000" data-label="Máy bay / Quốc tế">Ship Bay (+500k)</option>
+          </select>
+          <input type="number" id="discountInput" class="pos-input" placeholder="Giảm giá (VNĐ)" oninput="updateBillTotals()">
+        </div>
+        <input type="text" id="orderNote" class="pos-input" placeholder="Ghi chú đơn...">
+        <div class="calc-line"><span>Tiền hàng:</span><b id="lblSubTotal">0đ</b></div>
+        <div class="calc-line"><span>Ship / Giảm giá:</span><b id="lblAdjust">0đ</b></div>
+        <div class="calc-line grand"><span>TỔNG THU:</span><b id="lblGrandTotal">0đ</b></div>
+        <div class="pay-actions-3">
+          <button class="btn-pay cash" onclick="startOrderProcess('CASH')">💵 Tiền mặt</button>
+          <button class="btn-pay qr" onclick="startOrderProcess('QR')">🏦 Quét QR</button>
+          <button class="btn-pay card" onclick="startOrderProcess('CARD')">💳 Quẹt thẻ</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="mobile-cart-bar" onclick="toggleMobileBill(true)">
+    <div class="mobile-cart-info">
+      <b id="mobTotal">0đ</b>
+      <span id="mobCount">0 món trong giỏ</span>
+    </div>
+    <button class="btn-open-bill">Thanh Toán ↑</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="posModal">
+  <div class="modal-box" id="posModalBox"></div>
+</div>
+
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?output=csv";
+const ACC_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp8_YWn7P7HMP4k2JbLNI2gkrwATBP9zkJumK96bi2dwU8k2OM1AbAgAICyUayeZj4kqkro_nciT8N/pub?gid=1785201873&single=true&output=csv";
+const API_BASE = "https://tkaqua.khanghuynh213671.workers.dev";
+
+var ALL_PRODUCTS = [];
+var BILL = [];
+var currentCat = "ALL";
+var activePollInterval = null;
+var currentPendingOrder = null;
+var capturedImageBase64 = null;
+var isRegisterMode = false;
+var currentUser = null;
+
+function money(n) { return Number(n ? n : 0).toLocaleString("vi-VN"); }
+function normVN(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().trim(); }
+
+function extractDriveId(url) {
+  if (!url) return null;
+  var s = url.trim();
+  var m1 = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/); if (m1) return m1[1];
+  var m2 = s.match(/[?&]id=([a-zA-Z0-9_-]+)/); if (m2) return m2[1];
+  var m3 = s.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/); if (m3) return m3[1];
+  return null;
+}
+function resolveThumbnailUrl(imgRaw, vidRaw) {
+  if (imgRaw && imgRaw.trim()) {
+    var id = extractDriveId(imgRaw);
+    return id ? "https://lh3.googleusercontent.com/d/" + id : imgRaw.trim();
+  }
+  if (vidRaw && vidRaw.trim()) {
+    var vidId = extractDriveId(vidRaw);
+    return vidId ? "https://lh3.googleusercontent.com/d/" + vidId : "";
+  }
+  return "";
+}
+
+function parseCSV(str, sourceGroup, sheetTabHint) {
+  var rows = [], row = [], curr = '', inQuotes = false;
+  for (var i = 0; i < str.length; i++) {
+    var c = str[i];
+    if (inQuotes) {
+      if (c === '"') { if (str[i + 1] === '"') { curr += '"'; i++; } else inQuotes = false; }
+      else curr += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(curr); curr = ''; }
+      else if (c === '\n' || char === '\r') {
+        if (c === '\r' && str[i+1] === '\n') i++;
+        row.push(curr); curr = ''; rows.push(row); row = [];
+      } else curr += c;
+    }
+  }
+  if (curr) row.push(curr);
+  if (row.length > 0) rows.push(row);
+  if (rows.length < 2) return [];
+
+  var headers = rows[0].map(h => h.trim());
+  var result = [];
+  for (var r = 1; r < rows.length; r++) {
+    if (rows[r].length < 2) continue;
+    var obj = {};
+    for (var j = 0; j < headers.length; j++) obj[headers[j]] = rows[r][j] ? rows[r][j].trim() : "";
+    var getVal = k => { var rk = Object.keys(obj).find(x => x.replace(/\s/g, '') === k); return rk ? obj[rk] : ""; };
+    var ten = getVal('TenCa') || getVal('TenSP');
+    if (!ten) continue;
+
+    result.push({
+      id: sourceGroup + "_" + r,
+      group: sourceGroup,
+      sheetTab: sheetTabHint,
+      n: ten,
+      p: parseInt(getVal('Gia')) || 0,
+      sl: parseInt(getVal('SoLuong')) || 0,
+      cat: getVal('PhanLoai') || sourceGroup,
+      s: getVal('Size'),
+      img: resolveThumbnailUrl(getVal('Anh'), getVal('Video'))
+    });
+  }
+  return result;
+}
+
+async function reloadInventory(clearSessionDeduct) {
+  if (clearSessionDeduct) sessionStorage.removeItem("tka_pos_deducted");
+  var list = [];
+  var bust = "&_t=" + Date.now();
+  try {
+    var resFish = await fetch(CSV_URL + bust, { cache: "no-store" });
+    list = list.concat(parseCSV(await resFish.text(), "Cá cảnh", "CaCanh"));
+  } catch (e) {}
+  try {
+    var resAcc = await fetch(ACC_CSV_URL + bust, { cache: "no-store" });
+    list = list.concat(parseCSV(await resAcc.text(), "Phụ kiện", "PhuKien"));
+  } catch (e) {}
+
+  var localDeduct = JSON.parse(sessionStorage.getItem("tka_pos_deducted") || "{}");
+  list.forEach(item => {
+    var key = item.n + "__" + item.s;
+    if (localDeduct[key]) item.sl = Math.max(0, item.sl - localDeduct[key]);
+  });
+
+  ALL_PRODUCTS = list;
+  renderCategoryTabs();
+  renderCatalog();
+}
+
+function renderCategoryTabs() {
+  var rawCats = ALL_PRODUCTS.map(p => p.cat).filter(Boolean);
+  var uniqueCats = ["ALL", "Cá cảnh", "Phụ kiện"].concat(Array.from(new Set(rawCats)));
+  uniqueCats = Array.from(new Set(uniqueCats));
+  var html = "";
+  uniqueCats.forEach(c => {
+    var label = c === "ALL" ? "Tất cả (" + ALL_PRODUCTS.length + ")" : c;
+    html += '<button class="tab-btn ' + (currentCat === c ? 'active' : '') + '" onclick="selectCat(\'' + c.replace(/'/g, "\\'") + '\')">' + label + '</button>';
+  });
+  document.getElementById("catTabs").innerHTML = html;
+}
+
+window.selectCat = function(c) { currentCat = c; renderCategoryTabs(); renderCatalog(); };
+window.clearSearch = function() { document.getElementById("posSearch").value = ""; renderCatalog(); };
+
+function renderCatalog() {
+  var q = normVN(document.getElementById("posSearch").value);
+  var filtered = ALL_PRODUCTS.filter(item => {
+    var matchCat = (currentCat === "ALL" || item.cat === currentCat || item.group === currentCat);
+    var matchQ = !q || normVN(item.n).indexOf(q) > -1 || normVN(item.cat).indexOf(q) > -1 || normVN(item.s).indexOf(q) > -1;
+    return matchCat && matchQ;
+  });
+
+  filtered.sort((a, b) => (b.sl > 0 ? 1 : 0) - (a.sl > 0 ? 1 : 0));
+
+  var html = "";
+  filtered.forEach(item => {
+    var inBill = BILL.find(b => b.id === item.id);
+    var isOut = item.sl <= 0;
+    html += '<div class="pos-item ' + (isOut ? 'out' : '') + '" onclick="tapProduct(\'' + item.id + '\')">'
+      + '<div class="pos-item-pic">'
+      + (item.img ? '<img src="' + item.img + '" alt="' + item.n + '" loading="lazy">' : '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px;">🐟</div>')
+      + (inBill ? '<div class="in-cart-badge">' + inBill.qty + '</div>' : '')
+      + '<span class="stock-tag ' + (isOut ? 'zero' : '') + '">' + (isOut ? 'Hết hàng' : 'Kho: ' + item.sl) + '</span>'
+      + '</div>'
+      + '<div class="pos-item-name">' + item.n + '</div>'
+      + '<div class="pos-item-meta">' + item.cat + (item.s ? ' · ' + item.s : '') + '</div>'
+      + '<div class="pos-item-price">' + money(item.p) + 'đ</div>'
+      + '</div>';
+  });
+  document.getElementById("posGrid").innerHTML = html || '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Không tìm thấy sản phẩm.</div>';
+}
+
+window.tapProduct = function(id) {
+  var prod = ALL_PRODUCTS.find(p => p.id === id);
+  if (!prod || prod.sl <= 0) return;
+  var existing = BILL.find(b => b.id === id);
+  if (existing) {
+    if (existing.qty + 1 > prod.sl) {
+      alert("Sản phẩm [" + prod.n + "] chỉ còn " + prod.sl + " trong kho!");
+      return;
+    }
+    existing.qty++;
+  } else {
+    BILL.push({ id: prod.id, n: prod.n, s: prod.s, p: prod.p, qty: 1, maxSl: prod.sl, group: prod.group, sheetTab: prod.sheetTab });
+  }
+  if (navigator.vibrate) navigator.vibrate(20);
+  renderBill();
+  renderCatalog();
+};
+
+window.changeBillQty = function(idx, delta) {
+  var item = BILL[idx];
+  if (!item) return;
+  var nQty = item.qty + delta;
+  if (nQty <= 0) BILL.splice(idx, 1);
+  else if (nQty > item.maxSl) alert("Số lượng vượt quá tồn kho!");
+  else item.qty = nQty;
+  renderBill();
+  renderCatalog();
+};
+
+window.clearBill = function() {
+  BILL = [];
+  document.getElementById("custName").value = "";
+  document.getElementById("custPhone").value = "";
+  document.getElementById("discountInput").value = "";
+  document.getElementById("orderNote").value = "";
+  document.getElementById("shipSelect").value = "0";
+  renderBill();
+  renderCatalog();
+};
+
+function getTotals() {
+  var tienHang = BILL.reduce((sum, b) => sum + b.p * b.qty, 0);
+  var tongSL = BILL.reduce((sum, b) => sum + b.qty, 0);
+  var shipSel = document.getElementById("shipSelect");
+  var phiShip = parseInt(shipSel.value) || 0;
+  var shipLabel = shipSel.options[shipSel.selectedIndex].getAttribute("data-label");
+  var giamGia = parseInt(document.getElementById("discountInput").value) || 0;
+  var tongCong = Math.max(0, tienHang + phiShip - giamGia);
+  return { tienHang, tongSL, phiShip, shipLabel, giamGia, tongCong };
+}
+
+window.updateBillTotals = function() {
+  var t = getTotals();
+  document.getElementById("lblSubTotal").textContent = money(t.tienHang) + "đ";
+  document.getElementById("lblAdjust").textContent = (t.phiShip > 0 ? "+" + money(t.phiShip) + "đ" : "0đ") + (t.giamGia > 0 ? " / -" + money(t.giamGia) + "đ" : "");
+  document.getElementById("lblGrandTotal").textContent = money(t.tongCong) + "đ";
+  document.getElementById("mobTotal").textContent = money(t.tongCong) + "đ";
+  document.getElementById("mobCount").textContent = t.tongSL + " món trong giỏ";
+  document.getElementById("billCount").textContent = t.tongSL;
+};
+
+function renderBill() {
+  var box = document.getElementById("billItems");
+  if (BILL.length === 0) {
+    box.innerHTML = '<div style="text-align:center;padding:45px 10px;color:var(--text-muted);font-size:12px;">Bấm sản phẩm để thêm vào giỏ hàng.</div>';
+  } else {
+    box.innerHTML = BILL.map((b, idx) => `
+      <div class="bill-row">
+        <div class="bill-row-info">
+          <span class="bill-row-name">${b.n} ${b.s ? '(' + b.s + ')' : ''}</span>
+          <span class="bill-row-sub">${money(b.p)}đ × ${b.qty} = <b style="color:var(--accent)">${money(b.p * b.qty)}đ</b></span>
+        </div>
+        <div class="bill-qty-ctrl">
+          <button class="q-btn" onclick="changeBillQty(${idx}, -1)">-</button>
+          <span class="q-val">${b.qty}</span>
+          <button class="q-btn" onclick="changeBillQty(${idx}, 1)">+</button>
+        </div>
+      </div>
+    `).join("");
+  }
+  updateBillTotals();
+}
+
+window.toggleMobileBill = function(open) {
+  var el = document.getElementById("posBill");
+  var btnClose = document.getElementById("btnCloseBillMobile");
+  if (open) { el.classList.add("open"); btnClose.style.display = "inline-flex"; }
+  else { el.classList.remove("open"); btnClose.style.display = "none"; }
+};
+
+window.showPosModal = function(html) {
+  document.getElementById("posModalBox").innerHTML = html;
+  document.getElementById("posModal").classList.add("show");
+};
+window.closePosModal = function() {
+  if (activePollInterval) { clearInterval(activePollInterval); activePollInterval = null; }
+  document.getElementById("posModal").classList.remove("show");
+};
+
+// HÓA ĐƠN 72MM
+function generateReceipt72mmBase64(orderData) {
+  var W = 576;
+  var items = orderData.rawItems || [];
+  var H = 430 + (items.length * 50) + (orderData.giam_gia > 0 ? 30 : 0) + (orderData.phi_ship > 0 ? 30 : 0);
+  var canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  var ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#000"; ctx.textAlign = "center";
+  ctx.font = "900 28px Montserrat, Arial"; ctx.fillText("TK AQUA STUDIO", W / 2, 38);
+  ctx.font = "500 16px Roboto, Arial"; ctx.fillText("Hotline / Zalo: 0703.008.005", W / 2, 66);
+
+  function drawDash(y) {
+    ctx.beginPath(); ctx.setLineDash([6, 4]); ctx.moveTo(20, y); ctx.lineTo(W - 20, y);
+    ctx.strokeStyle = "#000"; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+  }
+  drawDash(84);
+  ctx.font = "800 22px Montserrat, Arial"; ctx.fillText("HÓA ĐƠN BÁN HÀNG", W / 2, 114);
+  ctx.textAlign = "left"; ctx.font = "500 16px Roboto, Arial";
+  ctx.fillText("Mã đơn: #" + orderData.ma_don, 22, 144);
+  ctx.fillText("Ngày: " + orderData.thoi_gian, 22, 168);
+  ctx.fillText("Thu ngân: " + orderData.nhan_vien + "  |  TT: " + orderData.phuong_thuc_tt, 22, 192);
+  drawDash(208);
+
+  var y = 236;
+  items.forEach((it, i) => {
+    ctx.textAlign = "left"; ctx.font = "700 16px Roboto, Arial";
+    ctx.fillText((i + 1) + ". " + it.n + (it.s ? " (" + it.s + ")" : ""), 22, y);
+    y += 22;
+    ctx.font = "400 15px Roboto, Arial"; ctx.fillText("   SL: " + it.qty + " x " + money(it.p) + "đ", 22, y);
+    ctx.textAlign = "right"; ctx.font = "700 16px Roboto, Arial"; ctx.fillText(money(it.p * it.qty) + "đ", W - 22, y);
+    y += 26;
+  });
+
+  drawDash(y); y += 26;
+  function row(label, val, bold) {
+    ctx.font = bold ? "800 22px Montserrat, Arial" : "500 16px Roboto, Arial";
+    ctx.textAlign = "left"; ctx.fillText(label, 22, y);
+    ctx.textAlign = "right"; ctx.fillText(val, W - 22, y);
+    y += bold ? 32 : 24;
+  }
+  row("Tạm tính:", money(orderData.tien_hang) + "đ", false);
+  if (orderData.phi_ship > 0) row("Phí ship:", "+" + money(orderData.phi_ship) + "đ", false);
+  if (orderData.giam_gia > 0) row("Giảm giá:", "-" + money(orderData.giam_gia) + "đ", false);
+  drawDash(y - 8); y += 14;
+  row("TỔNG THU:", money(orderData.tong_tien) + " VNĐ", true);
+  return canvas.toDataURL("image/jpeg", 0.9);
+}
+
+function downloadReceipt(url, code) {
+  var a = document.createElement("a"); a.href = url; a.download = "HD-72mm-" + code + ".jpg"; a.click();
+}
+
+// BÁN HÀNG
+window.startOrderProcess = function(method) {
+  if (BILL.length === 0) return alert("Giỏ hàng đang trống!");
+  var totals = getTotals();
+  var staff = currentUser ? currentUser.name : "NV Tại quầy";
+  var custName = document.getElementById("custName").value.trim() || "Khách lẻ";
+  var custPhone = document.getElementById("custPhone").value.trim() || "0000000000";
+  var note = document.getElementById("orderNote").value.trim();
+  var maSo = Number(String(Date.now()).slice(-6) + String(Math.floor(10 + Math.random() * 90)));
+  var maDon = "TKA-" + maSo;
+  var now = new Date();
+  var thoiGian = String(now.getDate()).padStart(2, "0") + "/" + String(now.getMonth() + 1).padStart(2, "0") + "/" + now.getFullYear() + " " + now.toTimeString().slice(0, 8);
+  var chuoiSP = BILL.map(b => b.n + (b.s ? " (" + b.s + ")" : "") + " x" + b.qty).join(", ");
+  var pmText = method === "CASH" ? "Tiền mặt" : (method === "CARD" ? "Quẹt thẻ" : "Chuyển khoản");
+
+  currentPendingOrder = {
+    ma_don: maDon, orderCodeNum: maSo, thoi_gian: thoiGian, nhan_vien: staff,
+    ten_khach: custName, so_dien_thoai: custPhone, dia_chi: note || totals.shipLabel,
+    phuong_thuc_ship: totals.shipLabel, phuong_thuc_tt: pmText, phi_ship: totals.phiShip,
+    giam_gia: totals.giamGia, tien_hang: totals.tienHang, tong_so_luong: totals.tongSL,
+    tong_tien: totals.tongCong, chi_tiet_sp: chuoiSP,
+    ghi_chu: "POS (" + staff + ")" + (totals.giamGia > 0 ? " | Giảm: " + money(totals.giamGia) + "đ" : "") + (note ? " | " + note : ""),
+    method, rawItems: BILL.map(x => Object.assign({}, x))
+  };
+
+  showPosModal(`
+    <h3>📷 Chụp Ảnh Xác Nhận Đơn</h3>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Bắt buộc chụp ảnh cá / bọc đóng gói trước khi chốt đơn (${pmText}).</p>
+    <input type="file" id="orderCam" accept="image/*" capture="environment" style="display:none;" onchange="handleOrderPhoto(event)">
+    <button class="btn-pay qr" onclick="document.getElementById('orderCam').click()" style="width:100%;padding:12px;margin-bottom:10px;">📸 Mở Camera Chụp Ảnh</button>
+    <div id="orderPhotoPrev" style="display:none;margin-bottom:10px;">
+      <img id="orderPhotoImg" style="max-width:100%;max-height:160px;border-radius:10px;border:1px solid var(--border);">
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-pay cash" style="flex:1;" onclick="closePosModal()">Hủy</button>
+      <button class="btn-pay qr" style="flex:1;" id="btnSubmitOrder" disabled onclick="executeOrderWithPhoto()">Tiếp tục →</button>
+    </div>
+  `);
+};
+
+window.handleOrderPhoto = function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(evt) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement("canvas");
+      var MAX = 800;
+      var w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
+      else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      ctx.fillStyle = "rgba(0,0,0,0.65)"; ctx.fillRect(10, h - 30, w - 20, 22);
+      ctx.fillStyle = "#fff"; ctx.font = "bold 11px sans-serif";
+      ctx.fillText("TK POS · " + currentPendingOrder.ma_don + " · " + currentPendingOrder.thoi_gian, 14, h - 15);
+      capturedImageBase64 = canvas.toDataURL("image/jpeg", 0.75);
+      document.getElementById("orderPhotoImg").src = capturedImageBase64;
+      document.getElementById("orderPhotoPrev").style.display = "block";
+      document.getElementById("btnSubmitOrder").disabled = false;
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.executeOrderWithPhoto = async function() {
+  if (!capturedImageBase64) return;
+  var orderData = currentPendingOrder;
+  if (orderData.method === "CASH" || orderData.method === "CARD") {
+    showPosModal(`
+      <h3>${orderData.method === "CASH" ? "💵 Thu Tiền Mặt" : "💳 Quẹt Thẻ"}</h3>
+      <p style="margin:4px 0 10px;font-size:13px;color:var(--text-muted);">Đơn #${orderData.ma_don} · Cần thu: <b style="color:var(--accent);font-size:16px;">${money(orderData.tong_tien)}đ</b></p>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-pay cash" style="flex:1;" onclick="closePosModal()">Hủy</button>
+        <button class="btn-pay qr" style="flex:1;" onclick="completeAndEmitReceipt(currentPendingOrder, capturedImageBase64)">Hoàn tất &amp; Xuất Bill</button>
+      </div>
+    `);
+    return;
+  }
+
+  // QR
+  showPosModal('<h3>⏳ Đang tạo mã VietQR...</h3>');
+  try {
+    var payRes = await fetch(API_BASE + "/api/create-payment", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderCode: orderData.orderCodeNum, amount: orderData.tong_tien, description: "POS " + orderData.ma_don })
+    });
+    var payData = (await payRes.json()).data;
+    var qrImg = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=6&data=" + encodeURIComponent(payData.qrCode || "");
+
+    showPosModal(`
+      <h3>🏦 Chuyển Khoản VietQR</h3>
+      <div style="background:#fff;padding:8px;border-radius:10px;display:inline-block;margin:8px 0;"><img src="${qrImg}" style="width:200px;height:200px;display:block;"></div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:18px;font-weight:900;color:var(--warn);">${money(orderData.tong_tien)}đ</div>
+      <div id="posQrStatus" style="padding:6px;border-radius:999px;background:var(--accent-light);color:var(--accent);font-size:11.5px;font-weight:700;margin:8px 0;">⏳ Tự xuất hóa đơn khi tiền về...</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-pay cash" style="flex:1;" onclick="closePosModal()">Hủy</button>
+        <button class="btn-pay qr" style="flex:1;" onclick="completeAndEmitReceipt(currentPendingOrder, capturedImageBase64)">Đã nhận tiền</button>
+      </div>
+    `);
+
+    var done = false;
+    activePollInterval = setInterval(async () => {
+      if (done) return;
+      try {
+        var r = await fetch(API_BASE + "/api/check-payment?orderCode=" + orderData.orderCodeNum + "&t=" + Date.now(), { cache: "no-store" });
+        var j = await r.json();
+        if (j && j.data && (j.data.status === "PAID" || (j.data.amount > 0 && j.data.amountPaid >= j.data.amount))) {
+          done = true; clearInterval(activePollInterval);
+          await completeAndEmitReceipt(orderData, capturedImageBase64);
+        }
+      } catch (e) {}
+    }, 2200);
+  } catch (err) { alert("Lỗi QR: " + err.message); }
+};
+
+window.completeAndEmitReceipt = async function(orderData, photoBase64) {
+  var receiptBase64 = generateReceipt72mmBase64(orderData);
+  downloadReceipt(receiptBase64, orderData.ma_don);
+
+  // Gửi Sheet tab "POS bán hàng"
+  fetch(API_BASE + "/api/pos-sync", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "pos_sale",
+      ma_don: orderData.ma_don, thoi_gian: orderData.thoi_gian, nhan_vien: orderData.nhan_vien,
+      ten_khach: orderData.ten_khach, so_dien_thoai: orderData.so_dien_thoai,
+      phuong_thuc_tt: orderData.phuong_thuc_tt, chi_tiet_sp: orderData.chi_tiet_sp,
+      tong_so_luong: orderData.tong_so_luong, giam_gia: orderData.giam_gia,
+      phi_ship: orderData.phi_ship, tong_tien: orderData.tong_tien, ghi_chu: orderData.ghi_chu
+    })
+  }).catch(() => {});
+
+  // Bắn Discord riêng cho POS Bán Hàng (dùng POS_DISCORD_WEBHOOK_URL)
+  fetch(API_BASE + "/api/notify", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      is_pos: true,
+      content: `🧾 **[TK POS] HÓA ĐƠN #${orderData.ma_don} (${orderData.phuong_thuc_tt.toUpperCase()})**`,
+      embeds: [{
+        title: "HÓA ĐƠN 72MM #" + orderData.ma_don,
+        color: 5763719,
+        fields: [
+          { name: "Thu ngân", value: orderData.nhan_vien, inline: true },
+          { name: "Khách hàng", value: orderData.ten_khach, inline: true },
+          { name: "Sản phẩm", value: orderData.chi_tiet_sp, inline: false },
+          { name: "TỔNG THU", value: "**" + money(orderData.tong_tien) + " VNĐ**", inline: true }
+        ]
+      }],
+      receipt_base64: receiptBase64,
+      image_base64: photoBase64
+    })
+  }).catch(() => {});
+
+  clearBill();
+  toggleMobileBill(false);
+  showPosModal(`
+    <h3>✅ Đã Hoàn Tất &amp; Tải Hóa Đơn</h3>
+    <div style="max-height:220px;overflow-y:auto;background:#fff;padding:4px;border-radius:8px;margin:8px 0;"><img src="${receiptBase64}" style="width:100%;display:block;"></div>
+    <button class="btn-pay qr" style="width:100%;" onclick="closePosModal()">Đơn Mới →</button>
+  `);
+};
+
+// =========================================================================
+// CHẤM CÔNG (CHECK-IN / CHECK-OUT) KÈM ẢNH (BẮN VÀO CHECKIN_DISCORD_WEBHOOK_URL)
+// =========================================================================
+var capturedCheckinPhoto = null;
+
+window.openCheckInOutModal = function() {
+  if (!currentUser) return alert("Vui lòng đăng nhập trước khi chấm công!");
+  capturedCheckinPhoto = null;
+  showPosModal(`
+    <h3>⏱️ Chấm Công Check-in / Check-out</h3>
+    <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;">Chụp ảnh tại tiệm để ghi nhận giờ làm vào Google Sheet &amp; Discord.</p>
+    <input type="file" id="chkCam" accept="image/*" capture="user" style="display:none;" onchange="handleCheckinCapture(event)">
+    <button class="btn-pay qr" onclick="document.getElementById('chkCam').click()" style="width:100%;padding:12px;margin-bottom:10px;">📸 Mở Camera Chụp Ảnh Mặt / Studio</button>
+    <div id="chkPhotoPrev" style="display:none;margin-bottom:10px;">
+      <img id="chkPhotoImg" style="max-width:100%;max-height:160px;border-radius:10px;border:1px solid var(--border);">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button class="btn-pay qr" id="btnDoCheckin" disabled onclick="submitCheckInOut('IN')">🟢 Vào Ca (Check-in)</button>
+      <button class="btn-pay cash" id="btnDoCheckout" disabled onclick="submitCheckInOut('OUT')">🔴 Hết Ca (Check-out)</button>
+    </div>
+  `);
+};
+
+window.handleCheckinCapture = function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(evt) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement("canvas");
+      var MAX = 800;
+      var w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
+      else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      ctx.fillStyle = "rgba(0,0,0,0.65)"; ctx.fillRect(10, h - 30, w - 20, 22);
+      ctx.fillStyle = "#fff"; ctx.font = "bold 11px sans-serif";
+      ctx.fillText(currentUser.name + " (" + currentUser.phone + ") · " + new Date().toLocaleString("vi-VN"), 14, h - 15);
+
+      capturedCheckinPhoto = canvas.toDataURL("image/jpeg", 0.75);
+      document.getElementById("chkPhotoImg").src = capturedCheckinPhoto;
+      document.getElementById("chkPhotoPrev").style.display = "block";
+      document.getElementById("btnDoCheckin").disabled = false;
+      document.getElementById("btnDoCheckout").disabled = false;
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.submitCheckInOut = async function(type) {
+  if (!capturedCheckinPhoto) return alert("Vui lòng chụp ảnh xác nhận trước!");
+  var btnIn = document.getElementById("btnDoCheckin");
+  var btnOut = document.getElementById("btnDoCheckout");
+  btnIn.disabled = true; btnOut.disabled = true;
+
+  var now = new Date();
+  var todayStr = String(now.getDate()).padStart(2, "0") + "/" + String(now.getMonth() + 1).padStart(2, "0") + "/" + now.getFullYear();
+  var timeStr = now.toTimeString().slice(0, 8);
+  var action = type === "IN" ? "pos_checkin" : "pos_checkout";
+
+  try {
+    var res = await fetch(API_BASE + "/api/pos-sync", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action, ngay: todayStr, gio: timeStr,
+        ten_nhan_vien: currentUser.name, so_dien_thoai: currentUser.phone
+      })
+    });
+    var data = await res.json();
+
+    // Báo Discord (dùng kênh riêng CHECKIN_DISCORD_WEBHOOK_URL thông qua is_checkin: true)
+    fetch(API_BASE + "/api/notify", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        is_checkin: true,
+        content: `⏰ **[CHẤM CÔNG] ${type === "IN" ? "VÀO CA (CHECK-IN)" : "HẾT CA (CHECK-OUT)"}**`,
+        embeds: [{
+          title: currentUser.name + " — " + (type === "IN" ? "CHECK-IN" : "CHECK-OUT"),
+          color: type === "IN" ? 5763719 : 15548997,
+          fields: [
+            { name: "Nhân viên", value: currentUser.name + " (" + currentUser.phone + ")", inline: true },
+            { name: "Thời gian", value: timeStr + " — " + todayStr, inline: true },
+            { name: "Số giờ làm ca này", value: type === "OUT" ? (data.so_gio + " giờ") : "Đang làm việc", inline: false }
+          ]
+        }],
+        image_base64: capturedCheckinPhoto
+      })
+    }).catch(() => {});
+
+    showPosModal(`
+      <h3>✅ ${type === "IN" ? "Check-in Thành Công" : "Check-out Thành Công"}</h3>
+      <p style="font-size:13px;color:var(--text-muted);">${currentUser.name} lúc <b>${timeStr}</b> ngày <b>${todayStr}</b></p>
+      ${type === "OUT" ? `<div style="font-size:16px;font-weight:900;color:var(--accent);margin:10px 0;">Tổng giờ ca này: ${data.so_gio} Giờ</div>` : ''}
+      <button class="btn-pay qr" style="width:100%;margin-top:10px;" onclick="closePosModal()">Đóng</button>
+    `);
+  } catch (err) {
+    alert("Lỗi chấm công: " + err.message);
+    btnIn.disabled = false; btnOut.disabled = false;
+  }
+};
+
+// BẢNG CÔNG THÁNG
+window.openTimesheetModal = async function() {
+  if (!currentUser) return alert("Vui lòng đăng nhập!");
+  showPosModal('<h3>⏳ Đang tải bảng công tháng...</h3>');
+
+  var now = new Date();
+  var monthYear = String(now.getMonth() + 1).padStart(2, "0") + "/" + now.getFullYear();
+  var isSep = currentUser.role === "sep";
+
+  try {
+    var res = await fetch(API_BASE + "/api/pos-sync", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "get_timesheet", thang_nam: monthYear,
+        so_dien_thoai: currentUser.phone, is_sep: isSep
+      })
+    });
+    var data = await res.json();
+
+    var summaryHtml = isSep
+      ? `<div class="receipt-box"><b style="color:var(--accent);">👑 TỔNG HỢP CÔNG TẤT CẢ NHÂN VIÊN (${monthYear})</b><br>` +
+        data.allEmployees.map(e => `<div>• <b>${e.name}</b> (${e.phone}): <b style="color:var(--accent);">${e.totalHours} giờ</b> (${e.shifts} ca)</div>`).join("") +
+        `</div>`
+      : `<div class="receipt-box" style="text-align:center;">
+           <span style="font-size:11px;color:var(--text-muted);">TỔNG CÔNG THÁNG ${monthYear}</span><br>
+           <b style="font-size:22px;color:var(--accent);">${data.myTotalHours} GIỜ LÀM</b>
+         </div>`;
+
+    var logsHtml = data.logs.map(l => `
+      <div style="padding:6px 0;border-bottom:1px dashed var(--border-subtle);text-align:left;font-size:11.5px;">
+        <div style="display:flex;justify-content:space-between;"><b>${l.ngay} · ${l.ten}</b><b style="color:var(--accent);">${l.gio}h</b></div>
+        <div style="color:var(--text-muted);">Vào: ${l.checkin || '--'} | Ra: ${l.checkout || '--'}</div>
+      </div>
+    `).join("");
+
+    showPosModal(`
+      <h3>📅 Bảng Công Tháng ${monthYear}</h3>
+      ${summaryHtml}
+      <div style="max-height:220px;overflow-y:auto;margin:8px 0;">${logsHtml || '<p style="color:var(--text-muted);font-size:12px;">Chưa có dữ liệu chấm công tháng này.</p>'}</div>
+      <button class="btn-pay qr" style="width:100%;" onclick="closePosModal()">Đóng</button>
+    `);
+  } catch (err) {
+    alert("Không tải được bảng công: " + err.message);
+    closePosModal();
+  }
+};
+
+// DOANH THU CHO SẾP
+window.openTodayReport = async function() {
+  if (!currentUser || currentUser.role !== "sep") return alert("🔒 Chỉ tài khoản Sếp mới được xem doanh thu!");
+  showPosModal('<h3>⏳ Đang tổng hợp doanh thu...</h3>');
+
+  var now = new Date();
+  var todayPrefix = String(now.getDate()).padStart(2, "0") + "/" + String(now.getMonth() + 1).padStart(2, "0") + "/" + now.getFullYear();
+
+  try {
+    var res = await fetch(API_BASE + "/api/pos-sync", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "today_stats", today_prefix: todayPrefix })
+    });
+    var data = await res.json();
+    showPosModal(`
+      <h3>📊 Doanh Thu Ngày (${todayPrefix})</h3>
+      <div class="receipt-box" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:center;">
+        <div><span style="font-size:11px;color:var(--text-muted);">SỐ ĐƠN HÔM NAY</span><br><b style="font-size:16px;">${data.totalOrders || 0} đơn</b></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">DOANH THU</span><br><b style="font-size:16px;color:var(--accent);">${money(data.totalRev || 0)}đ</b></div>
+      </div>
+      <button class="btn-pay qr" style="width:100%;margin-top:10px;" onclick="closePosModal()">Đóng</button>
+    `);
+  } catch (e) { alert("Lỗi tải doanh thu: " + e.message); closePosModal(); }
+};
+</script>
+
+<!-- FIREBASE AUTH -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB05d2OGQLkMiOQQrXRLtfE8tUVb3f5iMs",
+    authDomain: "tk-aqua.firebaseapp.com",
+    projectId: "tk-aqua",
+    storageBucket: "tk-aqua.firebasestorage.app",
+    messagingSenderId: "2700293713",
+    appId: "1:2700293713:web:cb704001cba8b33554ea70",
+    measurementId: "G-JTVTCH34S1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  function showAuthErr(msg) {
+    const el = document.getElementById("authError");
+    el.textContent = msg; el.style.display = "block";
+  }
+
+  window.toggleAuthMode = function() {
+    document.getElementById("authError").style.display = "none";
+    isRegisterMode = !isRegisterMode;
+    document.getElementById("authNameGroup").style.display = isRegisterMode ? "block" : "none";
+    document.getElementById("authModeDesc").textContent = isRegisterMode ? "Đăng ký tài khoản nhân viên mới" : "Đăng nhập tài khoản bán hàng";
+    document.getElementById("btnAuthSubmit").textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
+    document.getElementById("btnToggleAuthMode").textContent = isRegisterMode ? "Đã có tài khoản? Đăng nhập ngay" : "Chưa có tài khoản? Đăng ký ngay";
+  };
+
+  window.handleAuthAction = async function() {
+    document.getElementById("authError").style.display = "none";
+    const phone = document.getElementById("authPhoneInput").value.trim().replace(/[^0-9]/g, '');
+    const pass = document.getElementById("authPassInput").value.trim();
+    const name = document.getElementById("authNameInput").value.trim();
+
+    if (!/^0[0-9]{9}$/.test(phone)) return showAuthErr("Số điện thoại gồm 10 chữ số, bắt đầu bằng số 0.");
+    if (pass.length < 4) return showAuthErr("Mật khẩu ít nhất 4 ký tự.");
+
+    const btn = document.getElementById("btnAuthSubmit");
+    btn.disabled = true; btn.textContent = "Đang xử lý...";
+
+    try {
+      const userRef = doc(db, "nhan_vien", phone);
+      const userSnap = await getDoc(userRef);
+
+      if (isRegisterMode) {
+        if (userSnap.exists()) {
+          showAuthErr("Số điện thoại này đã đăng ký! Hãy đăng nhập.");
+          btn.disabled = false; btn.textContent = "Tạo Tài Khoản";
+          return;
+        }
+        if (!name) {
+          showAuthErr("Vui lòng nhập họ tên.");
+          btn.disabled = false; btn.textContent = "Tạo Tài Khoản";
+          return;
+        }
+
+        const allUsers = await getDocs(query(collection(db, "nhan_vien"), limit(2)));
+        const role = allUsers.empty ? "sep" : "nhan_vien";
+
+        const newUserData = { phone, name, password: pass, role, created_at: serverTimestamp() };
+        await setDoc(userRef, newUserData);
+        applyUser(newUserData);
+      } else {
+        if (!userSnap.exists()) {
+          showAuthErr("SĐT chưa đăng ký! Bấm đăng ký bên dưới.");
+          btn.disabled = false; btn.textContent = "Đăng Nhập";
+          return;
+        }
+        const data = userSnap.data();
+        if (data.password !== pass) {
+          showAuthErr("Mật khẩu không đúng!");
+          btn.disabled = false; btn.textContent = "Đăng Nhập";
+          return;
+        }
+        applyUser(data);
+      }
+    } catch (e) {
+      showAuthErr("Lỗi kết nối: " + e.message);
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  function applyUser(u) {
+    currentUser = u;
+    localStorage.setItem("tka_logged_user", JSON.stringify(u));
+    const roleBadge = document.getElementById("headerUserRole");
+    const isSep = u.role === "sep";
+    roleBadge.textContent = isSep ? "SẾP" : "NV";
+    roleBadge.className = "role-badge " + (isSep ? "sep" : "nv");
+    document.getElementById("btnTodayOwner").style.display = isSep ? "inline-flex" : "none";
+    document.getElementById("authOverlay").style.display = "none";
+  }
+
+  window.showAccountMenu = function() {
+    if (!currentUser) return;
+    showPosModal(`
+      <h3>👤 Tài Khoản Nhân Viên</h3>
+      <div class="receipt-box">
+        <div><b>Họ tên:</b> ${currentUser.name}</div>
+        <div><b>Số điện thoại:</b> ${currentUser.phone}</div>
+        <div><b>Quyền hạn:</b> <b style="color:${currentUser.role === 'sep' ? '#ffcc00' : 'var(--accent)'};">${currentUser.role === 'sep' ? 'SẾP (Toàn quyền)' : 'Nhân viên bán hàng'}</b></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-pay cash" style="flex:1;" onclick="logoutPOS()">Đăng xuất</button>
+        <button class="btn-pay qr" style="flex:1;" onclick="closePosModal()">Đóng</button>
+      </div>
+    `);
+  };
+
+  window.logoutPOS = function() {
+    if (confirm("Đăng xuất khỏi POS?")) {
+      localStorage.removeItem("tka_logged_user");
+      location.reload();
+    }
+  };
+
+  const saved = localStorage.getItem("tka_logged_user");
+  if (saved) {
+    try { applyUser(JSON.parse(saved)); } catch (e) {}
+  } else {
+    document.getElementById("authOverlay").style.display = "flex";
+  }
+</script>
+
+<script>
+reloadInventory(false);
+renderBill();
+</script>
+</body>
+</html>

@@ -6,149 +6,215 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TK POS">
-<title>TK aqua POS — Hệ Thống Bán Hàng</title>
+<title>TK aqua POS — Bán Hàng & Chấm Công</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --bg: #0d0f0c;
-  --bg-card: #151813;
-  --bg-elevated: #1b1f18;
-  --text: #eaece6;
-  --text-muted: #939d87;
+  --bg: #090b08;
+  --bg-card: #131710;
+  --bg-elevated: #1a1f16;
+  --text: #f0f2eb;
+  --text-muted: #8e9982;
   --accent: #9ab366;
-  --accent-light: rgba(154, 179, 102, 0.14);
+  --accent-light: rgba(154, 179, 102, 0.16);
   --border: rgba(154, 179, 102, 0.28);
   --border-subtle: rgba(255, 255, 255, 0.08);
-  --danger: #e57373;
+  --danger: #ff5252;
   --warn: #ffcc00;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 html, body {
   margin: 0; padding: 0; background: var(--bg); color: var(--text);
   font-family: 'Roboto', -apple-system, sans-serif; height: 100%; overflow: hidden;
+  user-select: none;
 }
 
 .auth-overlay {
-  position: fixed; inset: 0; background: radial-gradient(circle at 50% 30%, #171c14 0%, #0d0f0c 100%);
+  position: fixed; inset: 0; background: radial-gradient(circle at 50% 25%, #182014 0%, #080a07 100%);
   z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 18px;
 }
 .auth-box {
-  width: 100%; max-width: 380px; background: var(--bg-card); border: 1.5px solid var(--border);
-  border-radius: 20px; padding: 26px 20px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.85);
+  width: 100%; max-width: 360px; background: var(--bg-card); border: 1.5px solid var(--border);
+  border-radius: 24px; padding: 26px 20px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.9);
 }
-.auth-logo { width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid var(--accent); margin-bottom: 10px; }
-.auth-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; }
+.auth-logo { width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid var(--accent); margin-bottom: 8px; }
+.auth-title { font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 900; margin-bottom: 2px; text-transform: uppercase; }
 .auth-title span { color: var(--accent); }
-.auth-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
-.auth-form { display: flex; flex-direction: column; gap: 10px; text-align: left; }
-.auth-form label { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; }
-.auth-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-subtle); background: #0e100d; color: var(--text); font-size: 14px; outline: none; }
+.auth-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+.auth-form { display: flex; flex-direction: column; gap: 9px; text-align: left; }
+.auth-form label { font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+.auth-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border-subtle); background: #0b0d09; color: var(--text); font-size: 14px; }
 .auth-input:focus { border-color: var(--accent); }
-.auth-btn { width: 100%; padding: 13px; border-radius: 10px; background: var(--accent); color: #111310; border: none; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; margin-top: 6px; }
+.auth-btn { width: 100%; padding: 14px; border-radius: 12px; background: var(--accent); color: #111310; border: none; font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 13px; text-transform: uppercase; cursor: pointer; margin-top: 4px; }
 .auth-toggle { font-size: 12px; color: var(--text-muted); margin-top: 14px; cursor: pointer; text-decoration: underline; text-align: center; }
-.auth-error { color: var(--danger); font-size: 12px; margin-top: 4px; display: none; text-align: center; }
+.auth-error { color: var(--danger); font-size: 12px; margin-top: 2px; display: none; text-align: center; }
 
 .pos-app { display: flex; flex-direction: column; height: 100dvh; max-width: 1400px; margin: 0 auto; }
+
 .pos-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: max(8px, env(safe-area-inset-top)) 12px 8px 12px;
+  display: flex; flex-direction: column;
+  padding: calc(var(--safe-top) + 8px) 12px 8px 12px;
   background: var(--bg-card); border-bottom: 1px solid var(--border-subtle);
   gap: 8px; flex-shrink: 0;
 }
+.header-top { display: flex; align-items: center; justify-content: space-between; }
 .pos-brand { display: flex; align-items: center; gap: 8px; }
-.pos-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
-.pos-brand-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 13.5px; text-transform: uppercase; }
+.pos-brand img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent); }
+.pos-brand-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 14px; text-transform: uppercase; }
 .pos-brand-title span { color: var(--accent); }
 
-.role-badge { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 6px; text-transform: uppercase; }
+.role-badge { font-family: 'Montserrat', sans-serif; font-size: 9.5px; font-weight: 900; padding: 2px 7px; border-radius: 6px; text-transform: uppercase; }
 .role-badge.sep { background: #ffcc00; color: #111310; }
 .role-badge.nv { background: rgba(255,255,255,0.08); color: var(--text-muted); }
 
-.pos-header-right { display: flex; align-items: center; gap: 6px; }
+.nav-actions { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.nav-actions::-webkit-scrollbar { display: none; }
 .icon-btn {
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); color: var(--text);
-  height: 34px; padding: 0 10px; border-radius: 8px; font-family: 'Montserrat', sans-serif;
-  font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+  background: var(--bg-elevated); border: 1px solid var(--border-subtle); color: var(--text);
+  height: 33px; padding: 0 10px; border-radius: 10px; font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; flex-shrink: 0;
 }
-.icon-btn.active { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+.icon-btn:active { transform: scale(0.96); border-color: var(--accent); }
 
-.pos-body { display: grid; grid-template-columns: 1fr 390px; flex: 1; min-height: 0; overflow: hidden; }
-.pos-catalog { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border-subtle); }
-.pos-controls { padding: 8px 12px; background: var(--bg); border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.pos-body { display: grid; grid-template-columns: 1fr 400px; flex: 1; min-height: 0; overflow: hidden; }
+.pos-catalog { display: flex; flex-direction: column; min-height: 0; }
+.pos-controls { padding: 8px 12px; background: var(--bg); display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
 .search-box { position: relative; width: 100%; }
-.search-box input { width: 100%; height: 38px; padding: 0 34px 0 12px; border-radius: 10px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text); font-size: 13.5px; outline: none; }
+.search-box input {
+  width: 100%; height: 42px; padding: 0 36px 0 14px; border-radius: 12px;
+  border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text); font-size: 14px;
+}
 .search-box input:focus { border-color: var(--accent); }
-.clear-search { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; }
+.clear-search { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; padding: 4px; }
 
 .source-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
 .source-tabs::-webkit-scrollbar { display: none; }
-.tab-btn { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-muted); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
-.tab-btn.active { background: var(--accent); color: #111310; border-color: var(--accent); font-weight: 800; }
+.tab-btn {
+  padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border-subtle);
+  background: var(--bg-card); color: var(--text-muted); font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 800; text-transform: uppercase; white-space: nowrap; cursor: pointer; flex-shrink: 0;
+}
+.tab-btn.active { background: var(--accent); color: #111310; border-color: var(--accent); }
 
-.pos-grid { flex: 1; overflow-y: auto; padding: 10px 12px 90px 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; align-content: start; }
-.pos-item { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; cursor: pointer; position: relative; }
+.pos-grid {
+  flex: 1; overflow-y: auto; padding: 8px 12px 110px 12px;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: start;
+}
+.pos-item {
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px;
+  padding: 8px; display: flex; flex-direction: column; cursor: pointer; position: relative;
+}
 .pos-item:active { transform: scale(0.96); border-color: var(--accent); }
 .pos-item.out { opacity: 0.35; filter: grayscale(0.8); }
-.pos-item-pic { aspect-ratio: 4 / 3; background: #090b08; border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 6px; }
+.pos-item-pic { aspect-ratio: 4 / 3; background: #060705; border-radius: 10px; overflow: hidden; position: relative; margin-bottom: 6px; }
 .pos-item-pic img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.stock-tag { position: absolute; top: 4px; right: 4px; background: rgba(13, 15, 12, 0.88); color: var(--accent); border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-family: 'Montserrat', sans-serif; font-size: 9.5px; font-weight: 800; }
-.stock-tag.zero { color: var(--danger); border-color: rgba(229,115,115,0.4); }
-.in-cart-badge { position: absolute; top: 4px; left: 4px; background: var(--accent); color: #111310; width: 20px; height: 20px; border-radius: 50%; font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
-.pos-item-name { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 800; color: var(--text); line-height: 1.25; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.pos-item-meta { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
-.pos-item-price { margin-top: auto; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 900; color: var(--accent); }
+.stock-tag {
+  position: absolute; top: 5px; right: 5px; background: rgba(9, 11, 8, 0.9);
+  color: var(--accent); border: 1px solid var(--border); padding: 2px 6px; border-radius: 6px;
+  font-family: 'Montserrat', sans-serif; font-size: 9.5px; font-weight: 800;
+}
+.stock-tag.zero { color: var(--danger); border-color: rgba(255,82,82,0.4); }
+.in-cart-badge {
+  position: absolute; top: 5px; left: 5px; background: var(--accent); color: #111310;
+  width: 22px; height: 22px; border-radius: 50%; font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+}
+.pos-item-name {
+  font-family: 'Montserrat', sans-serif; font-size: 12.5px; font-weight: 800; color: var(--text);
+  line-height: 1.3; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pos-item-meta { font-size: 10.5px; color: var(--text-muted); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos-item-price { margin-top: auto; font-family: 'Montserrat', sans-serif; font-size: 13.5px; font-weight: 900; color: var(--accent); }
 
-.pos-bill { background: var(--bg-card); display: flex; flex-direction: column; min-height: 0; z-index: 50; }
-.bill-header { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
-.bill-header h3 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 13.5px; font-weight: 900; color: var(--accent); text-transform: uppercase; }
-.btn-clear-bill { background: transparent; border: 1px solid rgba(229,115,115,0.35); color: var(--danger); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 700; cursor: pointer; }
+.pos-bill {
+  background: var(--bg-card); display: flex; flex-direction: column; min-height: 0; z-index: 50;
+  border-left: 1px solid var(--border-subtle);
+}
+.bill-header {
+  padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.bill-header h3 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 900; color: var(--accent); text-transform: uppercase; }
+.btn-clear-bill { background: transparent; border: 1px solid rgba(255,82,82,0.35); color: var(--danger); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; }
 
-.bill-items { flex: 1; overflow-y: auto; padding: 6px 12px; }
-.bill-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--border-subtle); }
+.bill-items { flex: 1; overflow-y: auto; padding: 8px 14px; }
+.bill-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1px dashed var(--border-subtle); }
 .bill-row-info { flex: 1; min-width: 0; }
-.bill-row-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12.5px; color: var(--text); }
-.bill-row-sub { font-size: 11px; color: var(--text-muted); }
-.bill-qty-ctrl { display: flex; align-items: center; gap: 4px; }
-.q-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: #0e100d; color: var(--accent); font-weight: 900; font-size: 14px; cursor: pointer; }
-.q-val { min-width: 20px; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12.5px; }
+.bill-row-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13px; color: var(--text); }
+.bill-row-sub { font-size: 11.5px; color: var(--text-muted); }
+.bill-qty-ctrl { display: flex; align-items: center; gap: 6px; }
+.q-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: #0c0e0a; color: var(--accent); font-weight: 900; font-size: 15px; cursor: pointer; }
+.q-val { min-width: 22px; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px; }
 
-.bill-footer { padding: 10px 12px max(12px, env(safe-area-inset-bottom)); background: #10130e; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+.bill-footer {
+  padding: 12px 14px calc(var(--safe-bottom) + 14px); background: #0d100b;
+  border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px;
+}
 .pos-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.pos-input, .pos-select { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text); font-size: 12px; outline: none; }
+.pos-input, .pos-select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text); font-size: 13px; }
 .pos-input:focus, .pos-select:focus { border-color: var(--accent); }
-.calc-line { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
-.calc-line.grand { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 900; color: var(--text); padding-top: 4px; border-top: 1px solid var(--border-subtle); }
-.calc-line.grand b { color: var(--accent); font-size: 17.5px; }
+.calc-line { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--text-muted); }
+.calc-line.grand { font-family: 'Montserrat', sans-serif; font-size: 15.5px; font-weight: 900; color: var(--text); padding-top: 6px; border-top: 1px solid var(--border-subtle); }
+.calc-line.grand b { color: var(--accent); font-size: 19px; }
 
 .pay-actions-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 4px; }
-.btn-pay { padding: 11px 4px; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 10.5px; text-transform: uppercase; cursor: pointer; border: none; text-align: center; }
+.btn-pay { padding: 13px 4px; border-radius: 10px; font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 11px; text-transform: uppercase; cursor: pointer; border: none; text-align: center; }
 .btn-pay.cash { background: var(--bg-elevated); color: var(--text); border: 1.5px solid var(--border); }
-.btn-pay.card { background: #1f271b; color: var(--accent); border: 1.5px solid var(--border); }
+.btn-pay.card { background: #1c2417; color: var(--accent); border: 1.5px solid var(--border); }
 .btn-pay.qr { background: var(--accent); color: #111310; }
 
 .mobile-cart-bar {
   display: none; position: fixed; bottom: 0; left: 0; right: 0;
-  padding: 8px 12px max(8px, env(safe-area-inset-bottom));
-  background: rgba(18, 21, 16, 0.96); backdrop-filter: blur(16px);
+  padding: 10px 14px calc(var(--safe-bottom) + 10px);
+  background: rgba(14, 18, 12, 0.96); backdrop-filter: blur(20px);
   border-top: 1.5px solid var(--border); z-index: 40; align-items: center; justify-content: space-between;
 }
-.mobile-cart-info b { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 900; color: var(--accent); }
-.mobile-cart-info span { font-size: 11px; color: var(--text-muted); }
-.btn-open-bill { background: var(--accent); color: #111310; border: none; padding: 10px 18px; border-radius: 999px; font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 11.5px; text-transform: uppercase; }
+.mobile-cart-info b { font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 900; color: var(--accent); display: block; }
+.mobile-cart-info span { font-size: 11.5px; color: var(--text-muted); }
+.btn-open-bill {
+  background: var(--accent); color: #111310; border: none; padding: 12px 22px;
+  border-radius: 999px; font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 12px; text-transform: uppercase;
+}
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(6, 8, 5, 0.86); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: 0.2s; }
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: 0.2s;
+}
 .modal-overlay.show { opacity: 1; pointer-events: auto; }
-.modal-box { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 16px; padding: 18px 16px; width: 92%; max-width: 420px; max-height: 90dvh; overflow-y: auto; text-align: center; }
-.modal-box h3 { margin: 0 0 8px; font-family: 'Montserrat', sans-serif; color: var(--accent); font-size: 16px; text-transform: uppercase; }
-.receipt-box { background: #0e100d; border: 1px dashed var(--border); border-radius: 10px; padding: 12px; text-align: left; font-size: 12px; margin: 10px 0; line-height: 1.55; }
+.modal-box {
+  background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 20px 16px calc(var(--safe-bottom) + 20px); width: 92%; max-width: 440px; max-height: 88dvh; overflow-y: auto; text-align: center;
+}
+.modal-box h3 { margin: 0 0 10px; font-family: 'Montserrat', sans-serif; color: var(--accent); font-size: 16.5px; text-transform: uppercase; }
+.receipt-box { background: #0a0c08; border: 1px dashed var(--border); border-radius: 12px; padding: 12px; text-align: left; font-size: 12.5px; margin: 10px 0; line-height: 1.6; }
+
+/* KHU VỰC QUẢN LÝ ẢNH & VIDEO KHÔNG GIỚI HẠN */
+.media-preview-container {
+  display: flex; gap: 8px; overflow-x: auto; padding: 8px 0; margin-bottom: 12px; scrollbar-width: none;
+}
+.media-preview-container::-webkit-scrollbar { display: none; }
+.media-preview-item {
+  position: relative; width: 85px; height: 85px; border-radius: 10px; overflow: hidden;
+  border: 1.5px solid var(--border); flex-shrink: 0; background: #000;
+}
+.media-preview-item img, .media-preview-item video { width: 100%; height: 100%; object-fit: cover; }
+.media-del-btn {
+  position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.8); color: #ff5252;
+  border: none; border-radius: 50%; width: 22px; height: 22px; font-weight: 900; font-size: 12px; cursor: pointer;
+}
 
 @media (max-width: 860px) {
   .pos-body { grid-template-columns: 1fr; }
-  .pos-bill { position: fixed; inset: 0; transform: translateY(100%); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+  .pos-bill {
+    position: fixed; inset: 0; transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
   .pos-bill.open { transform: translateY(0); }
   .mobile-cart-bar { display: flex; }
 }
@@ -179,15 +245,21 @@ html, body {
 
 <div class="pos-app">
   <header class="pos-header">
-    <div class="pos-brand">
-      <img src="logo.jpg" alt="TK aqua">
-      <div class="pos-brand-title">TK <span>POS</span></div>
+    <div class="header-top">
+      <div class="pos-brand">
+        <img src="logo.jpg" alt="TK aqua">
+        <div class="pos-brand-title">TK <span>POS</span></div>
+      </div>
+      <button class="icon-btn" onclick="showAccountMenu()">
+        👤 <span id="headerUserName">Tài khoản</span>
+        <span id="headerUserRole" class="role-badge nv">NV</span>
+      </button>
     </div>
-    <div class="pos-header-right">
+    <div class="nav-actions">
       <button class="icon-btn" onclick="openCheckInOutModal()">⏱️ Chấm công</button>
       <button class="icon-btn" id="btnTimesheet" onclick="openTimesheetModal()">📅 Bảng công</button>
       <button class="icon-btn" id="btnTodayOwner" onclick="openTodayReport()">📊 Hôm nay</button>
-      <button class="icon-btn" onclick="showAccountMenu()">👤 <span id="headerUserRole" class="role-badge nv">NV</span></button>
+      <button class="icon-btn" onclick="reloadInventory(true)">🔄 Kho</button>
     </div>
   </header>
 
@@ -195,7 +267,7 @@ html, body {
     <section class="pos-catalog">
       <div class="pos-controls">
         <div class="search-box">
-          <input type="text" id="posSearch" placeholder="Tìm không dấu tên cá, phụ kiện, size..." oninput="renderCatalog()">
+          <input type="text" id="posSearch" placeholder="Tìm tên cá, phụ kiện, size..." oninput="renderCatalog()">
           <button class="clear-search" onclick="clearSearch()">✕</button>
         </div>
         <div class="source-tabs" id="catTabs"></div>
@@ -208,7 +280,7 @@ html, body {
         <h3>🧾 Giỏ Hàng (<span id="billCount">0</span>)</h3>
         <div style="display:flex;gap:6px;">
           <button class="btn-clear-bill" onclick="clearBill()">Xóa giỏ</button>
-          <button class="icon-btn" style="height:26px;display:none;" id="btnCloseBillMobile" onclick="toggleMobileBill(false)">Đóng ↓</button>
+          <button class="icon-btn" style="height:28px;" id="btnCloseBillMobile" onclick="toggleMobileBill(false)">Đóng ↓</button>
         </div>
       </div>
 
@@ -264,11 +336,11 @@ var BILL = [];
 var currentCat = "ALL";
 var activePollInterval = null;
 var currentPendingOrder = null;
-var capturedImageBase64 = null;
+var capturedMediaList = []; // Danh sách ảnh & video KHÔNG GIỚI HẠN
 var isRegisterMode = false;
 var currentUser = null;
 
-function money(n) { return Number(n ? n : 0).toLocaleString("vi-VN"); }
+function money(n) { return Number(n || 0).toLocaleString("vi-VN"); }
 function normVN(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().trim(); }
 
 function extractDriveId(url) {
@@ -467,7 +539,7 @@ window.updateBillTotals = function() {
 function renderBill() {
   var box = document.getElementById("billItems");
   if (BILL.length === 0) {
-    box.innerHTML = '<div style="text-align:center;padding:45px 10px;color:var(--text-muted);font-size:12px;">Bấm sản phẩm để thêm vào giỏ hàng.</div>';
+    box.innerHTML = '<div style="text-align:center;padding:45px 10px;color:var(--text-muted);font-size:12.5px;">Bấm sản phẩm để thêm vào giỏ hàng.</div>';
   } else {
     box.innerHTML = BILL.map((b, idx) => `
       <div class="bill-row">
@@ -488,9 +560,8 @@ function renderBill() {
 
 window.toggleMobileBill = function(open) {
   var el = document.getElementById("posBill");
-  var btnClose = document.getElementById("btnCloseBillMobile");
-  if (open) { el.classList.add("open"); btnClose.style.display = "inline-flex"; }
-  else { el.classList.remove("open"); btnClose.style.display = "none"; }
+  if (open) el.classList.add("open");
+  else el.classList.remove("open");
 };
 
 window.showPosModal = function(html) {
@@ -502,62 +573,97 @@ window.closePosModal = function() {
   document.getElementById("posModal").classList.remove("show");
 };
 
-// HÓA ĐƠN 72MM
+// HÓA ĐƠN 72MM CHUẨN IOS SAFARI
 function generateReceipt72mmBase64(orderData) {
-  var W = 576;
-  var items = orderData.rawItems || [];
-  var H = 430 + (items.length * 50) + (orderData.giam_gia > 0 ? 30 : 0) + (orderData.phi_ship > 0 ? 30 : 0);
-  var canvas = document.createElement("canvas");
-  canvas.width = W; canvas.height = H;
-  var ctx = canvas.getContext("2d");
+  try {
+    var W = 576;
+    var items = (orderData && Array.isArray(orderData.rawItems)) ? orderData.rawItems : [];
+    var H = 450 + (items.length * 52) + (orderData.giam_gia > 0 ? 32 : 0) + (orderData.phi_ship > 0 ? 32 : 0);
+    
+    var canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    var ctx = canvas.getContext("2d");
 
-  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = "#000"; ctx.textAlign = "center";
-  ctx.font = "900 28px Montserrat, Arial"; ctx.fillText("TK AQUA STUDIO", W / 2, 38);
-  ctx.font = "500 16px Roboto, Arial"; ctx.fillText("Hotline / Zalo: 0703.008.005", W / 2, 66);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#000000";
 
-  function drawDash(y) {
-    ctx.beginPath(); ctx.setLineDash([6, 4]); ctx.moveTo(20, y); ctx.lineTo(W - 20, y);
-    ctx.strokeStyle = "#000"; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+    ctx.textAlign = "center";
+    ctx.font = "bold 26px sans-serif";
+    ctx.fillText("TK AQUA STUDIO", W / 2, 40);
+    ctx.font = "16px sans-serif";
+    ctx.fillText("Hotline / Zalo: 0703.008.005", W / 2, 70);
+
+    function drawDash(yPos) {
+      ctx.beginPath();
+      ctx.setLineDash([6, 4]);
+      ctx.moveTo(20, yPos);
+      ctx.lineTo(W - 20, yPos);
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    drawDash(90);
+    ctx.font = "bold 22px sans-serif";
+    ctx.fillText("HÓA ĐƠN BÁN HÀNG", W / 2, 122);
+
+    ctx.textAlign = "left";
+    ctx.font = "16px sans-serif";
+    ctx.fillText("Mã đơn: #" + orderData.ma_don, 24, 154);
+    ctx.fillText("Ngày: " + orderData.thoi_gian, 24, 180);
+    ctx.fillText("Thu ngân: " + orderData.nhan_vien + " | TT: " + orderData.phuong_thuc_tt, 24, 206);
+    ctx.fillText("Khách hàng: " + orderData.ten_khach, 24, 232);
+    drawDash(248);
+
+    var y = 280;
+    items.forEach(function(it, i) {
+      ctx.textAlign = "left";
+      ctx.font = "bold 16px sans-serif";
+      var title = (i + 1) + ". " + it.n + (it.s ? " (" + it.s + ")" : "");
+      ctx.fillText(title.slice(0, 34), 24, y);
+      y += 24;
+
+      ctx.font = "15px sans-serif";
+      ctx.fillText("   SL: " + it.qty + " x " + money(it.p) + "đ", 24, y);
+      ctx.textAlign = "right";
+      ctx.font = "bold 16px sans-serif";
+      ctx.fillText(money(it.p * it.qty) + "đ", W - 24, y);
+      y += 28;
+    });
+
+    drawDash(y);
+    y += 28;
+
+    function row(label, val, bold) {
+      ctx.font = bold ? "bold 22px sans-serif" : "16px sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(label, 24, y);
+      ctx.textAlign = "right";
+      ctx.fillText(val, W - 24, y);
+      y += bold ? 34 : 26;
+    }
+
+    row("Tạm tính:", money(orderData.tien_hang) + "đ", false);
+    if (orderData.phi_ship > 0) row("Phí ship:", "+" + money(orderData.phi_ship) + "đ", false);
+    if (orderData.giam_gia > 0) row("Giảm giá:", "-" + money(orderData.giam_gia) + "đ", false);
+
+    drawDash(y - 8);
+    y += 16;
+    row("TỔNG THU:", money(orderData.tong_tien) + " VNĐ", true);
+
+    return canvas.toDataURL("image/jpeg", 0.85);
+  } catch (err) {
+    console.error("Lỗi vẽ canvas:", err);
+    return null;
   }
-  drawDash(84);
-  ctx.font = "800 22px Montserrat, Arial"; ctx.fillText("HÓA ĐƠN BÁN HÀNG", W / 2, 114);
-  ctx.textAlign = "left"; ctx.font = "500 16px Roboto, Arial";
-  ctx.fillText("Mã đơn: #" + orderData.ma_don, 22, 144);
-  ctx.fillText("Ngày: " + orderData.thoi_gian, 22, 168);
-  ctx.fillText("Thu ngân: " + orderData.nhan_vien + "  |  TT: " + orderData.phuong_thuc_tt, 22, 192);
-  drawDash(208);
-
-  var y = 236;
-  items.forEach((it, i) => {
-    ctx.textAlign = "left"; ctx.font = "700 16px Roboto, Arial";
-    ctx.fillText((i + 1) + ". " + it.n + (it.s ? " (" + it.s + ")" : ""), 22, y);
-    y += 22;
-    ctx.font = "400 15px Roboto, Arial"; ctx.fillText("   SL: " + it.qty + " x " + money(it.p) + "đ", 22, y);
-    ctx.textAlign = "right"; ctx.font = "700 16px Roboto, Arial"; ctx.fillText(money(it.p * it.qty) + "đ", W - 22, y);
-    y += 26;
-  });
-
-  drawDash(y); y += 26;
-  function row(label, val, bold) {
-    ctx.font = bold ? "800 22px Montserrat, Arial" : "500 16px Roboto, Arial";
-    ctx.textAlign = "left"; ctx.fillText(label, 22, y);
-    ctx.textAlign = "right"; ctx.fillText(val, W - 22, y);
-    y += bold ? 32 : 24;
-  }
-  row("Tạm tính:", money(orderData.tien_hang) + "đ", false);
-  if (orderData.phi_ship > 0) row("Phí ship:", "+" + money(orderData.phi_ship) + "đ", false);
-  if (orderData.giam_gia > 0) row("Giảm giá:", "-" + money(orderData.giam_gia) + "đ", false);
-  drawDash(y - 8); y += 14;
-  row("TỔNG THU:", money(orderData.tong_tien) + " VNĐ", true);
-  return canvas.toDataURL("image/jpeg", 0.9);
 }
 
-function downloadReceipt(url, code) {
-  var a = document.createElement("a"); a.href = url; a.download = "HD-72mm-" + code + ".jpg"; a.click();
-}
-
-// BÁN HÀNG
+// =========================================================================
+// QUY TRÌNH CHECK ĐƠN: CHỤP NHIỀU ẢNH + VIDEO KHÔNG GIỚI HẠN
+// =========================================================================
 window.startOrderProcess = function(method) {
   if (BILL.length === 0) return alert("Giỏ hàng đang trống!");
   var totals = getTotals();
@@ -582,65 +688,118 @@ window.startOrderProcess = function(method) {
     method, rawItems: BILL.map(x => Object.assign({}, x))
   };
 
+  capturedMediaList = [];
+  renderOrderCheckModal();
+};
+
+function renderOrderCheckModal() {
+  var count = capturedMediaList.length;
+  var previewsHtml = capturedMediaList.map(function(m, idx) {
+    return '<div class="media-preview-item">' +
+      (m.type === "video" 
+        ? '<video src="' + m.dataUrl + '" autoplay muted playsinline loop></video>' 
+        : '<img src="' + m.dataUrl + '">') +
+      '<button class="media-del-btn" onclick="removeMediaItem(' + idx + ')">✕</button>' +
+      '</div>';
+  }).join("");
+
   showPosModal(`
-    <h3>📷 Chụp Ảnh Xác Nhận Đơn</h3>
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Bắt buộc chụp ảnh cá / bọc đóng gói trước khi chốt đơn (${pmText}).</p>
-    <input type="file" id="orderCam" accept="image/*" capture="environment" style="display:none;" onchange="handleOrderPhoto(event)">
-    <button class="btn-pay qr" onclick="document.getElementById('orderCam').click()" style="width:100%;padding:12px;margin-bottom:10px;">📸 Mở Camera Chụp Ảnh</button>
-    <div id="orderPhotoPrev" style="display:none;margin-bottom:10px;">
-      <img id="orderPhotoImg" style="max-width:100%;max-height:160px;border-radius:10px;border:1px solid var(--border);">
+    <h3>📷 Xác Nhận Đơn Hàng</h3>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Chụp ảnh cá / gói hàng hoặc quay video (Không giới hạn).</p>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <input type="file" id="orderPhotoInput" accept="image/*" capture="environment" multiple style="display:none;" onchange="handleOrderPhotoAdd(event)">
+      <button class="btn-pay qr" onclick="document.getElementById('orderPhotoInput').click()" style="padding:12px;">📸 Thêm Ảnh</button>
+      
+      <input type="file" id="orderVideoInput" accept="video/*" capture="environment" style="display:none;" onchange="handleOrderVideoAdd(event)">
+      <button class="btn-pay cash" onclick="document.getElementById('orderVideoInput').click()" style="padding:12px;">🎥 Thêm Video</button>
     </div>
+
+    <div class="media-preview-container" id="mediaPreviewBox" style="${count > 0 ? 'display:flex;' : 'display:none;'}">
+      ${previewsHtml}
+    </div>
+
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Đã chọn: <b style="color:var(--accent);">${count} tệp</b> (Tối thiểu 1 ảnh hoặc video)</div>
+
     <div style="display:flex;gap:8px;">
       <button class="btn-pay cash" style="flex:1;" onclick="closePosModal()">Hủy</button>
-      <button class="btn-pay qr" style="flex:1;" id="btnSubmitOrder" disabled onclick="executeOrderWithPhoto()">Tiếp tục →</button>
+      <button class="btn-pay qr" style="flex:1;" id="btnContinueOrder" ${count === 0 ? 'disabled' : ''} onclick="executeOrderProcess()">Tiếp Tục →</button>
     </div>
   `);
+}
+
+window.handleOrderPhotoAdd = function(e) {
+  var files = Array.from(e.target.files);
+  if (!files || files.length === 0) return;
+
+  var readCount = 0;
+  files.forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(evt) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement("canvas");
+        var MAX = 800;
+        var w = img.width, h = img.height;
+        if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
+        else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        ctx.fillStyle = "rgba(0,0,0,0.65)"; ctx.fillRect(10, h - 30, w - 20, 22);
+        ctx.fillStyle = "#fff"; ctx.font = "bold 11px sans-serif";
+        ctx.fillText("TK POS · " + currentPendingOrder.ma_don + " · " + new Date().toLocaleTimeString("vi-VN"), 14, h - 15);
+        
+        capturedMediaList.push({ type: "image", dataUrl: canvas.toDataURL("image/jpeg", 0.75) });
+        readCount++;
+        if (readCount === files.length) {
+          renderOrderCheckModal();
+        }
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = "";
 };
 
-window.handleOrderPhoto = function(e) {
+window.handleOrderVideoAdd = function(e) {
   var file = e.target.files[0];
   if (!file) return;
+  if (file.size > 8 * 1024 * 1024) {
+    alert("Video quá lớn (Vui lòng quay dưới 8MB để gửi mượt mà)!");
+    return;
+  }
   var reader = new FileReader();
   reader.onload = function(evt) {
-    var img = new Image();
-    img.onload = function() {
-      var canvas = document.createElement("canvas");
-      var MAX = 800;
-      var w = img.width, h = img.height;
-      if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
-      else { if (h > MAX) { w *= MAX / h; h = MAX; } }
-      canvas.width = w; canvas.height = h;
-      var ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, w, h);
-      ctx.fillStyle = "rgba(0,0,0,0.65)"; ctx.fillRect(10, h - 30, w - 20, 22);
-      ctx.fillStyle = "#fff"; ctx.font = "bold 11px sans-serif";
-      ctx.fillText("TK POS · " + currentPendingOrder.ma_don + " · " + currentPendingOrder.thoi_gian, 14, h - 15);
-      capturedImageBase64 = canvas.toDataURL("image/jpeg", 0.75);
-      document.getElementById("orderPhotoImg").src = capturedImageBase64;
-      document.getElementById("orderPhotoPrev").style.display = "block";
-      document.getElementById("btnSubmitOrder").disabled = false;
-    };
-    img.src = evt.target.result;
+    capturedMediaList.push({ type: "video", dataUrl: evt.target.result });
+    renderOrderCheckModal();
   };
   reader.readAsDataURL(file);
+  e.target.value = "";
 };
 
-window.executeOrderWithPhoto = async function() {
-  if (!capturedImageBase64) return;
+window.removeMediaItem = function(idx) {
+  capturedMediaList.splice(idx, 1);
+  renderOrderCheckModal();
+};
+
+window.executeOrderProcess = async function() {
+  if (capturedMediaList.length === 0) return alert("Vui lòng chụp ít nhất 1 ảnh hoặc quay video!");
   var orderData = currentPendingOrder;
+
   if (orderData.method === "CASH" || orderData.method === "CARD") {
     showPosModal(`
       <h3>${orderData.method === "CASH" ? "💵 Thu Tiền Mặt" : "💳 Quẹt Thẻ"}</h3>
-      <p style="margin:4px 0 10px;font-size:13px;color:var(--text-muted);">Đơn #${orderData.ma_don} · Cần thu: <b style="color:var(--accent);font-size:16px;">${money(orderData.tong_tien)}đ</b></p>
+      <p style="margin:4px 0 12px;font-size:13px;color:var(--text-muted);">Đơn #${orderData.ma_don} · Cần thu: <b style="color:var(--accent);font-size:17px;">${money(orderData.tong_tien)}đ</b></p>
       <div style="display:flex;gap:8px;">
         <button class="btn-pay cash" style="flex:1;" onclick="closePosModal()">Hủy</button>
-        <button class="btn-pay qr" style="flex:1;" onclick="completeAndEmitReceipt(currentPendingOrder, capturedImageBase64)">Hoàn tất &amp; Xuất Bill</button>
+        <button class="btn-pay qr" style="flex:1;" onclick="completeAndEmitReceipt(currentPendingOrder)">Hoàn tất &amp; Xuất Bill</button>
       </div>
     `);
     return;
   }
 
-  // QR
   showPosModal('<h3>⏳ Đang tạo mã VietQR...</h3>');
   try {
     var payRes = await fetch(API_BASE + "/api/create-payment", {
@@ -652,12 +811,12 @@ window.executeOrderWithPhoto = async function() {
 
     showPosModal(`
       <h3>🏦 Chuyển Khoản VietQR</h3>
-      <div style="background:#fff;padding:8px;border-radius:10px;display:inline-block;margin:8px 0;"><img src="${qrImg}" style="width:200px;height:200px;display:block;"></div>
-      <div style="font-family:'Montserrat',sans-serif;font-size:18px;font-weight:900;color:var(--warn);">${money(orderData.tong_tien)}đ</div>
+      <div style="background:#fff;padding:8px;border-radius:12px;display:inline-block;margin:8px 0;"><img src="${qrImg}" style="width:200px;height:200px;display:block;"></div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:19px;font-weight:900;color:var(--warn);">${money(orderData.tong_tien)}đ</div>
       <div id="posQrStatus" style="padding:6px;border-radius:999px;background:var(--accent-light);color:var(--accent);font-size:11.5px;font-weight:700;margin:8px 0;">⏳ Tự xuất hóa đơn khi tiền về...</div>
       <div style="display:flex;gap:8px;">
         <button class="btn-pay cash" style="flex:1;" onclick="closePosModal()">Hủy</button>
-        <button class="btn-pay qr" style="flex:1;" onclick="completeAndEmitReceipt(currentPendingOrder, capturedImageBase64)">Đã nhận tiền</button>
+        <button class="btn-pay qr" style="flex:1;" onclick="completeAndEmitReceipt(currentPendingOrder)">Đã nhận tiền</button>
       </div>
     `);
 
@@ -669,18 +828,17 @@ window.executeOrderWithPhoto = async function() {
         var j = await r.json();
         if (j && j.data && (j.data.status === "PAID" || (j.data.amount > 0 && j.data.amountPaid >= j.data.amount))) {
           done = true; clearInterval(activePollInterval);
-          await completeAndEmitReceipt(orderData, capturedImageBase64);
+          await completeAndEmitReceipt(orderData);
         }
       } catch (e) {}
     }, 2200);
   } catch (err) { alert("Lỗi QR: " + err.message); }
 };
 
-window.completeAndEmitReceipt = async function(orderData, photoBase64) {
+window.completeAndEmitReceipt = async function(orderData) {
   var receiptBase64 = generateReceipt72mmBase64(orderData);
-  downloadReceipt(receiptBase64, orderData.ma_don);
 
-  // Gửi Sheet tab "POS bán hàng"
+  // 1. Gửi dữ liệu về Google Sheet
   fetch(API_BASE + "/api/pos-sync", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -691,40 +849,50 @@ window.completeAndEmitReceipt = async function(orderData, photoBase64) {
       tong_so_luong: orderData.tong_so_luong, giam_gia: orderData.giam_gia,
       phi_ship: orderData.phi_ship, tong_tien: orderData.tong_tien, ghi_chu: orderData.ghi_chu
     })
-  }).catch(() => {});
+  }).catch(function(e) { console.error("Sheet Sync Error:", e); });
 
-  // Bắn Discord riêng cho POS Bán Hàng (dùng POS_DISCORD_WEBHOOK_URL)
+  // 2. Gửi Hóa đơn và TẤT CẢ ảnh / video lên Discord Webhook
+  var notifyPayload = {
+    is_pos: true,
+    content: `🧾 **[TK POS] HÓA ĐƠN #${orderData.ma_don} (${String(orderData.phuong_thuc_tt).toUpperCase()})**`,
+    embeds: [{
+      title: "HÓA ĐƠN 72MM #" + orderData.ma_don,
+      color: 5763719,
+      fields: [
+        { name: "Thu ngân", value: orderData.nhan_vien, inline: true },
+        { name: "Khách hàng", value: orderData.ten_khach, inline: true },
+        { name: "Phương thức", value: orderData.phuong_thuc_tt, inline: true },
+        { name: "Sản phẩm", value: orderData.chi_tiet_sp, inline: false },
+        { name: "TỔNG THU", value: "**" + money(orderData.tong_tien) + " VNĐ**", inline: true }
+      ]
+    }],
+    receipt_base64: receiptBase64,
+    media_list: capturedMediaList
+  };
+
   fetch(API_BASE + "/api/notify", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      is_pos: true,
-      content: `🧾 **[TK POS] HÓA ĐƠN #${orderData.ma_don} (${orderData.phuong_thuc_tt.toUpperCase()})**`,
-      embeds: [{
-        title: "HÓA ĐƠN 72MM #" + orderData.ma_don,
-        color: 5763719,
-        fields: [
-          { name: "Thu ngân", value: orderData.nhan_vien, inline: true },
-          { name: "Khách hàng", value: orderData.ten_khach, inline: true },
-          { name: "Sản phẩm", value: orderData.chi_tiet_sp, inline: false },
-          { name: "TỔNG THU", value: "**" + money(orderData.tong_tien) + " VNĐ**", inline: true }
-        ]
-      }],
-      receipt_base64: receiptBase64,
-      image_base64: photoBase64
-    })
-  }).catch(() => {});
+    body: JSON.stringify(notifyPayload)
+  }).catch(function(e) { console.error("Discord Error:", e); });
 
   clearBill();
   toggleMobileBill(false);
+
+  var imgHtml = receiptBase64 
+    ? '<img src="' + receiptBase64 + '" style="width:100%;height:auto;display:block;border-radius:8px;" alt="Hóa đơn">'
+    : '<div style="padding:30px;color:var(--text-muted);">Đã ghi nhận đơn #' + orderData.ma_don + '</div>';
+
   showPosModal(`
-    <h3>✅ Đã Hoàn Tất &amp; Tải Hóa Đơn</h3>
-    <div style="max-height:220px;overflow-y:auto;background:#fff;padding:4px;border-radius:8px;margin:8px 0;"><img src="${receiptBase64}" style="width:100%;display:block;"></div>
-    <button class="btn-pay qr" style="width:100%;" onclick="closePosModal()">Đơn Mới →</button>
+    <h3>✅ ĐÃ HOÀN TẤT ĐƠN HÀNG</h3>
+    <div style="max-height:300px;overflow-y:auto;background:#fff;padding:6px;border-radius:12px;margin:10px 0;border:1px solid var(--border);">
+      ${imgHtml}
+    </div>
+    <button class="btn-pay qr" style="width:100%;padding:14px;font-size:13px;" onclick="closePosModal()">TẠO ĐƠN MỚI →</button>
   `);
 };
 
 // =========================================================================
-// CHẤM CÔNG (CHECK-IN / CHECK-OUT) KÈM ẢNH
+// CHẤM CÔNG (CHECK-IN / CHECK-OUT)
 // =========================================================================
 var capturedCheckinPhoto = null;
 
@@ -735,13 +903,13 @@ window.openCheckInOutModal = function() {
     <h3>⏱️ Chấm Công Check-in / Check-out</h3>
     <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;">Chụp ảnh tại tiệm để ghi nhận giờ làm vào Google Sheet &amp; Discord.</p>
     <input type="file" id="chkCam" accept="image/*" capture="user" style="display:none;" onchange="handleCheckinCapture(event)">
-    <button class="btn-pay qr" onclick="document.getElementById('chkCam').click()" style="width:100%;padding:12px;margin-bottom:10px;">📸 Mở Camera Chụp Ảnh Mặt / Studio</button>
+    <button class="btn-pay qr" onclick="document.getElementById('chkCam').click()" style="width:100%;padding:13px;margin-bottom:10px;">📸 Mở Camera Chụp Ảnh</button>
     <div id="chkPhotoPrev" style="display:none;margin-bottom:10px;">
-      <img id="chkPhotoImg" style="max-width:100%;max-height:160px;border-radius:10px;border:1px solid var(--border);">
+      <img id="chkPhotoImg" style="max-width:100%;max-height:160px;border-radius:12px;border:1px solid var(--border);">
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-      <button class="btn-pay qr" id="btnDoCheckin" disabled onclick="submitCheckInOut('IN')">🟢 Vào Ca (Check-in)</button>
-      <button class="btn-pay cash" id="btnDoCheckout" disabled onclick="submitCheckInOut('OUT')">🔴 Hết Ca (Check-out)</button>
+      <button class="btn-pay qr" id="btnDoCheckin" disabled onclick="submitCheckInOut('IN')">🟢 Vào Ca</button>
+      <button class="btn-pay cash" id="btnDoCheckout" disabled onclick="submitCheckInOut('OUT')">🔴 Hết Ca</button>
     </div>
   `);
 };
@@ -797,7 +965,6 @@ window.submitCheckInOut = async function(type) {
     });
     var data = await res.json();
 
-    // Báo Discord qua kênh CHECKIN_DISCORD_WEBHOOK_URL
     fetch(API_BASE + "/api/notify", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -819,7 +986,7 @@ window.submitCheckInOut = async function(type) {
     showPosModal(`
       <h3>✅ ${type === "IN" ? "Check-in Thành Công" : "Check-out Thành Công"}</h3>
       <p style="font-size:13px;color:var(--text-muted);">${currentUser.name} lúc <b>${timeStr}</b> ngày <b>${todayStr}</b></p>
-      ${type === "OUT" ? `<div style="font-size:16px;font-weight:900;color:var(--accent);margin:10px 0;">Tổng giờ ca này: ${data.so_gio} Giờ</div>` : ''}
+      ${type === "OUT" ? `<div style="font-size:17px;font-weight:900;color:var(--accent);margin:10px 0;">Tổng giờ ca này: ${data.so_gio} Giờ</div>` : ''}
       <button class="btn-pay qr" style="width:100%;margin-top:10px;" onclick="closePosModal()">Đóng</button>
     `);
   } catch (err) {
@@ -828,7 +995,9 @@ window.submitCheckInOut = async function(type) {
   }
 };
 
+// =========================================================================
 // BẢNG CÔNG THÁNG
+// =========================================================================
 window.openTimesheetModal = async function() {
   if (!currentUser) return alert("Vui lòng đăng nhập!");
   showPosModal('<h3>⏳ Đang tải bảng công tháng...</h3>');
@@ -846,28 +1015,32 @@ window.openTimesheetModal = async function() {
       })
     });
     var data = await res.json();
+    var allEmps = (data && Array.isArray(data.allEmployees)) ? data.allEmployees : [];
+    var logs = (data && Array.isArray(data.logs)) ? data.logs : [];
 
     var summaryHtml = isSep
       ? `<div class="receipt-box"><b style="color:var(--accent);">👑 TỔNG HỢP CÔNG TẤT CẢ NHÂN VIÊN (${monthYear})</b><br>` +
-        data.allEmployees.map(e => `<div>• <b>${e.name}</b> (${e.phone}): <b style="color:var(--accent);">${e.totalHours} giờ</b> (${e.shifts} ca)</div>`).join("") +
+        (allEmps.length > 0
+          ? allEmps.map(e => `<div>• <b>${e.name || 'NV'}</b> (${e.phone}): <b style="color:var(--accent);">${e.totalHours || 0} giờ</b> (${e.shifts || 0} ca)</div>`).join("")
+          : '<div style="color:var(--text-muted);font-size:12px;margin-top:4px;">Chưa có dữ liệu chấm công tháng này.</div>') +
         `</div>`
       : `<div class="receipt-box" style="text-align:center;">
            <span style="font-size:11px;color:var(--text-muted);">TỔNG CÔNG THÁNG ${monthYear}</span><br>
-           <b style="font-size:22px;color:var(--accent);">${data.myTotalHours} GIỜ LÀM</b>
+           <b style="font-size:22px;color:var(--accent);">${data.myTotalHours || 0} GIỜ LÀM</b>
          </div>`;
 
-    var logsHtml = data.logs.map(l => `
-      <div style="padding:6px 0;border-bottom:1px dashed var(--border-subtle);text-align:left;font-size:11.5px;">
+    var logsHtml = logs.map(l => `
+      <div style="padding:6px 0;border-bottom:1px dashed var(--border-subtle);text-align:left;font-size:12px;">
         <div style="display:flex;justify-content:space-between;"><b>${l.ngay} · ${l.ten}</b><b style="color:var(--accent);">${l.gio}h</b></div>
-        <div style="color:var(--text-muted);">Vào: ${l.checkin || '--'} | Ra: ${l.checkout || '--'}</div>
+        <div style="color:var(--text-muted);font-size:11px;">Vào: ${l.checkin || '--'} | Ra: ${l.checkout || '--'}</div>
       </div>
     `).join("");
 
     showPosModal(`
       <h3>📅 Bảng Công Tháng ${monthYear}</h3>
       ${summaryHtml}
-      <div style="max-height:220px;overflow-y:auto;margin:8px 0;">${logsHtml || '<p style="color:var(--text-muted);font-size:12px;">Chưa có dữ liệu chấm công tháng này.</p>'}</div>
-      <button class="btn-pay qr" style="width:100%;" onclick="closePosModal()">Đóng</button>
+      <div style="max-height:220px;overflow-y:auto;margin:8px 0;">${logsHtml || '<p style="color:var(--text-muted);font-size:12px;">Chưa có lượt chấm công nào trong tháng.</p>'}</div>
+      <button class="btn-pay qr" style="width:100%;margin-top:6px;" onclick="closePosModal()">Đóng</button>
     `);
   } catch (err) {
     alert("Không tải được bảng công: " + err.message);
@@ -900,11 +1073,10 @@ window.openTodayReport = async function() {
   } catch (e) { alert("Lỗi tải doanh thu: " + e.message); closePosModal(); }
 };
 
-// ĐĂNG NHẬP / ĐĂNG KÝ QUA WORKER BACKEND (ĐÃ FIX LỖI PERMISSION)
+// ĐĂNG NHẬP / ĐĂNG KÝ
 function showAuthErr(msg) {
   var el = document.getElementById("authError");
-  el.textContent = msg;
-  el.style.display = "block";
+  el.textContent = msg; el.style.display = "block";
 }
 
 window.toggleAuthMode = function() {
@@ -927,40 +1099,33 @@ window.handleAuthAction = async function() {
   if (isRegisterMode && !name) return showAuthErr("Vui lòng nhập họ và tên nhân viên.");
 
   var btn = document.getElementById("btnAuthSubmit");
-  btn.disabled = true;
-  btn.textContent = "ĐANG XỬ LÝ...";
+  btn.disabled = true; btn.textContent = "ĐANG XỬ LÝ...";
 
   try {
     var res = await fetch(API_BASE + "/api/pos-auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         mode: isRegisterMode ? "register" : "login",
-        phone: phone,
-        password: pass,
-        name: name
+        phone: phone, password: pass, name: name
       })
     });
     var data = await res.json();
-
     if (!res.ok || !data.ok) {
       showAuthErr(data.error || "Đăng nhập thất bại");
-      btn.disabled = false;
-      btn.textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
+      btn.disabled = false; btn.textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
       return;
     }
-
     applyUser(data.user);
   } catch (e) {
     showAuthErr("Lỗi kết nối: " + e.message);
-    btn.disabled = false;
-    btn.textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
+    btn.disabled = false; btn.textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
   }
 };
 
 function applyUser(u) {
   currentUser = u;
   localStorage.setItem("tka_logged_user", JSON.stringify(u));
+  document.getElementById("headerUserName").textContent = u.name || "Tài khoản";
   var roleBadge = document.getElementById("headerUserRole");
   var isSep = u.role === "sep";
   roleBadge.textContent = isSep ? "SẾP" : "NV";
@@ -971,18 +1136,18 @@ function applyUser(u) {
 
 window.showAccountMenu = function() {
   if (!currentUser) return;
-  showPosModal(
-    '<h3>👤 Tài Khoản Nhân Viên</h3>' +
-    '<div class="receipt-box">' +
-    '<div><b>Họ tên:</b> ' + currentUser.name + '</div>' +
-    '<div><b>Số điện thoại:</b> ' + currentUser.phone + '</div>' +
-    '<div><b>Quyền hạn:</b> <b style="color:' + (currentUser.role === "sep" ? "#ffcc00" : "var(--accent)") + ';">' + (currentUser.role === "sep" ? "SẾP (Toàn quyền)" : "Nhân viên bán hàng") + '</b></div>' +
-    '</div>' +
-    '<div style="display:flex;gap:8px;">' +
-    '<button class="btn-pay cash" style="flex:1;" onclick="logoutPOS()">Đăng xuất</button>' +
-    '<button class="btn-pay qr" style="flex:1;" onclick="closePosModal()">Đóng</button>' +
-    '</div>'
-  );
+  showPosModal(`
+    <h3>👤 Tài Khoản Nhân Viên</h3>
+    <div class="receipt-box">
+      <div><b>Họ tên:</b> ${currentUser.name}</div>
+      <div><b>Số điện thoại:</b> ${currentUser.phone}</div>
+      <div><b>Quyền hạn:</b> <b style="color:${currentUser.role === 'sep' ? '#ffcc00' : 'var(--accent)'};">${currentUser.role === 'sep' ? 'SẾP (Toàn quyền)' : 'Nhân viên bán hàng'}</b></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-pay cash" style="flex:1;" onclick="logoutPOS()">Đăng xuất</button>
+      <button class="btn-pay qr" style="flex:1;" onclick="closePosModal()">Đóng</button>
+    </div>
+  `);
 };
 
 window.logoutPOS = function() {

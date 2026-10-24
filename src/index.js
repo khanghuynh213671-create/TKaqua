@@ -42,15 +42,26 @@ function jsonResponse(data, status) {
   });
 }
 
-function base64ToBlob(base64Str) {
-  const parts = String(base64Str).split(",");
-  const raw = parts.length > 1 ? parts[1] : parts[0];
-  const bin = atob(raw);
-  const arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) {
-    arr[i] = bin.charCodeAt(i);
+function base64ToBlob(base64Str, defaultMime) {
+  try {
+    if (!base64Str || typeof base64Str !== "string") return null;
+    const parts = base64Str.split(",");
+    let mime = defaultMime || "image/jpeg";
+    if (parts.length > 1 && parts[0].indexOf("data:") === 0) {
+      const match = parts[0].match(/data:(.*?);base64/);
+      if (match) mime = match[1];
+    }
+    const raw = parts.length > 1 ? parts[1] : parts[0];
+    const bin = atob(raw.replace(/\s/g, ""));
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) {
+      arr[i] = bin.charCodeAt(i);
+    }
+    return new Blob([arr], { type: mime });
+  } catch (err) {
+    console.error("Lỗi base64ToBlob:", err);
+    return null;
   }
-  return new Blob([arr], { type: "image/jpeg" });
 }
 
 /* ================= Giới hạn tần suất ================= */
@@ -444,7 +455,7 @@ async function markOrderPaid(orderCode, env, paidAmount) {
 class HttpError extends Error { constructor(status, msg) { super(msg); this.status = status; } }
 async function readJson(request, maxBytes) {
   const txt = await request.text();
-  if (txt.length > (maxBytes || 500000)) throw new HttpError(413, "Dữ liệu quá lớn");
+  if (txt.length > (maxBytes || 35000000)) throw new HttpError(413, "Dữ liệu quá lớn");
   try { return JSON.parse(txt); } catch (e) { throw new HttpError(400, "Dữ liệu không hợp lệ"); }
 }
 function errResponse(err, fallback) {
@@ -457,12 +468,12 @@ function sheetSafe(v) {
 }
 
 const SECURITY_HEADERS = {
-  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; frame-src https://www.google.com https://maps.google.com https://drive.google.com https://www.youtube.com https://pay.payos.vn https://www.facebook.com; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://api-merchant.payos.vn https://*.googleapis.com https://*.firebaseio.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; frame-src https://www.google.com https://maps.google.com https://drive.google.com https://www.youtube.com https://pay.payos.vn https://www.facebook.com; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://api-merchant.payos.vn https://*.googleapis.com https://*.firebaseio.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-  "Permissions-Policy": "camera=(self), microphone=(), geolocation=()"
+  "Permissions-Policy": "camera=(self), microphone=(self), geolocation=()"
 };
 function withSecurity(res) {
   const h = new Headers(res.headers);
@@ -479,7 +490,7 @@ const handler = {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // 1. TẠO ĐƠN WEB ONLINE (GIỮ NGUYÊN)
+    // 1. TẠO ĐƠN WEB ONLINE
     if (url.pathname === "/api/create-order" && request.method === "POST") {
       try {
         if (rateLimited(request, "order", 8, 10 * 60 * 1000)) {
@@ -562,9 +573,7 @@ const handler = {
           method: "POST",
           body: JSON.stringify({ fields: toFsFields(order) })
         });
-        if (!createRes.ok) {
-          return jsonResponse({ error: "Không lưu được đơn hàng" }, 500);
-        }
+        if (!createRes.ok) return jsonResponse({ error: "Không lưu được đơn hàng" }, 500);
 
         let payos = null;
         try {
@@ -628,7 +637,7 @@ const handler = {
       }
     }
 
-    // 3. TẠO MÃ THANH TOÁN CHO MÁY POS
+    // 3. TẠO MÃ THANH TOÁN CHO POS
     if (url.pathname === "/api/create-payment" && request.method === "POST") {
       try {
         const body = await readJson(request, 10000);
@@ -691,10 +700,10 @@ const handler = {
       }
     }
 
-    // 6. GỬI DISCORD: PHÂN LUỒNG 3 KÊNH (WEB / POS BÁN HÀNG / CHẤM CÔNG)
+    // 6. GỬI DISCORD: CHIA CHÙM (BATCHING) CHO PHÉP NHIỀU ẢNH/VIDEO KHÔNG GIỚI HẠN
     if (url.pathname === "/api/notify" && request.method === "POST") {
       try {
-        const payload = await readJson(request, 600000);
+        const payload = await readJson(request, 35000000);
         let targetWebhook = env.DISCORD_WEBHOOK_URL;
 
         if (payload.is_checkin) {
@@ -707,36 +716,73 @@ const handler = {
           return jsonResponse({ ok: false, error: "Chưa cấu hình Discord Webhook" }, 400);
         }
 
-        if (payload.receipt_base64 || payload.image_base64) {
-          const formData = new FormData();
-          formData.append("payload_json", JSON.stringify({
-            content: payload.content,
-            embeds: payload.embeds
-          }));
+        // Tập hợp toàn bộ file cần gửi
+        const allFiles = [];
 
-          let fIndex = 0;
-          if (payload.receipt_base64) {
-            formData.append("files[" + fIndex + "]", base64ToBlob(payload.receipt_base64), "hoa-don-72mm.jpg");
-            fIndex++;
-          }
-          if (payload.image_base64) {
-            formData.append("files[" + fIndex + "]", base64ToBlob(payload.image_base64), "anh-xac-nhan.jpg");
-          }
-          await fetch(targetWebhook, { method: "POST", body: formData });
-        } else {
+        // 1. Hóa đơn 72mm (luôn gửi đầu tiên)
+        if (payload.receipt_base64) {
+          const blobReceipt = base64ToBlob(payload.receipt_base64, "image/jpeg");
+          if (blobReceipt) allFiles.push({ blob: blobReceipt, name: "hoa-don-72mm.jpg" });
+        }
+
+        // 2. Ảnh chấm công (nếu có)
+        if (payload.image_base64) {
+          const blobImg = base64ToBlob(payload.image_base64, "image/jpeg");
+          if (blobImg) allFiles.push({ blob: blobImg, name: "anh-cham-cong.jpg" });
+        }
+
+        // 3. Danh sách ảnh/video không giới hạn từ máy POS
+        if (Array.isArray(payload.media_list)) {
+          payload.media_list.forEach((m, idx) => {
+            const isVid = m.type === "video";
+            const ext = isVid ? "mp4" : "jpg";
+            const mime = isVid ? "video/mp4" : "image/jpeg";
+            const blobMedia = base64ToBlob(m.dataUrl, mime);
+            if (blobMedia) allFiles.push({ blob: blobMedia, name: "check-don-" + (idx + 1) + "." + ext });
+          });
+        }
+
+        if (allFiles.length === 0) {
           await fetch(targetWebhook, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ content: payload.content, embeds: payload.embeds })
           });
+        } else {
+          // Chia chùm tối đa 9 tệp/lần gửi để tránh chạm trần giới hạn 10 tệp của Discord
+          const CHUNK_SIZE = 9;
+          for (let i = 0; i < allFiles.length; i += CHUNK_SIZE) {
+            const chunk = allFiles.slice(i, i + CHUNK_SIZE);
+            const formData = new FormData();
+
+            if (i === 0) {
+              // Tin nhắn đầu tiên chứa đầy đủ thông tin hóa đơn và embeds
+              formData.append("payload_json", JSON.stringify({
+                content: payload.content,
+                embeds: payload.embeds
+              }));
+            } else {
+              // Các đợt gửi sau chỉ báo tệp đính kèm tiếp theo
+              formData.append("payload_json", JSON.stringify({
+                content: `📎 *[Ảnh/Video bổ sung đợt ${Math.floor(i / CHUNK_SIZE) + 1}]*`
+              }));
+            }
+
+            chunk.forEach((f, cIdx) => {
+              formData.append("files[" + cIdx + "]", f.blob, f.name);
+            });
+
+            await fetch(targetWebhook, { method: "POST", body: formData });
+          }
         }
+
         return jsonResponse({ ok: true });
       } catch (err) {
         return jsonResponse({ error: err.message }, 500);
       }
     }
 
-    // 7. POS SYNC (ĐỒNG BỘ ĐƠN BÁN QUẦY, CHECK-IN, CHECK-OUT, DOANH THU VÀO SHEET)
+    // 7. POS SYNC GOOGLE SHEET
     if (url.pathname === "/api/pos-sync" && request.method === "POST") {
       try {
         const body = await readJson(request, 50000);
@@ -748,7 +794,7 @@ const handler = {
       }
     }
 
-    // 8. POS AUTH: ĐĂNG KÝ & ĐĂNG NHẬP QUA SERVICE ACCOUNT (CHỐNG LỖI PERMISSION FIREBASE)
+    // 8. POS AUTH
     if (url.pathname === "/api/pos-auth" && request.method === "POST") {
       try {
         if (rateLimited(request, "pos_auth", 20, 60 * 1000)) {
@@ -774,7 +820,6 @@ const handler = {
             return jsonResponse({ ok: false, error: "Vui lòng nhập họ và tên nhân viên." }, 400);
           }
 
-          // Kiểm tra xem đã có ai đăng ký chưa (Người đầu tiên tự động thành SẾP)
           const checkRes = await fsFetch(env, FS_BASE + ":runQuery", {
             method: "POST",
             body: JSON.stringify({
@@ -798,16 +843,13 @@ const handler = {
             body: JSON.stringify({ fields: toFsFields(newUser) })
           });
 
-          if (!createRes.ok) {
-            return jsonResponse({ ok: false, error: "Không thể tạo tài khoản lúc này." }, 500);
-          }
+          if (!createRes.ok) return jsonResponse({ ok: false, error: "Không thể tạo tài khoản lúc này." }, 500);
 
           return jsonResponse({
             ok: true,
             user: { phone: phone, name: name, role: role }
           });
         } else {
-          // Chế độ Login
           if (!getRes.ok) {
             return jsonResponse({ ok: false, error: "Số điện thoại chưa được đăng ký! Bấm đăng ký bên dưới." }, 400);
           }

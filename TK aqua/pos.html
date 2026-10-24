@@ -280,6 +280,17 @@ input, textarea, select { -webkit-user-select: text; user-select: text; font-siz
 
 .bill-row-name,.bill-row-sub{display:block}
 .bill-row-name{margin-bottom:2px}
+
+/* ===== SỬA TRÀN NGANG TRÊN IPHONE ===== */
+html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }
+.pos-app, .pos-body, .pos-catalog, .pos-controls, .pos-grid, .pos-item, .pos-item-text, .search-box, .source-tabs, .nav-actions, .header-top { min-width: 0; }
+.pos-app { width: 100%; }
+.pos-body { grid-template-columns: minmax(0, 1fr) 400px; }
+.pos-item-name, .pos-item-meta { overflow-wrap: anywhere; }
+.modal-back { display: block; position: sticky; top: -20px; z-index: 2; margin: -4px 0 10px; padding: 10px 14px; min-height: 44px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--accent); font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px; cursor: pointer; text-align: left; }
+@media (max-width: 860px) {
+  .pos-body { grid-template-columns: minmax(0, 1fr); }
+}
 </style>
 </head>
 <body>
@@ -389,7 +400,7 @@ input, textarea, select { -webkit-user-select: text; user-select: text; font-siz
   </div>
 </div>
 
-<div class="modal-overlay" id="posModal">
+<div class="modal-overlay" id="posModal" onclick="if(event.target===this)closePosModal()">
   <div class="modal-box" id="posModalBox"></div>
 </div>
 
@@ -415,7 +426,11 @@ function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function
 function authHeaders() { return { "Content-Type": "application/json", "Authorization": "Bearer " + ((currentUser && currentUser.token) || "") }; }
 function SessionExpired() { var e = new Error("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại"); e.expired = true; return e; }
 async function apiCall(path, body) {
-  var res = await fetch(API_BASE + path, { method: "POST", headers: authHeaders(), body: JSON.stringify(body) });
+  var ctl = new AbortController(), timer = setTimeout(function() { ctl.abort(); }, 30000);
+  var res;
+  try { res = await fetch(API_BASE + path, { method: "POST", headers: authHeaders(), body: JSON.stringify(body), signal: ctl.signal }); }
+  catch (e) { throw new Error(e.name === "AbortError" ? "Quá thời gian chờ, kiểm tra mạng hoặc Apps Script rồi thử lại" : "Không kết nối được máy chủ"); }
+  finally { clearTimeout(timer); }
   var data = null;
   try { data = await res.json(); } catch (e) {}
   if (res.status === 401) { forceRelogin(); throw SessionExpired(); }
@@ -728,8 +743,13 @@ window.toggleMobileBill = function(open) {
 };
 
 window.showPosModal = function(html) {
-  document.getElementById("posModalBox").innerHTML = html;
+  document.getElementById("posModalBox").innerHTML =
+    '<button class="modal-back" onclick="closePosModal()">← Quay lại</button>' + html;
   document.getElementById("posModal").classList.add("show");
+};
+window.showModalError = function(title, msg) {
+  showPosModal('<h3>' + esc(title) + '</h3><div class="sync-line err">' + esc(msg) + '</div>' +
+    '<button class="btn-pay qr" style="width:100%;" onclick="closePosModal()">← Quay lại</button>');
 };
 window.closePosModal = function() {
   if (activePollInterval) { clearInterval(activePollInterval); activePollInterval = null; }
@@ -999,7 +1019,7 @@ window.executeOrderProcess = async function() {
         }
       } catch (e) {}
     }, 2200);
-  } catch (err) { alert("Lỗi QR: " + err.message); }
+  } catch (err) { showModalError("Không tạo được mã QR", err.message); }
 };
 
 window.completeAndEmitReceipt = async function(orderData) {
@@ -1166,8 +1186,7 @@ window.submitCheckInOut = async function(type) {
       <button class="btn-pay qr" style="width:100%;margin-top:10px;" onclick="closePosModal()">Đóng</button>
     `);
   } catch (err) {
-    alert("Chưa ghi được vào Google Sheet: " + err.message);
-    btnIn.disabled = false; btnOut.disabled = false;
+    showModalError("Chấm công chưa thành công", "Chưa ghi được vào Google Sheet: " + err.message);
   }
 };
 
@@ -1212,8 +1231,7 @@ window.openTimesheetModal = async function() {
       <button class="btn-pay qr" style="width:100%;margin-top:6px;" onclick="closePosModal()">Đóng</button>
     `);
   } catch (err) {
-    alert("Không tải được bảng công: " + err.message);
-    closePosModal();
+    showModalError("Không tải được bảng công", err.message);
   }
 };
 
@@ -1235,7 +1253,7 @@ window.openTodayReport = async function() {
       </div>
       <button class="btn-pay qr" style="width:100%;margin-top:10px;" onclick="closePosModal()">Đóng</button>
     `);
-  } catch (e) { alert("Lỗi tải doanh thu: " + e.message); closePosModal(); }
+  } catch (e) { showModalError("Không tải được doanh thu", e.message); }
 };
 
 // ĐĂNG NHẬP / ĐĂNG KÝ

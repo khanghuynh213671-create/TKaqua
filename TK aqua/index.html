@@ -2192,7 +2192,7 @@ window.showCheckoutModal = function(tienHang) {
   if (!tienHang) tienHang = 0;
   clearTimeout(modalTimer);
   return new Promise(function(resolve) {
-    const defaultShip = 110000;
+    const defaultShip = 40000;
     const initGrandTotal = tienHang + defaultShip;
     const savedPhone = localStorage.getItem("tka_last_phone") ? localStorage.getItem("tka_last_phone") : "";
     const savedName = localStorage.getItem("tka_last_name") ? localStorage.getItem("tka_last_name") : "";
@@ -2206,10 +2206,10 @@ window.showCheckoutModal = function(tienHang) {
       + '<div class="form-group"><label>Địa chỉ nhận hàng *</label><textarea id="chkAddress" placeholder="Số nhà, đường, Phường/Xã, Quận/Huyện, Tỉnh/TP...">' + esc(savedAddress) + '</textarea></div>'
       + '<div class="form-group"><label>Khu vực & Phương thức giao hàng *</label>'
       + '<select id="chkShipping">'
-      + '<option value="110000" data-label="Nội thành TP.HCM (Hộp đóng hàng + Ship Grab/Ahamove)">Nội thành TP.HCM (Hộp + Ship app): +110.000đ</option>'
-      + '<option value="210000" data-label="Tỉnh / Ngoại thành (Hộp đóng hàng + Xe khách)">Tỉnh / Ngoại thành (Hộp + Xe khách): +210.000đ</option>'
-      + '<option value="500000" data-label="Quốc tế / Đi máy bay (Đóng gói chuyên dụng + Cước bay)">Quốc tế / Đi máy bay (Đóng gói + Cước bay): +500.000đ</option>'
-      + '</select></div>'
+      + '<option value="40000" data-label="J&T Miền Nam (1-2 ngày, đã gồm thùng)">J&T Miền Nam · 1-2 ngày (đã gồm thùng): +40.000đ</option>'
+      + '<option value="50000" data-label="J&T Miền Trung/Bắc (2-3 ngày, đã gồm thùng)">J&T Miền Trung, Bắc · 2-3 ngày (đã gồm thùng): +50.000đ</option>'
+      + '<option value="100000" data-label="Chành xe (Ship + Chành + Thùng)">Chành xe (ship + chành + thùng): +100.000đ</option>'
+      + '</select><div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Giao đi nước ngoài: vui lòng liên hệ Zalo 0703.008.005.</div></div>'
       + '<div class="form-group"><label>Ghi chú</label><input type="text" id="chkNote" placeholder="Giao giờ hành chính, gửi nhà xe..."></div>'
       + '<div class="checkout-summary-box">'
       + '<div class="summary-line"><span>Tiền sản phẩm:</span><b>' + money(tienHang) + 'đ</b></div>'
@@ -2247,7 +2247,7 @@ window.showCheckoutModal = function(tienHang) {
       const rawPhone = document.getElementById('chkPhone').value.replace(/[\s\.\-\+]/g, '');
       const address = document.getElementById('chkAddress').value.trim();
       const note = document.getElementById('chkNote').value.trim();
-      const shipFee = parseInt(shipSelect.value) ? parseInt(shipSelect.value) : 110000;
+      const shipFee = parseInt(shipSelect.value) ? parseInt(shipSelect.value) : 40000;
       const shipMethod = shipSelect.options[shipSelect.selectedIndex].getAttribute('data-label');
 
       if (!name) {

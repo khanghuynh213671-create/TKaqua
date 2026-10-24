@@ -301,7 +301,7 @@ function parseCSV(str, sourceGroup, sheetTabHint) {
     } else {
       if (c === '"') inQuotes = true;
       else if (c === ',') { row.push(curr); curr = ''; }
-      else if (c === '\n' || char === '\r') {
+      else if (c === '\n' || c === '\r') {
         if (c === '\r' && str[i+1] === '\n') i++;
         row.push(curr); curr = ''; rows.push(row); row = [];
       } else curr += c;
@@ -724,7 +724,7 @@ window.completeAndEmitReceipt = async function(orderData, photoBase64) {
 };
 
 // =========================================================================
-// CHẤM CÔNG (CHECK-IN / CHECK-OUT) KÈM ẢNH (BẮN VÀO CHECKIN_DISCORD_WEBHOOK_URL)
+// CHẤM CÔNG (CHECK-IN / CHECK-OUT) KÈM ẢNH
 // =========================================================================
 var capturedCheckinPhoto = null;
 
@@ -797,7 +797,7 @@ window.submitCheckInOut = async function(type) {
     });
     var data = await res.json();
 
-    // Báo Discord (dùng kênh riêng CHECKIN_DISCORD_WEBHOOK_URL thông qua is_checkin: true)
+    // Báo Discord qua kênh CHECKIN_DISCORD_WEBHOOK_URL
     fetch(API_BASE + "/api/notify", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -899,138 +899,106 @@ window.openTodayReport = async function() {
     `);
   } catch (e) { alert("Lỗi tải doanh thu: " + e.message); closePosModal(); }
 };
-</script>
 
-<!-- FIREBASE AUTH -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+// ĐĂNG NHẬP / ĐĂNG KÝ QUA WORKER BACKEND (ĐÃ FIX LỖI PERMISSION)
+function showAuthErr(msg) {
+  var el = document.getElementById("authError");
+  el.textContent = msg;
+  el.style.display = "block";
+}
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyB05d2OGQLkMiOQQrXRLtfE8tUVb3f5iMs",
-    authDomain: "tk-aqua.firebaseapp.com",
-    projectId: "tk-aqua",
-    storageBucket: "tk-aqua.firebasestorage.app",
-    messagingSenderId: "2700293713",
-    appId: "1:2700293713:web:cb704001cba8b33554ea70",
-    measurementId: "G-JTVTCH34S1"
-  };
+window.toggleAuthMode = function() {
+  document.getElementById("authError").style.display = "none";
+  isRegisterMode = !isRegisterMode;
+  document.getElementById("authNameGroup").style.display = isRegisterMode ? "block" : "none";
+  document.getElementById("authModeDesc").textContent = isRegisterMode ? "Đăng ký tài khoản nhân viên mới" : "Đăng nhập tài khoản bán hàng";
+  document.getElementById("btnAuthSubmit").textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
+  document.getElementById("btnToggleAuthMode").textContent = isRegisterMode ? "Đã có tài khoản? Đăng nhập ngay" : "Chưa có tài khoản? Đăng ký ngay";
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+window.handleAuthAction = async function() {
+  document.getElementById("authError").style.display = "none";
+  var phone = document.getElementById("authPhoneInput").value.trim().replace(/[^0-9]/g, "");
+  var pass = document.getElementById("authPassInput").value.trim();
+  var name = document.getElementById("authNameInput").value.trim();
 
-  function showAuthErr(msg) {
-    const el = document.getElementById("authError");
-    el.textContent = msg; el.style.display = "block";
-  }
+  if (!/^0[0-9]{9}$/.test(phone)) return showAuthErr("Số điện thoại gồm 10 chữ số, bắt đầu bằng số 0.");
+  if (pass.length < 4) return showAuthErr("Mật khẩu ít nhất 4 ký tự.");
+  if (isRegisterMode && !name) return showAuthErr("Vui lòng nhập họ và tên nhân viên.");
 
-  window.toggleAuthMode = function() {
-    document.getElementById("authError").style.display = "none";
-    isRegisterMode = !isRegisterMode;
-    document.getElementById("authNameGroup").style.display = isRegisterMode ? "block" : "none";
-    document.getElementById("authModeDesc").textContent = isRegisterMode ? "Đăng ký tài khoản nhân viên mới" : "Đăng nhập tài khoản bán hàng";
-    document.getElementById("btnAuthSubmit").textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
-    document.getElementById("btnToggleAuthMode").textContent = isRegisterMode ? "Đã có tài khoản? Đăng nhập ngay" : "Chưa có tài khoản? Đăng ký ngay";
-  };
+  var btn = document.getElementById("btnAuthSubmit");
+  btn.disabled = true;
+  btn.textContent = "ĐANG XỬ LÝ...";
 
-  window.handleAuthAction = async function() {
-    document.getElementById("authError").style.display = "none";
-    const phone = document.getElementById("authPhoneInput").value.trim().replace(/[^0-9]/g, '');
-    const pass = document.getElementById("authPassInput").value.trim();
-    const name = document.getElementById("authNameInput").value.trim();
+  try {
+    var res = await fetch(API_BASE + "/api/pos-auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: isRegisterMode ? "register" : "login",
+        phone: phone,
+        password: pass,
+        name: name
+      })
+    });
+    var data = await res.json();
 
-    if (!/^0[0-9]{9}$/.test(phone)) return showAuthErr("Số điện thoại gồm 10 chữ số, bắt đầu bằng số 0.");
-    if (pass.length < 4) return showAuthErr("Mật khẩu ít nhất 4 ký tự.");
-
-    const btn = document.getElementById("btnAuthSubmit");
-    btn.disabled = true; btn.textContent = "Đang xử lý...";
-
-    try {
-      const userRef = doc(db, "nhan_vien", phone);
-      const userSnap = await getDoc(userRef);
-
-      if (isRegisterMode) {
-        if (userSnap.exists()) {
-          showAuthErr("Số điện thoại này đã đăng ký! Hãy đăng nhập.");
-          btn.disabled = false; btn.textContent = "Tạo Tài Khoản";
-          return;
-        }
-        if (!name) {
-          showAuthErr("Vui lòng nhập họ tên.");
-          btn.disabled = false; btn.textContent = "Tạo Tài Khoản";
-          return;
-        }
-
-        const allUsers = await getDocs(query(collection(db, "nhan_vien"), limit(2)));
-        const role = allUsers.empty ? "sep" : "nhan_vien";
-
-        const newUserData = { phone, name, password: pass, role, created_at: serverTimestamp() };
-        await setDoc(userRef, newUserData);
-        applyUser(newUserData);
-      } else {
-        if (!userSnap.exists()) {
-          showAuthErr("SĐT chưa đăng ký! Bấm đăng ký bên dưới.");
-          btn.disabled = false; btn.textContent = "Đăng Nhập";
-          return;
-        }
-        const data = userSnap.data();
-        if (data.password !== pass) {
-          showAuthErr("Mật khẩu không đúng!");
-          btn.disabled = false; btn.textContent = "Đăng Nhập";
-          return;
-        }
-        applyUser(data);
-      }
-    } catch (e) {
-      showAuthErr("Lỗi kết nối: " + e.message);
-    } finally {
+    if (!res.ok || !data.ok) {
+      showAuthErr(data.error || "Đăng nhập thất bại");
       btn.disabled = false;
+      btn.textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
+      return;
     }
-  };
 
-  function applyUser(u) {
-    currentUser = u;
-    localStorage.setItem("tka_logged_user", JSON.stringify(u));
-    const roleBadge = document.getElementById("headerUserRole");
-    const isSep = u.role === "sep";
-    roleBadge.textContent = isSep ? "SẾP" : "NV";
-    roleBadge.className = "role-badge " + (isSep ? "sep" : "nv");
-    document.getElementById("btnTodayOwner").style.display = isSep ? "inline-flex" : "none";
-    document.getElementById("authOverlay").style.display = "none";
+    applyUser(data.user);
+  } catch (e) {
+    showAuthErr("Lỗi kết nối: " + e.message);
+    btn.disabled = false;
+    btn.textContent = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
   }
+};
 
-  window.showAccountMenu = function() {
-    if (!currentUser) return;
-    showPosModal(`
-      <h3>👤 Tài Khoản Nhân Viên</h3>
-      <div class="receipt-box">
-        <div><b>Họ tên:</b> ${currentUser.name}</div>
-        <div><b>Số điện thoại:</b> ${currentUser.phone}</div>
-        <div><b>Quyền hạn:</b> <b style="color:${currentUser.role === 'sep' ? '#ffcc00' : 'var(--accent)'};">${currentUser.role === 'sep' ? 'SẾP (Toàn quyền)' : 'Nhân viên bán hàng'}</b></div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn-pay cash" style="flex:1;" onclick="logoutPOS()">Đăng xuất</button>
-        <button class="btn-pay qr" style="flex:1;" onclick="closePosModal()">Đóng</button>
-      </div>
-    `);
-  };
+function applyUser(u) {
+  currentUser = u;
+  localStorage.setItem("tka_logged_user", JSON.stringify(u));
+  var roleBadge = document.getElementById("headerUserRole");
+  var isSep = u.role === "sep";
+  roleBadge.textContent = isSep ? "SẾP" : "NV";
+  roleBadge.className = "role-badge " + (isSep ? "sep" : "nv");
+  document.getElementById("btnTodayOwner").style.display = isSep ? "inline-flex" : "none";
+  document.getElementById("authOverlay").style.display = "none";
+}
 
-  window.logoutPOS = function() {
-    if (confirm("Đăng xuất khỏi POS?")) {
-      localStorage.removeItem("tka_logged_user");
-      location.reload();
-    }
-  };
+window.showAccountMenu = function() {
+  if (!currentUser) return;
+  showPosModal(
+    '<h3>👤 Tài Khoản Nhân Viên</h3>' +
+    '<div class="receipt-box">' +
+    '<div><b>Họ tên:</b> ' + currentUser.name + '</div>' +
+    '<div><b>Số điện thoại:</b> ' + currentUser.phone + '</div>' +
+    '<div><b>Quyền hạn:</b> <b style="color:' + (currentUser.role === "sep" ? "#ffcc00" : "var(--accent)") + ';">' + (currentUser.role === "sep" ? "SẾP (Toàn quyền)" : "Nhân viên bán hàng") + '</b></div>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<button class="btn-pay cash" style="flex:1;" onclick="logoutPOS()">Đăng xuất</button>' +
+    '<button class="btn-pay qr" style="flex:1;" onclick="closePosModal()">Đóng</button>' +
+    '</div>'
+  );
+};
 
-  const saved = localStorage.getItem("tka_logged_user");
-  if (saved) {
-    try { applyUser(JSON.parse(saved)); } catch (e) {}
-  } else {
-    document.getElementById("authOverlay").style.display = "flex";
+window.logoutPOS = function() {
+  if (confirm("Đăng xuất khỏi POS?")) {
+    localStorage.removeItem("tka_logged_user");
+    location.reload();
   }
-</script>
+};
 
-<script>
+var saved = localStorage.getItem("tka_logged_user");
+if (saved) {
+  try { applyUser(JSON.parse(saved)); } catch (e) {}
+} else {
+  document.getElementById("authOverlay").style.display = "flex";
+}
+
 reloadInventory(false);
 renderBill();
 </script>
